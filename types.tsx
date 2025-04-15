@@ -1,0 +1,6 @@
+export enum ParticipantProfile {
+  COORDINATOR = "COORDINATOR",
+  CAPTAIN = "CAPTAIN",
+  PARTICIPANT = "PARTICIPANT",
+  ADMIN_ANALYST = "ADMIN_ANALYST",
+}

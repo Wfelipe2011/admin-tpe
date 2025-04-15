@@ -1,0 +1,14 @@
+export enum ParticipantProfile {
+  COORDINATOR = "COORDINATOR",
+  CAPTAIN = "CAPTAIN",
+  PARTICIPANT = "PARTICIPANT",
+  ADMIN_ANALYST = "ADMIN_ANALYST",
+}
+
+export interface IToken {
+  sub: string
+  name: string
+  exp: number
+  profile: ParticipantProfile | string
+  groupId?: string
+}
