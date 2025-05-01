@@ -340,9 +340,12 @@ export function useDesignation() {
     if (!designationData?.id) return
 
     try {
-      const response = await apiClient.put<IDesignationParticipants>(`/points/${pointId}`, {
-        status,
-      })
+      const response = await apiClient.patch<IDesignationParticipants>(
+        `/designations/${designationData.id}/points/${pointId}`,
+        {
+          status,
+        },
+      )
 
       // Atualiza o estado completo com a resposta da API
       setDesignationData(response)

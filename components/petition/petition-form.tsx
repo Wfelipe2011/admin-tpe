@@ -7,7 +7,6 @@ import { Form } from "@/components/ui/form"
 import { usePetitionForm } from "@/hooks/use-petition-form"
 import { ProfilePhotoSection } from "./sections/profile-photo-section"
 import { PersonalInfoSection } from "./sections/personal-info-section"
-import { AddressSection } from "./sections/address-section"
 import { SpiritualInfoSection } from "./sections/spiritual-info-section"
 import { AvailabilitySection } from "./sections/availability-section"
 import dayjs from "dayjs"
@@ -63,8 +62,6 @@ export function PetitionForm({ petitionId, petitionData }: PetitionFormProps) {
               hasBaptismDate={hasBaptismDate}
               diffsFromBaptismDateToTodayIsMoreThan14Years={diffsFromBaptismDateToTodayIsMoreThan14Years}
             />
-
-            <AddressSection isCepLoading={isCepLoading} handleCepChange={handleCepChange} />
 
             <SpiritualInfoSection handleCongregationChange={handleCongregationChange} isLoading={isLoading} />
 
