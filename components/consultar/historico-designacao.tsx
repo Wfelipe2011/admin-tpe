@@ -10,7 +10,7 @@ import { apiClient } from "@/lib/api-client"
 import { getUserFromToken } from "@/lib/auth-utils"
 import type { IDesignationHistory } from "@/types/designation-history"
 import { DesignationViewModal } from "./designation-view-modal"
-import Cookies from "js-cookie"
+import { useGroupStore } from "@/lib/stores/use-group-store"
 
 export function HistoricoDesignacao() {
   const [designations, setDesignations] = useState<IDesignationHistory[]>([])
@@ -21,19 +21,28 @@ export function HistoricoDesignacao() {
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [selectedDesignationId, setSelectedDesignationId] = useState<string | null>(null)
 
+  // Use the Zustand store instead of cookies
+  const { selectedGroupId } = useGroupStore()
+
   const fetchDesignations = async () => {
     setLoading(true)
     try {
       const user = getUserFromToken()
-      if (!user || !user.groupId) {
-        console.error("User or groupId not found in token")
+      if (!user) {
+        console.error("User not found in token")
         setLoading(false)
         return
       }
 
-      // First try to get groupId from cookies, then fall back to user.groupId
-      const cookieGroupId = Cookies.get("selectedGroupId")
-      const groupId = cookieGroupId || user.groupId
+      // If selectedGroupId is "todos", don't fetch any designations
+      if (selectedGroupId === "todos") {
+        setDesignations([])
+        setLoading(false)
+        return
+      }
+
+      // Use the selectedGroupId from Zustand store
+      const groupId = selectedGroupId
       let url = `/groups/${groupId}/designations`
 
       // Add date filters if they exist
@@ -65,9 +74,10 @@ export function HistoricoDesignacao() {
     }
   }
 
+  // Update useEffect to watch for changes in selectedGroupId
   useEffect(() => {
     fetchDesignations()
-  }, [dateFrom, dateTo])
+  }, [dateFrom, dateTo, selectedGroupId])
 
   const filteredDesignations = designations
 
@@ -128,6 +138,17 @@ export function HistoricoDesignacao() {
     setDateTo(undefined)
     // Explicitly call fetchDesignations after clearing dates
     setTimeout(() => fetchDesignations(), 0)
+  }
+
+  // If selectedGroupId is "todos", show a message instead of the table
+  if (selectedGroupId === "todos") {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <p className="text-lg text-gray-500 mb-4">
+          Selecione um grupo específico para visualizar o histórico de designações.
+        </p>
+      </div>
+    )
   }
 
   return (

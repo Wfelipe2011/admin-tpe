@@ -4,77 +4,27 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import { ProtectedLayout } from "@/app/layout-protected"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DonutChart } from "@/components/dashboard/donut-chart"
-import type { IGroups } from "@/types/groups"
 import type { IDashboard } from "@/types/dashboard"
 import { apiClient } from "@/lib/api-client"
-import Cookies from "js-cookie"
+import { useGroupStore } from "@/lib/stores/use-group-store"
 
-// Import getUserFromToken to get the user's profile and groupId
-import { getUserFromToken } from "@/lib/auth-utils"
+// Remove the Cookies import since we're using Zustand now
 
-// Add a helper function to sort groups by weekday and start time
-const sortGroupsByWeekdayAndTime = (groups: IGroups[]) => {
-  const weekdayOrder: Record<string, number> = {
-    SUNDAY: 0,
-    MONDAY: 1,
-    TUESDAY: 2,
-    WEDNESDAY: 3,
-    THURSDAY: 4,
-    FRIDAY: 5,
-    SATURDAY: 6,
-    DOMINGO: 0,
-    SEGUNDA: 1,
-    TERCA: 2,
-    QUARTA: 3,
-    QUINTA: 4,
-    SEXTA: 5,
-    SABADO: 6,
-  }
-
-  return [...groups].sort((a, b) => {
-    // First sort by weekday
-    const weekdayA = weekdayOrder[a.configWeekday] || 0
-    const weekdayB = weekdayOrder[b.configWeekday] || 0
-
-    if (weekdayA !== weekdayB) {
-      return weekdayA - weekdayB
-    }
-
-    // Then sort by start time
-    return a.configStartHour.localeCompare(b.configStartHour)
-  })
-}
-
-// Add a new function to format the metric values
+// Add a helper function to format the metric values
 const formatMetricValue = (value: number | string): string => {
   return value
 }
 
 export default function DashboardPage() {
-  const [groups, setGroups] = useState<IGroups[]>([])
-  // Update the useState for selectedGroupId to check the user's profile
-  const [selectedGroupId, setSelectedGroupId] = useState<string>(() => {
-    // Get user from token
-    const user = getUserFromToken()
+  // Use the Zustand store instead of local state and cookies
+  const { selectedGroupId } = useGroupStore()
 
-    // If user is CAPTAIN, force select their group
-    if (user?.profile === "CAPTAIN" && user?.groupId) {
-      return user.groupId
-    }
-
-    // Otherwise, use cookie or default to "todos"
-    return Cookies.get("selectedGroupId") || "todos"
-  })
   const [dashboardData, setDashboardData] = useState<IDashboard | null>(null)
-  const [isLoadingGroups, setIsLoadingGroups] = useState<boolean>(true)
   const [isLoadingDashboard, setIsLoadingDashboard] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  // Add state to track if select should be disabled
-  const [isSelectDisabled, setIsSelectDisabled] = useState<boolean>(false)
   const [namesVisible, setNamesVisible] = useState<boolean>(false)
 
   const toggleNamesVisibility = () => {
@@ -86,38 +36,13 @@ export default function DashboardPage() {
     }, 30000) // 30 segundos
   }
 
-  // Fetch groups
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        setIsLoadingGroups(true)
-        const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
-        const sortedGroups = sortGroupsByWeekdayAndTime(data)
-        setGroups(sortedGroups)
-        setError(null)
-      } catch (err) {
-        console.error("Erro ao buscar grupos:", err)
-        setError("Não foi possível carregar os grupos. Tente novamente mais tarde.")
-      } finally {
-        setIsLoadingGroups(false)
-      }
-    }
-
-    fetchGroups()
-  }, [])
+  // Remove the cookie checking effect since we're using Zustand now
 
   // Fetch dashboard data when selectedGroupId changes
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setIsLoadingDashboard(true)
-
-        // Save selected group to cookie
-        if (selectedGroupId === "todos") {
-          Cookies.remove("selectedGroupId")
-        } else {
-          Cookies.set("selectedGroupId", selectedGroupId, { expires: 30 }) // expires in 30 days
-        }
 
         // Build URL with query parameter if a specific group is selected
         const url = selectedGroupId === "todos" ? "/dashboard" : `/dashboard?groupId=${selectedGroupId}`
@@ -136,28 +61,6 @@ export default function DashboardPage() {
 
     fetchDashboardData()
   }, [selectedGroupId])
-
-  // Format weekday for display
-  const formatWeekday = (weekday: string) => {
-    const weekdayMap: Record<string, string> = {
-      SUNDAY: "Domingo",
-      MONDAY: "Segunda",
-      TUESDAY: "Terça",
-      WEDNESDAY: "Quarta",
-      THURSDAY: "Quinta",
-      FRIDAY: "Sexta",
-      SATURDAY: "Sábado",
-      DOMINGO: "Domingo",
-      SEGUNDA: "Segunda",
-      TERCA: "Terça",
-      QUARTA: "Quarta",
-      QUINTA: "Quinta",
-      SEXTA: "Sexta",
-      SABADO: "Sábado",
-    }
-
-    return weekdayMap[weekday] || weekday
-  }
 
   // Calculate percentage for male/female ratio
   const calculateGenderPercentage = () => {
@@ -184,7 +87,6 @@ export default function DashboardPage() {
   }
 
   // Add this function to calculate the percentage of valid trainings
-  // Add it near the other calculate functions (like calculateGenderPercentage)
   const calculateTrainingsPercentage = () => {
     if (!dashboardData?.trainings) return 0
 
@@ -194,50 +96,12 @@ export default function DashboardPage() {
     return Math.round((dashboardData.trainings.valid / total) * 100)
   }
 
-  // Add useEffect to check user profile and set select disabled state
-  useEffect(() => {
-    const user = getUserFromToken()
-
-    // If user is CAPTAIN, disable the select
-    if (user?.profile === "CAPTAIN") {
-      setIsSelectDisabled(true)
-    }
-  }, [])
-
-  const isLoading = isLoadingGroups || isLoadingDashboard
+  const isLoading = isLoadingDashboard
 
   return (
     <ProtectedLayout title="Dashboard" breadcrumbs={[]}>
       <div className="space-y-8">
-        <div className="w-64">
-          {/* Update the Select component to use the isSelectDisabled state */}
-          <Select
-            value={selectedGroupId}
-            onValueChange={setSelectedGroupId}
-            disabled={isLoadingGroups || isSelectDisabled}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={isLoadingGroups ? "Carregando grupos..." : "Selecione um grupo"} />
-            </SelectTrigger>
-            <SelectContent>
-              {/* Only show "Todos os Grupos" option if user is not CAPTAIN */}
-              {!isSelectDisabled && <SelectItem value="todos">Todos os Grupos</SelectItem>}
-
-              {/* Filter groups if user is CAPTAIN */}
-              {groups
-                .filter((group) => {
-                  const user = getUserFromToken()
-                  return !isSelectDisabled || group.id === user?.groupId
-                })
-                .map((group) => (
-                  <SelectItem key={group.id} value={group.id}>
-                    {group.name} - {formatWeekday(group.configWeekday)} {group.configStartHour}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-        </div>
+        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Dados Gerais */}
@@ -372,8 +236,6 @@ interface ChartCardProps {
   percentage: number
 }
 
-// Update the ChartCard component to use the new DonutChart props
-
 function ChartCard({ title, percentage }: ChartCardProps) {
   // Calculate additional data based on the chart type
   let centerText = `${percentage}%`
@@ -412,14 +274,13 @@ function PersonItem({ name, count, image, blurred = false }: PersonItemProps) {
     <div className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer">
       <div className="flex items-center gap-3">
         <Avatar>
-          <AvatarImage src={image} alt={name} />
+          <AvatarImage src={image || "/placeholder.svg"} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
         <span className={`font-medium ${blurred ? "blur-sm select-none" : ""}`}>{name}</span>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium bg-red-100 text-red-800 px-2 py-1 rounded-full">{count}</span>
-        {/*<ChevronRight className="h-5 w-5 text-gray-400" />*/}
       </div>
     </div>
   )

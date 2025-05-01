@@ -5,6 +5,7 @@ import { useState } from "react"
 import type { IToken } from "@/types/auth"
 import { logout } from "@/lib/auth-utils"
 import { Button } from "@/components/ui/button"
+import { GroupSelector } from "@/components/group-selector"
 
 interface TopBarProps {
   title: string
@@ -47,6 +48,11 @@ export function TopBar({ title, user, sidebarOpen, toggleSidebar }: TopBarProps)
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Add the GroupSelector component here */}
+          <div className="hidden md:block">
+            <GroupSelector />
+          </div>
+
           {user && (
             <div className="relative">
               <button
@@ -69,10 +75,15 @@ export function TopBar({ title, user, sidebarOpen, toggleSidebar }: TopBarProps)
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <div className="absolute right-0 mt-2 w-64 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                   <div className="px-4 py-2 text-sm text-gray-700 border-b">
                     <p className="font-medium">{user.name}</p>
                     <p className="text-xs text-gray-500">{translateProfile(user.profile)}</p>
+                  </div>
+                  {/* Add the GroupSelector for mobile view with isMobileView prop */}
+                  <div className="md:hidden px-4 py-2 border-b">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Grupo selecionado:</p>
+                    <GroupSelector className="w-full" isMobileView={true} />
                   </div>
                   <button
                     onClick={logout}

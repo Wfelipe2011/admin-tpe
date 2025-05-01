@@ -4,14 +4,15 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Search, Filter, LayoutGrid, List, Clock } from "lucide-react"
+import { Search, Filter, LayoutGrid, List } from "lucide-react"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
 import { ParticipantCard } from "@/components/designation/participant-card"
 import { ParticipantCardLarge } from "@/components/designation/participant-card-large"
+import { DesignationCountdown } from "@/components/designation/designation-countdown"
 import type { IParticipants, IDesignation } from "@/types/designation"
 import Link from "next/link"
-import Cookies from "js-cookie"
+import { useGroupStore } from "@/lib/stores/use-group-store"
 
 export function DesignationList() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list")
@@ -19,13 +20,7 @@ export function DesignationList() {
   const [designationDetails, setDesignationDetails] = useState<IDesignation | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [countdown, setCountdown] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  })
-  const [backgroundColor, setBackgroundColor] = useState("blue")
+  const { selectedGroupId } = useGroupStore()
 
   // Get user token and extract groupId
   const fetchData = async () => {
@@ -39,25 +34,17 @@ export function DesignationList() {
         return
       }
 
-      // First try to get groupId from cookies, then fall back to user.groupId
-      const cookieGroupId = Cookies.get("selectedGroupId")
-      const groupId = cookieGroupId || user.groupId
+      // Use selectedGroupId from Zustand store
+      const groupId = selectedGroupId || user.groupId
 
-      if (!groupId) {
-        console.error("No groupId found in cookie or user token")
+      if (!groupId || groupId === "todos") {
         setLoading(false)
         return
       }
 
-      // Rest of the function remains the same
       // Fetch designation details
       const designationData = await apiClient.get<IDesignation>(`/groups/${groupId}/designations/week-details`)
       setDesignationDetails(designationData)
-
-      // Calculate countdown if we have end date
-      if (designationData?.designation?.designationEndDate) {
-        startCountdown(new Date(designationData.designation.designationEndDate))
-      }
 
       // Fetch participants
       const participantsData = await apiClient.get<IParticipants[]>(`/participants?groupId=${groupId}`)
@@ -71,43 +58,7 @@ export function DesignationList() {
 
   useEffect(() => {
     fetchData()
-  }, [])
-
-  // Function to start countdown timer
-  const startCountdown = (endDate: Date) => {
-    const timer = setInterval(() => {
-      const now = new Date()
-      const difference = endDate.getTime() - now.getTime()
-      const total = difference
-
-      if (difference <= 0) {
-        clearInterval(timer)
-        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-        setBackgroundColor("green")
-        return
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000)
-
-      setCountdown({ days, hours, minutes, seconds })
-
-      // Set background color based on time remaining
-      if (days > 1) {
-        setBackgroundColor("blue")
-      } else if (total < 0) {
-        setBackgroundColor("green")
-      } else if (hours < 2) {
-        setBackgroundColor("red")
-      } else {
-        setBackgroundColor("yellow")
-      }
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }
+  }, [selectedGroupId]) // Add selectedGroupId to dependency array
 
   // Handle participant status change (absence added or removed)
   const handleParticipantStatusChange = () => {
@@ -118,9 +69,6 @@ export function DesignationList() {
   const filteredParticipants = participants.filter((participant) =>
     participant.name.toLowerCase().includes(searchTerm.toLowerCase()),
   )
-
-  // Format countdown for display
-  const formattedCountdown = `${countdown.days.toString().padStart(2, "0")}D ${countdown.hours.toString().padStart(2, "0")}:${countdown.minutes.toString().padStart(2, "0")}:${countdown.seconds.toString().padStart(2, "0")}`
 
   // Add the getStatusText function inside the component
   const getStatusText = (status: string) => {
@@ -158,44 +106,26 @@ export function DesignationList() {
     }
   }
 
-  return (
-    <>
-      {/* Countdown timers */}
-      <div className="w-full md:-mt-[3rem] mb-4 md:mb-0">
-        {/* Countdown timer desktop */}
-        <div className="hidden md:flex justify-end mb-4">
-          <div
-            className={`
-            flex flex-row items-center border-[1px] border-[solid] border-[#ccc] h-[46px] py-1 px-3 md:py-4 md:px-3 rounded-lg gap-2 justify-center
-            ${backgroundColor === "blue" ? "bg-blue-900" : ""}
-            ${backgroundColor === "yellow" ? "bg-yellow-900" : ""}
-            ${backgroundColor === "red" ? "bg-red-500" : ""}
-            ${backgroundColor === "green" ? "bg-green-500" : ""}
-            text-white
-          `}
-          >
-            <Clock className="h-4 w-4" />
-            <span className="text-sm font-medium">Prazo de Designação</span>
-            <span className="text-sm font-bold">{formattedCountdown}</span>
-          </div>
-        </div>
-        <div className="md:hidden w-full">
-          <div
-            className={`
-            flex flex-row items-center border-[1px] border-[solid] border-[#ccc] h-[46px] py-1 px-3 rounded-lg gap-2 justify-center w-full
-            ${backgroundColor === "blue" ? "bg-blue-900" : ""}
-            ${backgroundColor === "yellow" ? "bg-yellow-900" : ""}
-            ${backgroundColor === "red" ? "bg-red-500" : ""}
-            ${backgroundColor === "green" ? "bg-green-500" : ""}
-            text-white
-          `}
-          >
-            <Clock className="h-4 w-4" />
-            <span className="text-sm font-medium">Prazo de Designação</span>
-            <span className="text-sm font-bold">{formattedCountdown}</span>
-          </div>
+  // If "todos" is selected, show a message
+  if (selectedGroupId === "todos") {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mx-auto">
+        <div className="flex justify-center items-center h-64">
+          <p className="text-muted-foreground text-center">
+            Selecione um grupo específico para visualizar as designações.
+          </p>
         </div>
       </div>
+    )
+  }
+
+  return (
+    <>
+      {/* Countdown timer component */}
+      <DesignationCountdown
+        endDate={designationDetails?.designation?.designationEndDate || null}
+        className="md:-mt-[3rem] mb-4 md:mb-0"
+      />
 
       {/* Main content box */}
       <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mx-auto">

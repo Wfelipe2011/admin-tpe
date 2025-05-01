@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
 import { toast } from "@/components/ui/use-toast"
-import Cookies from "js-cookie"
+import { useGroupStore } from "@/lib/stores/use-group-store"
 import type { IDesignationParticipants, Assignment, Incident } from "@/types/designation-participants"
 
 // Hook para debounce de valores
@@ -41,11 +41,23 @@ export function useDesignation() {
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
   const isUpdatingRef = useRef(false)
+  const { selectedGroupId } = useGroupStore()
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
 
   // Fetch designation data from API
   const fetchDesignationData = async (isLoading = true) => {
+    // Se o grupo selecionado for "todos", não exibe nada
+    if (selectedGroupId === "todos") {
+      setDesignationData(null)
+      setAssignments([])
+      setParticipants([])
+      setFilteredParticipants([])
+      setFilteredAssignments([])
+      setLoading(false)
+      return
+    }
+
     // Evita múltiplas chamadas simultâneas
     if (isUpdatingRef.current) return
 
@@ -55,16 +67,15 @@ export function useDesignation() {
     try {
       const user = getUserFromToken()
 
-      if (!user || !user.groupId) {
-        console.error("User or groupId not found in token")
+      if (!user) {
+        console.error("User not found in token")
         setLoading(false)
         isUpdatingRef.current = false
         return
       }
 
-      // First try to get groupId from cookies, then fall back to user.groupId
-      const cookieGroupId = Cookies.get("selectedGroupId")
-      const groupId = cookieGroupId || user.groupId
+      // Use o groupId do Zustand store
+      const groupId = selectedGroupId || user.groupId
 
       const response = await apiClient.get<IDesignationParticipants>(
         `/groups/${groupId}/designations/week?groupId=${groupId}`,
@@ -87,7 +98,7 @@ export function useDesignation() {
     }
   }
 
-  // Configurar atualização automática a cada 30 segundos
+  // Configurar atualização automática a cada 30 segundos e quando o grupo mudar
   useEffect(() => {
     // Primeira chamada imediata
     fetchDesignationData()
@@ -102,11 +113,18 @@ export function useDesignation() {
     return () => {
       clearInterval(intervalId)
     }
-  }, [])
+  }, [selectedGroupId]) // Adiciona selectedGroupId como dependência
 
   // Fetch filtered data when search term changes
   useEffect(() => {
     const fetchFilteredData = async () => {
+      // Se o grupo selecionado for "todos", não exibe nada
+      if (selectedGroupId === "todos") {
+        setFilteredParticipants([])
+        setFilteredAssignments([])
+        return
+      }
+
       if (!debouncedSearchTerm || debouncedSearchTerm.length < 2) {
         // Reset to local filtering if search term is too short
         if (searchTerm) {
@@ -130,13 +148,14 @@ export function useDesignation() {
 
       try {
         const user = getUserFromToken()
-        if (!user || !user.groupId) {
-          console.error("User or groupId not found in token")
+        if (!user) {
+          console.error("User not found in token")
           return
         }
 
-        const cookieGroupId = Cookies.get("selectedGroupId")
-        const groupId = cookieGroupId || user.groupId
+        // Use o groupId do Zustand store
+        const groupId = selectedGroupId || user.groupId
+
         const response = await apiClient.get<IDesignationParticipants>(
           `/groups/${groupId}/designations/week?groupId=${groupId}&filter=${encodeURIComponent(debouncedSearchTerm)}`,
         )
@@ -169,7 +188,7 @@ export function useDesignation() {
     }
 
     fetchFilteredData()
-  }, [debouncedSearchTerm, participants, assignments])
+  }, [debouncedSearchTerm, participants, assignments, selectedGroupId]) // Adiciona selectedGroupId como dependência
 
   // Handle scroll for sticky counter
   useEffect(() => {
@@ -217,14 +236,15 @@ export function useDesignation() {
     setLoading(true)
     try {
       const user = getUserFromToken()
-      if (!user || !user.groupId) {
-        console.error("User or groupId not found in token")
+      if (!user) {
+        console.error("User not found in token")
         setLoading(false)
         return
       }
 
-      const cookieGroupId = Cookies.get("selectedGroupId")
-      const groupId = cookieGroupId || user.groupId
+      // Use o groupId do Zustand store
+      const groupId = selectedGroupId || user.groupId
+
       const response = await apiClient.get<IDesignationParticipants>(
         `/groups/${groupId}/designations/week?groupId=${groupId}&random=true`,
       )
