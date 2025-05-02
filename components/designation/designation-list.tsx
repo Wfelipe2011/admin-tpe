@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Search, Filter, LayoutGrid, List } from "lucide-react"
+import { Search, LayoutGrid, List } from "lucide-react"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
 import { ParticipantCard } from "@/components/designation/participant-card"
@@ -15,7 +15,7 @@ import Link from "next/link"
 import { useGroupStore } from "@/lib/stores/use-group-store"
 
 export function DesignationList() {
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list")
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid")
   const [participants, setParticipants] = useState<IParticipants[]>([])
   const [designationDetails, setDesignationDetails] = useState<IDesignation | null>(null)
   const [loading, setLoading] = useState(true)
@@ -148,7 +148,7 @@ export function DesignationList() {
             </div>
             <Link href="/lista-designacao/designar">
               <Button size="sm" className="px-4 w-full xs:w-auto">
-                Designar
+                {designationDetails?.designation?.status === "OPEN" ? "Designar" : "Consultar Designação"}
               </Button>
             </Link>
           </div>
@@ -165,10 +165,6 @@ export function DesignationList() {
               />
             </div>
             <div className="flex flex-wrap gap-2 items-center justify-between sm:justify-start w-full sm:w-auto">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                <span className="hidden sm:inline">Filtrar</span>
-              </Button>
               <div className="flex border rounded-md overflow-hidden">
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
