@@ -104,18 +104,20 @@ export function ParticipantCard({ participant, groupId, onUpdate }: ParticipantC
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Função</DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => handleChangeProfile("CAPTAIN")}>Capitão</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}>
-                    Capitão Assistente
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChangeProfile("PARTICIPANT")}>Participante</DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
+            {participant.sex === "MALE" && (
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Função</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => handleChangeProfile("CAPTAIN")}>Capitão</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}>
+                      Capitão Assistente
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChangeProfile("PARTICIPANT")}>Participante</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            )}
             <DropdownMenuItem disabled>Trocar de dia</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleRemoveParticipant}>

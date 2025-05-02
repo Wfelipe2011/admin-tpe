@@ -104,9 +104,19 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
             <AvatarFallback>{participant.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium">{participant.name}</span>
-              <Badge variant="secondary" className="text-xs">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="font-medium flex items-center gap-2">
+                {participant.name}
+              </span>
+              <Badge
+                variant="secondary"
+                className={`text-xs ${participant.sex === "MALE"
+                  ? "bg-blue-50 text-blue-700"
+                  : participant.sex === "FEMALE"
+                    ? "bg-pink-50 text-pink-700"
+                    : "bg-gray-50 text-gray-700"
+                  }`}
+              >
                 {participant.profile === "COORDINATOR"
                   ? "Coordenador"
                   : participant.profile === "CAPTAIN"
@@ -143,9 +153,6 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
               <strong>Congregação:</strong> {participant.congregationId || "Não informada"}
             </p>
             <p className="text-sm text-muted-foreground">
-              <strong>Grupo:</strong> {participant.computed || "Não informado"}
-            </p>
-            <p className="text-sm text-muted-foreground">
               <strong>Atribuições:</strong>{" "}
               {participant.attributions.length > 0 ? participant.attributions.join(", ") : "Nenhuma"}
             </p>
@@ -162,18 +169,20 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Função</DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => handleChangeProfile("CAPTAIN")}>Capitão</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}>
-                    Capitão Assistente
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleChangeProfile("PARTICIPANT")}>Participante</DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
+            {participant.sex === "MALE" && (
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Função</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => handleChangeProfile("CAPTAIN")}>Capitão</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}>
+                      Capitão Assistente
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChangeProfile("PARTICIPANT")}>Participante</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            )}
             <DropdownMenuItem onSelect={() => setIsChangeGroupDialogOpen(true)}>Trocar de grupo</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={handleRemoveParticipant}>

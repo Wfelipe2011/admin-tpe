@@ -92,7 +92,20 @@ export function ChangeGroupDialog({
     }
   }
 
-  const filteredGroups = groups.filter((group) => group.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredGroups = groups
+    .filter((group) => group.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((groupA, groupB) => {
+      const availableSlotsA = groupA.configMax - groupA.participants
+      const availableSlotsB = groupB.configMax - groupB.participants
+      const fillRatioA = groupA.configMax === 0 ? 0 : availableSlotsA / groupA.configMax
+      const fillRatioB = groupB.configMax === 0 ? 0 : availableSlotsB / groupB.configMax
+
+      if (fillRatioA === fillRatioB) {
+        return groupA.name.localeCompare(groupB.name)
+      }
+
+      return fillRatioB - fillRatioA
+    })
 
   // Helper function to format weekday in Portuguese
   const formatWeekday = (weekday: string) => {
@@ -116,7 +129,7 @@ export function ChangeGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle>Trocar de grupo</DialogTitle>
         </DialogHeader>
@@ -156,14 +169,16 @@ export function ChangeGroupDialog({
                           <div className="space-y-1">
                             <p className="font-medium">Nome: {group.name}</p>
                             <p className="text-sm text-muted-foreground">
-                              Dia e Hora: {formatWeekday(group.configWeekday)} / {formatTime(group.configStartHour)} às{" "}
-                              {formatTime(group.configEndHour)}
+                              Dia: {formatWeekday(group.configWeekday)}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Hora: {formatTime(group.configStartHour)} às {formatTime(group.configEndHour)}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               Participantes: {group.participants}/{group.configMax}
                             </p>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">Atribuições:</span>
+                              <span className="text-sm text-muted-foreground">Tipo Grupo:</span>
                               <Badge variant="secondary">
                                 {group.type === "MAIN"
                                   ? "Principal"
@@ -172,18 +187,17 @@ export function ChangeGroupDialog({
                                     : "Especial"}
                               </Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              Responsável: {group.coordinatorId || "Não atribuído"}
-                            </p>
                           </div>
                           {isCurrentGroup ? (
                             <Badge variant="outline">Já incluso</Badge>
                           ) : isFull ? (
                             <Badge variant="secondary">Lotado</Badge>
                           ) : (
-                            <Button variant="secondary" onClick={() => handleChangeGroup(group)}>
-                              Substituir
-                            </Button>
+                            <div>
+                              <Button variant="secondary" onClick={() => handleChangeGroup(group)}>
+                                Substituir
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </div>
