@@ -100,9 +100,6 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
           <div className="flex items-center rounded-md border">
             <Button
               variant={isGridView ? "ghost" : "secondary"}
@@ -122,7 +119,9 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
             </Button>
           </div>
         </div>
-        <Button onClick={() => setIsAssignDialogOpen(true)}>Atribuir Participante</Button>
+        <div>
+          <Button onClick={() => setIsAssignDialogOpen(true)}>Atribuir Participante</Button>
+        </div>
       </div>
 
       <div className={isGridView ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3" : "space-y-2"}>

@@ -87,7 +87,7 @@ export function AssignParticipantDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle>Atribuir participante</DialogTitle>
         </DialogHeader>
@@ -124,6 +124,16 @@ export function AssignParticipantDialog({
                     }
                     return true
                   })
+                  .sort((a, b) => {
+                    const aSameTypeGroup = getSameTypeGroup(a)
+                    const bSameTypeGroup = getSameTypeGroup(b)
+                    if (!aSameTypeGroup && !bSameTypeGroup) return 0
+                    if (!aSameTypeGroup) return -1
+                    if (!bSameTypeGroup) return 1
+                    if (aSameTypeGroup.id === group.id && bSameTypeGroup.id !== group.id) return 1
+                    if (aSameTypeGroup.id !== group.id && bSameTypeGroup.id === group.id) return -1
+                    return 0
+                  })
                   .map((participant) => {
                     const sameTypeGroup = getSameTypeGroup(participant)
                     const isInSameGroup = sameTypeGroup?.id === group.id
@@ -155,13 +165,15 @@ export function AssignParticipantDialog({
                             </p>
                           </div>
                         </div>
-                        <Button
-                          variant="secondary"
-                          disabled={isInSameGroup}
-                          onClick={() => handleAssignParticipant(participant)}
-                        >
-                          {sameTypeGroup ? "Substituir" : "Atribuir"}
-                        </Button>
+                        <div>
+                          <Button
+                            variant="secondary"
+                            disabled={isInSameGroup}
+                            onClick={() => handleAssignParticipant(participant)}
+                          >
+                            {sameTypeGroup ? "Substituir" : "Atribuir"}
+                          </Button>
+                        </div>
                       </div>
                     )
                   })
