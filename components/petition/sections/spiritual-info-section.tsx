@@ -22,12 +22,12 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
 
   // Filter attribution options based on gender
   const attributionOptions = [
-    { value: "PIONEIRA", label: "Pioneira" },
+    { value: "PIONEIRO", label: "Pioneiro" },
     ...(gender === "MALE"
       ? [
-          { value: "ANCIÃO", label: "Ancião" },
-          { value: "SERVO_MINISTERIAL", label: "Servo Ministerial" },
-        ]
+        { value: "ANCIÃO", label: "Ancião" },
+        { value: "SERVO_MINISTERIAL", label: "Servo Ministerial" },
+      ]
       : []),
   ]
 
@@ -63,7 +63,7 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
           name="baptismDate"
           render={({ field }) => (
             <FormItem className="space-y-2">
-              <FormLabel>Data de Batismo</FormLabel>
+              <FormLabel>Data de Batismo *</FormLabel>
               <FormControl>
                 <Input
                   type="date"
@@ -109,7 +109,7 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
             render={() => (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel>Atribuições</FormLabel>
+                  <FormLabel>Atribuições *</FormLabel>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                   {attributionOptions.map((option) => (
@@ -153,7 +153,7 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
             render={() => (
               <FormItem>
                 <div className="mb-4">
-                  <FormLabel>Idiomas</FormLabel>
+                  <FormLabel>Idiomas *</FormLabel>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
                   {languageOptions.map((option) => (

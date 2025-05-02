@@ -231,7 +231,7 @@ export function PersonalInfoSection({
             name="birthDate"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel>Data de Nascimento</FormLabel>
+                <FormLabel>Data de Nascimento *</FormLabel>
                 <FormControl>
                   <Input
                     type="date"
@@ -261,7 +261,7 @@ export function PersonalInfoSection({
             name="sex"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel>Sexo</FormLabel>
+                <FormLabel>Sexo *</FormLabel>
                 <FormControl>
                   <RadioGroup value={field.value} onValueChange={field.onChange} className="flex space-x-4">
                     <div className="flex items-center space-x-2">
@@ -284,7 +284,7 @@ export function PersonalInfoSection({
             name="civilStatus"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel>Estado Civil</FormLabel>
+                <FormLabel>Estado Civil *</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger

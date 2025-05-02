@@ -30,7 +30,7 @@ interface CongregationComboboxProps {
 export function CongregationCombobox({
   name,
   control,
-  label = "Congregação (opcional)",
+  label = "Congregação *",
   placeholder = "Selecione uma congregação",
   onChange,
   disabled = false,
