@@ -4,10 +4,7 @@ import { HistoricoDesignacao } from "@/components/consultar/historico-designacao
 
 export default function HistoricoPage() {
   return (
-    <ProtectedLayout
-      title="Consultar"
-      breadcrumbs={[{ label: "Histórico de Designações" }]}
-    >
+    <ProtectedLayout title="Consultar" breadcrumbs={[{ label: "Histórico de Designações" }]}>
       <HistoricoDesignacao />
     </ProtectedLayout>
   )

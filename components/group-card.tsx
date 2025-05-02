@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import type { IGroups } from "@/types/groups"
-import { Trash2 } from "lucide-react"
+import { Trash2, Pencil } from "lucide-react"
 import { useState, useEffect } from "react"
 import { apiClient } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
@@ -101,6 +101,11 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
       <div className="flex items-center justify-between bg-gray-50 p-3">
         <div className="font-medium">{group.name}</div>
         <div className="flex items-center gap-2">
+          <Link href={`/grupos/editar/${group.id}`} passHref>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </Link>
           {group.participants === 0 && (
             <Button
               variant="ghost"
@@ -128,15 +133,10 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
           </p>
         </div>
       </CardContent>
-      <CardFooter className="w-full flex justify-between gap-2 p-3 pt-0">
-        <Link href={`/grupos/editar/${group.id}`} passHref className="w-1/2">
-          <Button variant="outline" size="sm" className="w-full">
-            Editar
-          </Button>
-        </Link>
-        <Link href={`/grupos/${group.id}`} passHref className="w-1/2">
-          <Button variant="secondary" size="sm" className="w-full">
-            Atribuir
+      <CardFooter className="w-full p-3 pt-0">
+        <Link href={`/grupos/${group.id}`} passHref className="w-full">
+          <Button variant="secondary" className="w-full">
+            Participantes
           </Button>
         </Link>
       </CardFooter>

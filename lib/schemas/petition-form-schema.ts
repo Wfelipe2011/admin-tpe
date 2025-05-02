@@ -78,8 +78,8 @@ const validateTrainingDate = (trainingDate: string | null | undefined) => {
 }
 
 const unmaskPhoneNumber = (value: string) => {
-  return value.replace(/\D/g, ""); // remove tudo que não for número
-};
+  return value.replace(/\D/g, "") // remove tudo que não for número
+}
 
 // Esquema principal do formulário
 export const petitionFormSchema = z
@@ -88,10 +88,13 @@ export const petitionFormSchema = z
     // Campos obrigatórios
     name: z.string().min(1, "Nome é obrigatório").min(3, "Nome deve ter pelo menos 3 caracteres"),
     email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
-    phone: z.string().min(1, "Telefone é obrigatório").refine((value) => {
-      const unmaskedValue = unmaskPhoneNumber(value);
-      return unmaskedValue.length === 11;
-    }, "Telefone deve ter 11 dígitos"),
+    phone: z
+      .string()
+      .min(1, "Telefone é obrigatório")
+      .refine((value) => {
+        const unmaskedValue = unmaskPhoneNumber(value)
+        return unmaskedValue.length === 11
+      }, "Telefone deve ter 11 dígitos"),
 
     // Campos opcionais
     birthDate: z.string().optional(),

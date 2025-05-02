@@ -9,50 +9,66 @@ import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Combobox } from "@/components/ui/combobox"
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
 
+// Helper function to convert time string to minutes
+const timeToMinutes = (timeString: string): number => {
+  const [hours, minutes] = timeString.split(":").map(Number)
+  return hours * 60 + minutes
+}
+
 // Define the schema for form validation
 const groupFormSchema = z
   .object({
-    name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
-    configStartHour: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-      message: "Formato de hora inválido (HH:MM)",
+    name: z
+      .string({ required_error: "Nome é obrigatório" })
+      .min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
+    configStartHour: z
+      .string({ required_error: "Horário de início é obrigatório" })
+      .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+        message: "Formato de hora inválido (HH:MM)",
+      }),
+    configEndHour: z
+      .string({ required_error: "Horário de término é obrigatório" })
+      .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+        message: "Formato de hora inválido (HH:MM)",
+      }),
+    configMax: z
+      .number({ required_error: "Máximo de participantes é obrigatório" })
+      .min(1, { message: "Deve ter pelo menos 1 participante" }),
+    configMin: z
+      .number({ required_error: "Mínimo de participantes é obrigatório" })
+      .min(1, { message: "Deve ter pelo menos 1 participante" }),
+    coordinatorId: z.string({ required_error: "Coordenador é obrigatório" }),
+    status: z.enum(["OPEN", "CLOSED"], { required_error: "Status é obrigatório" }),
+    type: z.enum(["MAIN", "ADDITIONAL", "SPECIAL"], { required_error: "Tipo é obrigatório" }),
+    configWeekday: z.enum(["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"], {
+      required_error: "Dia da semana é obrigatório",
     }),
-    configEndHour: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-      message: "Formato de hora inválido (HH:MM)",
-    }),
-    configMax: z.number().min(1, { message: "Deve ter pelo menos 1 participante" }),
-    configMin: z.number().min(1, { message: "Deve ter pelo menos 1 participante" }),
-    coordinatorId: z.string().optional(),
-    status: z.enum(["OPEN", "CLOSED"]),
-    type: z.enum(["MAIN", "ADDITIONAL", "SPECIAL"]),
-    configWeekday: z.enum(["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]),
-    hasAdditionalInfo: z.boolean().default(false),
-    "additionalInfo.observation": z.string().optional(),
-    "additionalInfo.address.street": z.string().optional(),
-    "additionalInfo.address.number": z.string().optional(),
-    "additionalInfo.address.neighborhood": z.string().optional(),
   })
   .refine(
     (data) => {
-      if (data.hasAdditionalInfo) {
-        return (
-          data["additionalInfo.address.street"] &&
-          data["additionalInfo.address.number"] &&
-          data["additionalInfo.address.neighborhood"]
-        )
-      }
-      return true
+      const startMinutes = timeToMinutes(data.configStartHour)
+      const endMinutes = timeToMinutes(data.configEndHour)
+      return startMinutes < endMinutes
     },
     {
-      message: "Todos os campos de endereço são obrigatórios quando informações adicionais estão habilitadas",
-      path: ["additionalInfo.address.street"],
+      message: "O horário de início deve ser anterior ao horário de término",
+      path: ["configEndHour"],
+    },
+  )
+  .refine(
+    (data) => {
+      return data.configMin <= data.configMax
+    },
+    {
+      message: "O mínimo de participantes deve ser menor ou igual ao máximo",
+      path: ["configMin"],
     },
   )
 
@@ -89,16 +105,8 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
       status: "OPEN",
       type: "MAIN",
       configWeekday: "MONDAY",
-      hasAdditionalInfo: false,
-      "additionalInfo.observation": "",
-      "additionalInfo.address.street": "",
-      "additionalInfo.address.number": "",
-      "additionalInfo.address.neighborhood": "",
     },
   })
-
-  // Watch for changes to hasAdditionalInfo to conditionally render fields
-  const hasAdditionalInfo = form.watch("hasAdditionalInfo")
 
   // Fetch coordinators on component mount
   useEffect(() => {
@@ -141,11 +149,6 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
             status: data.status || "OPEN",
             type: data.type || "MAIN",
             configWeekday: data.configWeekday || "MONDAY",
-            hasAdditionalInfo: !!data.additionalInfo,
-            "additionalInfo.observation": data.additionalInfo?.observation || "",
-            "additionalInfo.address.street": data.additionalInfo?.address?.street || "",
-            "additionalInfo.address.number": data.additionalInfo?.address?.number || "",
-            "additionalInfo.address.neighborhood": data.additionalInfo?.address?.neighborhood || "",
           })
         } catch (error) {
           console.error("Erro ao buscar dados do grupo:", error)
@@ -174,20 +177,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
         configEndHour: values.configEndHour,
         configMax: values.configMax,
         configMin: values.configMin,
-        coordinatorId: values.coordinatorId || null,
+        coordinatorId: values.coordinatorId,
         status: values.status,
         type: values.type,
         configWeekday: values.configWeekday,
-        additionalInfo: values.hasAdditionalInfo
-          ? {
-              observation: values["additionalInfo.observation"],
-              address: {
-                street: values["additionalInfo.address.street"],
-                number: values["additionalInfo.address.number"],
-                neighborhood: values["additionalInfo.address.neighborhood"],
-              },
-            }
-          : undefined,
       }
 
       if (isEditing && groupId) {
@@ -253,18 +246,27 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
     return translations[type] || type
   }
 
+  // Required field indicator component
+  const RequiredIndicator = () => <span className="ml-1">*</span>
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-4">
+              Todos os campos com <span className="text-red-500">*</span> são obrigatórios
+            </div>
             <div className="grid gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Grupo</FormLabel>
+                    <FormLabel>
+                      Nome do Grupo
+                      <RequiredIndicator />
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Digite o nome do grupo" {...field} />
                     </FormControl>
@@ -278,7 +280,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo</FormLabel>
+                    <FormLabel>
+                      Tipo
+                      <RequiredIndicator />
+                    </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -301,7 +306,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="configWeekday"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dia da Semana</FormLabel>
+                    <FormLabel>
+                      Dia da Semana
+                      <RequiredIndicator />
+                    </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -328,7 +336,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel>
+                      Status
+                      <RequiredIndicator />
+                    </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -350,7 +361,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="configStartHour"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Horário de Início</FormLabel>
+                    <FormLabel>
+                      Horário de Início
+                      <RequiredIndicator />
+                    </FormLabel>
                     <FormControl>
                       <Input type="time" {...field} />
                     </FormControl>
@@ -364,7 +378,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="configEndHour"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Horário de Término</FormLabel>
+                    <FormLabel>
+                      Horário de Término
+                      <RequiredIndicator />
+                    </FormLabel>
                     <FormControl>
                       <Input type="time" {...field} />
                     </FormControl>
@@ -378,7 +395,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="configMin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mínimo de Participantes</FormLabel>
+                    <FormLabel>
+                      Mínimo de Participantes
+                      <RequiredIndicator />
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -397,7 +417,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="configMax"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Máximo de Participantes</FormLabel>
+                    <FormLabel>
+                      Máximo de Participantes
+                      <RequiredIndicator />
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -416,7 +439,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                 name="coordinatorId"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Coordenador</FormLabel>
+                    <FormLabel>
+                      Coordenador
+                      <RequiredIndicator />
+                    </FormLabel>
                     <Combobox
                       options={coordinators.map((coordinator) => ({
                         label: coordinator.name,
@@ -432,95 +458,9 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="hasAdditionalInfo"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Informações Adicionais</FormLabel>
-                      <FormDescription>Inclui endereço e observações</FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
             </div>
           </CardContent>
         </Card>
-
-        {hasAdditionalInfo && (
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-medium mb-4">Informações Adicionais</h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="additionalInfo.address.street"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rua</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite a rua" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="additionalInfo.address.number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite o número" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="additionalInfo.address.neighborhood"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bairro</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite o bairro" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="additionalInfo.observation"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Observações</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Digite observações adicionais" className="resize-none" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.push("/grupos")} disabled={isSubmitting}>

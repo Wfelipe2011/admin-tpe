@@ -205,8 +205,9 @@ export function PetitionList() {
             {petitions.map((petition, index) => (
               <div
                 key={petition.id}
-                className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-gray-100 transition-colors border-b`}
+                className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                } hover:bg-gray-100 transition-colors border-b`}
               >
                 {/* Layout para dispositivos móveis */}
                 <div className="flex flex-col md:hidden mb-4">

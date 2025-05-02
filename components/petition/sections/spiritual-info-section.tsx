@@ -25,9 +25,9 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
     { value: "PIONEIRO", label: "Pioneiro" },
     ...(gender === "MALE"
       ? [
-        { value: "ANCIÃO", label: "Ancião" },
-        { value: "SERVO_MINISTERIAL", label: "Servo Ministerial" },
-      ]
+          { value: "ANCIÃO", label: "Ancião" },
+          { value: "SERVO_MINISTERIAL", label: "Servo Ministerial" },
+        ]
       : []),
   ]
 

@@ -24,22 +24,22 @@ interface CepResponse {
 }
 
 const formatPhoneNumber = (value: string) => {
-  const digits = value.replace(/\D/g, ""); // remove tudo que não for número
+  const digits = value.replace(/\D/g, "") // remove tudo que não for número
 
   if (digits.length <= 10) {
     // Telefone fixo: (99) 9999-9999
     return digits
       .replace(/^(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
       .trim()
-      .replace(/[-\s]+$/, ""); // remove traço ou espaço no final
+      .replace(/[-\s]+$/, "") // remove traço ou espaço no final
   } else {
     // Celular: (99) 99999-9999
     return digits
       .replace(/^(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3")
       .trim()
-      .replace(/[-\s]+$/, "");
+      .replace(/[-\s]+$/, "")
   }
-};
+}
 
 export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormProps) {
   const router = useRouter()

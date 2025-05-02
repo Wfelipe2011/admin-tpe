@@ -168,31 +168,31 @@ export function PersonalInfoSection({
   )
 
   const formatPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, ""); // remove tudo que não for número
+    const digits = value.replace(/\D/g, "") // remove tudo que não for número
 
     if (digits.length <= 10) {
       // Telefone fixo: (99) 9999-9999
       return digits
         .replace(/^(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
         .trim()
-        .replace(/[-\s]+$/, ""); // remove traço ou espaço no final
+        .replace(/[-\s]+$/, "") // remove traço ou espaço no final
     } else {
       // Celular: (99) 99999-9999
       return digits
         .replace(/^(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3")
         .trim()
-        .replace(/[-\s]+$/, "");
+        .replace(/[-\s]+$/, "")
     }
-  };
+  }
 
   const unmaskPhoneNumber = (value: string) => {
-    return value.replace(/\D/g, ""); // remove tudo que não for número
-  };
+    return value.replace(/\D/g, "") // remove tudo que não for número
+  }
 
   const isValidPhone = (value: string) => {
-    const digits = unmaskPhoneNumber(value);
-    return digits.length === 11;
-  };
+    const digits = unmaskPhoneNumber(value)
+    return digits.length === 11
+  }
 
   // Create a debounced function to validate phone number
   const validatePhoneNumber = useCallback(
@@ -206,7 +206,9 @@ export function PersonalInfoSection({
 
       try {
         setIsValidatingPhone(true)
-        const response = await apiClient.get<IParticipants>(`/participants/phones/${unmaskPhoneNumber(phone)}`, { endpoint: "new" })
+        const response = await apiClient.get<IParticipants>(`/participants/phones/${unmaskPhoneNumber(phone)}`, {
+          endpoint: "new",
+        })
 
         if (response && response.id) {
           setExistingParticipant(response)
@@ -355,7 +357,7 @@ export function PersonalInfoSection({
                         existingParticipant && "border-orange-500 focus-visible:ring-orange-500",
                       )}
                       onChange={(e) => {
-                        e.target.value = formatPhoneNumber(e.target.value);
+                        e.target.value = formatPhoneNumber(e.target.value)
                         field.onChange(e)
                       }}
                       onBlur={(e) => {

@@ -84,7 +84,7 @@ export function useParticipantsAttendance() {
 
   // Verificar se o participante tem histórico de incidentes
   const hasIncidentHistory = (participant: IParticipant): boolean => {
-    return !!(participant.incident_history)
+    return !!participant.incident_history
   }
 
   // Buscar participantes quando o componente montar ou quando refreshKey mudar

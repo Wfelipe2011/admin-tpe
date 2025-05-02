@@ -14,7 +14,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "TPE Digital",
   description: "Sistema de gerenciamento TPE Digital",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
