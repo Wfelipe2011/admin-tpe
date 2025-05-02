@@ -70,6 +70,10 @@ export function PersonalInfoSection({
         form.setValue("email", participant.email, { shouldValidate: true })
       }
 
+      if (participant.phone) {
+        form.setValue("phone", formatPhoneNumber(participant.phone), { shouldValidate: true })
+      }
+
       if (participant.sex) {
         form.setValue("sex", participant.sex, { shouldValidate: true })
       }
@@ -163,18 +167,46 @@ export function PersonalInfoSection({
     [form],
   )
 
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, ""); // remove tudo que não for número
+
+    if (digits.length <= 10) {
+      // Telefone fixo: (99) 9999-9999
+      return digits
+        .replace(/^(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
+        .trim()
+        .replace(/[-\s]+$/, ""); // remove traço ou espaço no final
+    } else {
+      // Celular: (99) 99999-9999
+      return digits
+        .replace(/^(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3")
+        .trim()
+        .replace(/[-\s]+$/, "");
+    }
+  };
+
+  const unmaskPhoneNumber = (value: string) => {
+    return value.replace(/\D/g, ""); // remove tudo que não for número
+  };
+
+  const isValidPhone = (value: string) => {
+    const digits = unmaskPhoneNumber(value);
+    return digits.length === 11;
+  };
+
   // Create a debounced function to validate phone number
   const validatePhoneNumber = useCallback(
     debounce(async (phone: string) => {
       // Skip validation if phone is too short
-      if (!phone || phone.length < 8) {
+      if (!isValidPhone(phone)) {
         setExistingParticipant(null)
+        toast.error("Número de telefone inválido")
         return
       }
 
       try {
         setIsValidatingPhone(true)
-        const response = await apiClient.get<IParticipants>(`/participants/phones/${phone}`, { endpoint: "new" })
+        const response = await apiClient.get<IParticipants>(`/participants/phones/${unmaskPhoneNumber(phone)}`, { endpoint: "new" })
 
         if (response && response.id) {
           setExistingParticipant(response)
@@ -201,7 +233,7 @@ export function PersonalInfoSection({
       } finally {
         setIsValidatingPhone(false)
       }
-    }, 500),
+    }, 1000),
     [form],
   )
 
@@ -323,7 +355,10 @@ export function PersonalInfoSection({
                         existingParticipant && "border-orange-500 focus-visible:ring-orange-500",
                       )}
                       onChange={(e) => {
+                        e.target.value = formatPhoneNumber(e.target.value);
                         field.onChange(e)
+                      }}
+                      onBlur={(e) => {
                         validatePhoneNumber(e.target.value)
                       }}
                       disabled={isValidatingPhone}

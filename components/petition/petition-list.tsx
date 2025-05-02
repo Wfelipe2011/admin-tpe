@@ -205,9 +205,8 @@ export function PetitionList() {
             {petitions.map((petition, index) => (
               <div
                 key={petition.id}
-                className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                } hover:bg-gray-100 transition-colors border-b`}
+                className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } hover:bg-gray-100 transition-colors border-b`}
               >
                 {/* Layout para dispositivos móveis */}
                 <div className="flex flex-col md:hidden mb-4">
@@ -219,7 +218,6 @@ export function PetitionList() {
                     </div>
                     <div>
                       <div className="font-medium">{petition.name}</div>
-                      <div className="text-xs text-gray-500">Petição {index + 1}</div>
                     </div>
                   </div>
 
@@ -275,9 +273,8 @@ export function PetitionList() {
                   >
                     <FileText size={20} />
                   </div>
-                  <div>
+                  <div className="flex items-center">
                     <div className="font-medium">{petition.name}</div>
-                    <div className="text-xs text-gray-500">Petição {index + 1}</div>
                   </div>
                 </div>
                 <div className="hidden md:block md:col-span-3 font-mono text-sm text-center">{petition.protocol}</div>

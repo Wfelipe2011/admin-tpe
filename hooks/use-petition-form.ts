@@ -23,6 +23,24 @@ interface CepResponse {
   service: string
 }
 
+const formatPhoneNumber = (value: string) => {
+  const digits = value.replace(/\D/g, ""); // remove tudo que não for número
+
+  if (digits.length <= 10) {
+    // Telefone fixo: (99) 9999-9999
+    return digits
+      .replace(/^(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
+      .trim()
+      .replace(/[-\s]+$/, ""); // remove traço ou espaço no final
+  } else {
+    // Celular: (99) 99999-9999
+    return digits
+      .replace(/^(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3")
+      .trim()
+      .replace(/[-\s]+$/, "");
+  }
+};
+
 export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -130,6 +148,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
             // Atualizar o formulário com os dados do participante
             form.reset({
               ...response,
+              phone: response.phone ? formatPhoneNumber(response.phone) : "",
               petitionId,
               birthDate: formattedBirthDate,
               baptismDate: formattedBaptismDate,

@@ -215,7 +215,7 @@ export function CongregationCombobox({
                               role="option"
                               aria-selected={isSelected}
                               className={cn(
-                                "flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
+                                "flex w-full cursor-default select-none gap-4 rounded-sm px-2 py-1.5 text-sm outline-none",
                                 isSelected
                                   ? "bg-accent text-accent-foreground"
                                   : "hover:bg-accent hover:text-accent-foreground",
@@ -226,7 +226,7 @@ export function CongregationCombobox({
                                 handleSelect(congregation)
                               }}
                             >
-                              <span className="flex-1 truncate">{congregation.name}</span>
+                              <span className="truncate">{congregation.name}</span>
                               {isSelected && <Check className="ml-2 h-4 w-4 shrink-0 opacity-100" />}
                             </button>
                           )
