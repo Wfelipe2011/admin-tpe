@@ -97,9 +97,9 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
   }, [group.coordinatorId])
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="flex flex-col justify-between overflow-hidden">
       <div className="flex items-center justify-between bg-gray-50 p-3">
-        <div className="font-medium">{group.name}</div>
+        <div className="font-medium text-sm truncate">{group.name}</div>
         <div className="flex items-center gap-2">
           <Link href={`/grupos/editar/${group.id}`} passHref>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100">
@@ -118,17 +118,16 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
           )}
         </div>
       </div>
-      <CardContent className="p-3 pt-3">
+      <CardContent className="flex items-center p-3 pt-3">
         <div className="space-y-1 text-sm">
           <p className="text-muted-foreground">{weekday}</p>
-          <p>Tipo: {group.type === "MAIN" ? "Principal" : group.type === "ADDITIONAL" ? "Adicional" : "Especial"}</p>
           <p>
             Horário: {startTime} / {endTime}
           </p>
           <p>
             Participantes: {group.participants} / {group.configMax || "∞"}
           </p>
-          <p>
+          <p className="truncate">
             Responsável: {isLoadingCoordinator ? "Carregando..." : coordinator ? coordinator.name : "Não atribuído"}
           </p>
         </div>
