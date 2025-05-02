@@ -84,7 +84,7 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
           </div>
           <div>
             <h3 className="text-sm font-medium text-muted-foreground">Participantes:</h3>
-            <p>{group.participants.length}</p>
+            <p>{group.participants.length}/{group.configMax}</p>
           </div>
         </div>
       </div>
