@@ -46,17 +46,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           />
         </div>
       </div>
-
-      <Button
-        variant="outline"
-        className="flex items-center gap-1 sm:gap-2 whitespace-nowrap h-9 sm:h-10 text-xs sm:text-sm"
-        onClick={onAutoAssign}
-        disabled={isDisabled}
-      >
-        <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-        <span className="hidden xs:inline sm:inline">Designação Automática</span>
-        <span className="xs:hidden sm:hidden">Auto</span>
-      </Button>
+      <div>
+        <Button
+          variant="outline"
+          className="flex items-center gap-1 sm:gap-2 whitespace-nowrap h-9 sm:h-10 text-xs sm:text-sm"
+          onClick={onAutoAssign}
+          disabled={isDisabled}
+        >
+          <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline sm:inline">Designação Automática</span>
+          <span className="xs:hidden sm:hidden">Auto</span>
+        </Button>
+      </div>
     </div>
   )
 }
