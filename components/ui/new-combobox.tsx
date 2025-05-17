@@ -11,19 +11,25 @@ interface Options {
     value: string
 }
 
-interface CongregationComboboxProps {
+interface ComboboxProps {
     placeholder?: string
-    onChange?: (value: string, assignment?: number | null) => void
+    inputPlaceholder?: string
+    empytText?: string
+    onChange?: (value: string, label?: string) => void
     disabled?: boolean
+    value?: string;
     options: Options[]
 }
 
-export function AssignmentCombobox({
-    placeholder = "",
+export function NewCombobox({
+    placeholder,
+    inputPlaceholder,
+    empytText,
     onChange,
     disabled = false,
+    value,
     options,
-}: CongregationComboboxProps) {
+}: ComboboxProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
     const dropdownRef = useRef<HTMLDivElement>(null)
@@ -55,7 +61,7 @@ export function AssignmentCombobox({
     // Função para lidar com a seleção de uma congregação
     const handleSelect = (option: Options) => {
         if (onChange) {
-            onChange(option.value)
+            onChange(option.value, option.label)
         }
 
         setIsOpen(false)
@@ -93,7 +99,7 @@ export function AssignmentCombobox({
                             !placeholder ? "text-muted-foreground" : "",
                         )}
                     >
-                        {placeholder}
+                        {value ? value : placeholder}
                     </span>
                     {isOpen ? (
                         <ChevronUp className="h-4 w-4" />
@@ -108,7 +114,7 @@ export function AssignmentCombobox({
                             <Input
                                 ref={inputRef}
                                 type="text"
-                                placeholder="Buscar participant..."
+                                placeholder={inputPlaceholder}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onClick={(e) => e.stopPropagation()}
@@ -143,7 +149,7 @@ export function AssignmentCombobox({
                                             <span className="truncate">{option.label}</span>
                                         </button>
                                     )) : (
-                                        <div className="py-2 px-2 text-sm text-muted-foreground">Nenhum voluntário encontrado!</div>
+                                        <div className="py-2 px-2 text-sm text-muted-foreground">{empytText}</div>
                                     )}
                             </div>
                         </div>

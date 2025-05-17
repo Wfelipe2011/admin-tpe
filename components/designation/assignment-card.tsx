@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AlertCircle, User } from "lucide-react"
 import type { Assignment, Incident } from "@/types/designation-participants"
-import { AssignmentCombobox } from "./assigment-combobox"
+import { NewCombobox } from "../ui/new-combobox"
 
 interface AssignmentCardProps {
   assignment: Assignment
@@ -123,14 +123,14 @@ export function AssignmentCard({
                       {isAbsent(participant) && (
                         <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0"
                         //  title="Participante ausente" 
-                         />
+                        />
                       )}
                     </div>
                   </div>
                 </div>
 
                 {isOpen && (
-                  <AssignmentCombobox
+                  <NewCombobox
                     options={[
                       { value: "", label: "Remover" },
                       ...assignments
@@ -152,6 +152,8 @@ export function AssignmentCard({
                         onMoveParticipant(participant.id, assignment.point.id, value)
                       }
                     }}
+                    empytText="Nenhum voluntário encontrado!"
+                    inputPlaceholder="Buscar participante..."
                   />
                 )}
 
@@ -163,13 +165,15 @@ export function AssignmentCard({
           {assignment.point.status && remainingSlots > 0 && isOpen && (
             <div className="space-y-2">
               {Array.from({ length: Math.min(remainingSlots, 3) }).map((_, index) => (
-                <AssignmentCombobox
+                <NewCombobox
                   key={`${assignment.point.id}-slot-${index}`}
                   options={comboboxOptions}
                   onChange={(value) => {
                     onMoveParticipant(value, null, assignment.point.id)
                   }}
                   placeholder="Adicionar Voluntário"
+                  inputPlaceholder="Buscar participante..."
+                  empytText="Nenhum voluntário encontrado!"
                   disabled={comboboxOptions.length === 0}
                 />
               ))}

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Combobox } from "@/components/ui/combobox"
+import { NewCombobox } from "@/components/ui/new-combobox"
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
@@ -437,26 +437,45 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
               <FormField
                 control={form.control}
                 name="coordinatorId"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>
-                      Coordenador
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <Combobox
-                      options={coordinators.map((coordinator) => ({
-                        label: coordinator.name,
-                        value: coordinator.id,
-                      }))}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Selecione um coordenador"
-                      emptyText={isLoading ? "Carregando..." : "Nenhum coordenador encontrado"}
-                      disabled={isLoading}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const coordinator = coordinators?.find((c) => c.id === field.value)
+                  const options = coordinators
+                    .map((coordinator) => ({
+                      value: coordinator.id,
+                      label: coordinator.name,
+                    }))
+                    .filter((option) => coordinator ? coordinator.id !== option.value : true)
+                  if (coordinator) {
+                    options.unshift({
+                      value: field.value,
+                      label: 'Remover',
+                    })
+                  }
+                  return (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Coordenador
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <NewCombobox
+                        placeholder="Selecione um coordenador"
+                        inputPlaceholder="Buscar coordenador..."
+                        empytText={isLoading ? "Carregando..." : "Nenhum coordenador encontrado"}
+                        disabled={isLoading}
+                        onChange={(value, label) => {
+                          if (label === 'Remover') {
+                            field.onChange('')
+                          } else {
+                            field.onChange(value)
+                          }
+                        }}
+                        value={coordinator?.name || ""}
+                        options={options}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
               />
             </div>
           </CardContent>
