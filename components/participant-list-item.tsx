@@ -105,17 +105,16 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
           </Avatar>
           <div className="space-y-1">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="font-medium flex items-center gap-2">
-                {participant.name}
-              </span>
+              <span className="font-medium flex items-center gap-2">{participant.name}</span>
               <Badge
                 variant="secondary"
-                className={`text-xs ${participant.sex === "MALE"
-                  ? "bg-blue-50 text-blue-700"
-                  : participant.sex === "FEMALE"
-                    ? "bg-pink-50 text-pink-700"
-                    : "bg-gray-50 text-gray-700"
-                  }`}
+                className={`text-xs ${
+                  participant.sex === "MALE"
+                    ? "bg-blue-50 text-blue-700"
+                    : participant.sex === "FEMALE"
+                      ? "bg-pink-50 text-pink-700"
+                      : "bg-gray-50 text-gray-700"
+                }`}
               >
                 {participant.profile === "COORDINATOR"
                   ? "Coordenador"

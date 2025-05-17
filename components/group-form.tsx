@@ -444,11 +444,11 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                       value: coordinator.id,
                       label: coordinator.name,
                     }))
-                    .filter((option) => coordinator ? coordinator.id !== option.value : true)
+                    .filter((option) => (coordinator ? coordinator.id !== option.value : true))
                   if (coordinator) {
                     options.unshift({
                       value: field.value,
-                      label: 'Remover',
+                      label: "Remover",
                     })
                   }
                   return (
@@ -463,8 +463,8 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         empytText={isLoading ? "Carregando..." : "Nenhum coordenador encontrado"}
                         disabled={isLoading}
                         onChange={(value, label) => {
-                          if (label === 'Remover') {
-                            field.onChange('')
+                          if (label === "Remover") {
+                            field.onChange("")
                           } else {
                             field.onChange(value)
                           }

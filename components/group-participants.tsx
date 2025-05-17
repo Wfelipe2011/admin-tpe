@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, LayoutGrid, List, Filter } from "lucide-react"
+import { Search, LayoutGrid, List } from "lucide-react"
 import { AssignParticipantDialog } from "@/components/assign-participant-dialog"
 import { ParticipantCard } from "@/components/participant-card"
 import { ParticipantListItem } from "@/components/participant-list-item"
@@ -84,7 +84,9 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
           </div>
           <div>
             <h3 className="text-sm font-medium text-muted-foreground">Participantes:</h3>
-            <p>{group.participants.length}/{group.configMax}</p>
+            <p>
+              {group.participants.length}/{group.configMax}
+            </p>
           </div>
         </div>
       </div>

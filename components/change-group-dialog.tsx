@@ -168,9 +168,7 @@ export function ChangeGroupDialog({
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
                             <p className="font-medium">Nome: {group.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Dia: {formatWeekday(group.configWeekday)}
-                            </p>
+                            <p className="text-sm text-muted-foreground">Dia: {formatWeekday(group.configWeekday)}</p>
                             <p className="text-sm text-muted-foreground">
                               Hora: {formatTime(group.configStartHour)} às {formatTime(group.configEndHour)}
                             </p>

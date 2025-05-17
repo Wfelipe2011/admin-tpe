@@ -121,8 +121,9 @@ export function AssignmentCard({
                     <div className="font-medium flex items-center gap-1 truncate">
                       {participant.name}
                       {isAbsent(participant) && (
-                        <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0"
-                        //  title="Participante ausente" 
+                        <AlertCircle
+                          className="h-4 w-4 text-red-500 flex-shrink-0"
+                          //  title="Participante ausente"
                         />
                       )}
                     </div>
@@ -156,7 +157,6 @@ export function AssignmentCard({
                     inputPlaceholder="Buscar participante..."
                   />
                 )}
-
               </div>
             ))}
           </div>
