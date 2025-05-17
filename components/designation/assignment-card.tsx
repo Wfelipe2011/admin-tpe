@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AlertCircle, User } from "lucide-react"
-import { Combobox } from "@/components/ui/combobox"
 import type { Assignment, Incident } from "@/types/designation-participants"
+import { AssignmentCombobox } from "./assigment-combobox"
 
 interface AssignmentCardProps {
   assignment: Assignment
@@ -121,15 +121,16 @@ export function AssignmentCard({
                     <div className="font-medium flex items-center gap-1 truncate">
                       {participant.name}
                       {isAbsent(participant) && (
-                        <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" title="Participante ausente" />
+                        <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0"
+                        //  title="Participante ausente" 
+                         />
                       )}
                     </div>
                   </div>
                 </div>
 
                 {isOpen && (
-                  <Combobox
-                    placeholder=" "
+                  <AssignmentCombobox
                     options={[
                       { value: "", label: "Remover" },
                       ...assignments
@@ -144,17 +145,16 @@ export function AssignmentCard({
                           label: `Mover para ${a.point.name}`,
                         })),
                     ]}
-                    value=""
-                    onValueChange={(value) => {
+                    onChange={(value) => {
                       if (value === "") {
                         onMoveParticipant(participant.id, assignment.point.id, null)
                       } else {
                         onMoveParticipant(participant.id, assignment.point.id, value)
                       }
                     }}
-                    className="max-w-[44px] combobox-w-c"
                   />
                 )}
+
               </div>
             ))}
           </div>
@@ -163,12 +163,13 @@ export function AssignmentCard({
           {assignment.point.status && remainingSlots > 0 && isOpen && (
             <div className="space-y-2">
               {Array.from({ length: Math.min(remainingSlots, 3) }).map((_, index) => (
-                <Combobox
+                <AssignmentCombobox
                   key={`${assignment.point.id}-slot-${index}`}
                   options={comboboxOptions}
+                  onChange={(value) => {
+                    onMoveParticipant(value, null, assignment.point.id)
+                  }}
                   placeholder="Adicionar Voluntário"
-                  emptyText="Nenhum voluntário disponível"
-                  onValueChange={(value) => onMoveParticipant(value, null, assignment.point.id)}
                   disabled={comboboxOptions.length === 0}
                 />
               ))}
