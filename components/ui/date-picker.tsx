@@ -13,6 +13,7 @@ interface DatePickerProps {
   className?: string
   mode?: "single"
   locale?: any
+  disabled?: boolean
 }
 
 export function DatePicker({
@@ -20,8 +21,9 @@ export function DatePicker({
   onSelect,
   placeholder = "Pick a date",
   className,
+  mode = "single",
   locale,
-  ...props
+  disabled = false,
 }: DatePickerProps) {
   return (
     <Popover>
@@ -29,13 +31,14 @@ export function DatePicker({
         <Button
           variant={"outline"}
           className={cn("justify-start text-left font-normal", !selected && "text-muted-foreground", className)}
+          disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {selected ? format(selected, "PPP", { locale }) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={selected} onSelect={onSelect} initialFocus locale={locale} />
+        <Calendar mode={mode} selected={selected} onSelect={onSelect} initialFocus locale={locale} />
       </PopoverContent>
     </Popover>
   )
