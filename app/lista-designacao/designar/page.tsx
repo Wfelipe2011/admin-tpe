@@ -82,7 +82,7 @@ export default function DesignarPage() {
                           availableParticipants={participants}
                           onUpdatePoint={handleUpdatePoint}
                           onMoveParticipant={moveParticipant}
-                          isOpen={designationData?.status === "OPEN"}
+                          isOpen={designationData?.status === "OPEN" || designationData?.status === "IN_PROGRESS"}
                           isAbsent={isAbsent}
                           assignments={assignments}
                         />
@@ -98,7 +98,7 @@ export default function DesignarPage() {
                       availableParticipants={participants}
                       onUpdatePoint={handleUpdatePoint}
                       onMoveParticipant={moveParticipant}
-                      isOpen={designationData?.status === "OPEN"}
+                      isOpen={designationData?.status === "OPEN" || designationData?.status === "IN_PROGRESS"}
                       isAbsent={isAbsent}
                       assignments={assignments}
                     />
