@@ -1,52 +1,59 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { apiClient } from "@/lib/api-client"
 import { toast } from "@/components/ui/use-toast"
-import Cookies from "js-cookie"
-import { getUserFromToken } from "@/lib/auth-utils"
+import type { Participant } from "@/types/participants" // Assuming this type exists
+import type { Incident } from "@/types/designation" // Assuming this type exists
 
 // Interface para os participantes
-export interface IParticipant {
-  id: string
-  name: string
-  profile: string
-  profile_photo?: string
-  isAbsent?: boolean
-  incident_history?: any[] // Array de incidentes do participante
+// export interface IParticipant {
+//   id: string
+//   name: string
+//   profile: string
+//   profile_photo?: string
+//   isAbsent?: boolean
+//   incident_history?: any[] // Array de incidentes do participante
+// }
+
+interface UseParticipantsAttendanceOptions {
+  groupId?: string
 }
 
-export function useParticipantsAttendance() {
-  const [participants, setParticipants] = useState<IParticipant[]>([])
+interface ParticipantWithAttendance extends Participant {
+  isAbsent?: boolean
+  incidents?: Incident[] // Or some structure for incident history
+}
+
+export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOptions) => {
+  const { groupId } = options || {}
+  const [participants, setParticipants] = useState<ParticipantWithAttendance[]>([])
   const [loading, setLoading] = useState(true)
+  // Add other necessary states, e.g., for error handling
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Função para buscar os participantes
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     setLoading(true)
     try {
-      const user = getUserFromToken()
-      if (!user || !user.groupId) {
-        console.error("User or groupId not found in token")
-        setLoading(false)
-        return
-      }
+      // Example: Adjust API endpoint or query params based on groupId
+      const endpoint = groupId
+        ? `/api/participants?groupId=${groupId}&attendance=true`
+        : "/api/participants?attendance=true"
+      // Or, if groupId is for client-side filtering after a general fetch:
+      // const endpoint = "/api/all-participants-for-attendance";
 
-      // First try to get groupId from cookies, then fall back to user.groupId
-      const cookieGroupId = Cookies.get("selectedGroupId")
-      const groupId = cookieGroupId || user.groupId
+      const response = await apiClient.get<ParticipantWithAttendance[]>(endpoint) // Replace with your actual API call
 
-      const participantsData = await apiClient.get<IParticipant[]>(`/participants?groupId=${groupId}`)
+      // If filtering client-side based on a property within participant data:
+      // let fetchedParticipants = response.data;
+      // if (groupId) {
+      //   fetchedParticipants = fetchedParticipants.filter(p => p.someGroupIdProperty === groupId);
+      // }
+      // setParticipants(fetchedParticipants);
 
-      // Processar os dados para identificar participantes ausentes
-      const processedParticipants = participantsData.map((participant) => ({
-        ...participant,
-        isAbsent: participant.isAbsent || false,
-      }))
-
-      setParticipants(processedParticipants)
+      setParticipants(response.data) // Assuming API handles filtering or groupId is for other purpose
     } catch (error) {
-      console.error("Error fetching participants:", error)
+      console.error("Failed to fetch participants for attendance:", error)
       toast({
         title: "Erro ao carregar participantes",
         description: "Não foi possível carregar a lista de participantes.",
@@ -55,48 +62,52 @@ export function useParticipantsAttendance() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [groupId]) // Refetch if groupId changes
 
-  // Função para registrar ausência
-  const registerAbsence = async (participantId: string) => {
-    setLoading(true)
-    try {
-      await apiClient.post(`/participants/${participantId}/incidences`, {
-        reason: "Não estava presente",
-      })
-
-      toast({
-        title: "Ausência registrada",
-        description: "A ausência do participante foi registrada com sucesso.",
-      })
-
-      // Atualizar a lista de participantes
-      setRefreshKey((prev) => prev + 1)
-    } catch (error) {
-      console.error("Error registering absence:", error)
-      toast({
-        title: "Erro ao registrar ausência",
-        description: "Não foi possível registrar a ausência do participante.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Verificar se o participante tem histórico de incidentes
-  const hasIncidentHistory = (participant: IParticipant): boolean => {
-    return !!participant.incident_history
-  }
-
-  // Buscar participantes quando o componente montar ou quando refreshKey mudar
   useEffect(() => {
     fetchParticipants()
-  }, [refreshKey])
+  }, [fetchParticipants])
+
+  const registerAbsence = useCallback(
+    async (participantId: string) => {
+      setLoading(true) // Certifique-se de que o estado de loading é ativado
+      try {
+        await apiClient.post(`/participants/${participantId}/incidences`, {
+          reason: "Não estava presente",
+        })
+
+        toast({
+          title: "Ausência registrada",
+          description: "A ausência do participante foi registrada com sucesso.",
+        })
+
+        // Atualizar a lista de participantes, forçando um refetch
+        setRefreshKey((prev) => prev + 1)
+      } catch (error) {
+        console.error("Error registering absence:", error)
+        toast({
+          title: "Erro ao registrar ausência",
+          description: "Não foi possível registrar a ausência do participante.",
+          variant: "destructive",
+        })
+      } finally {
+        setLoading(false) // Certifique-se de que o estado de loading é desativado
+      }
+    },
+    [groupId], // Mantenha groupId nas dependências se ele for usado em algum lugar ou se a lógica de refresh depender dele
+  )
+
+  const hasIncidentHistory = useCallback((participant: ParticipantWithAttendance): boolean => {
+    // Your logic to determine if a participant has incident history
+    // This might check a property on the participant object
+    return !!(participant.incidents && participant.incidents.length > 0)
+  }, [])
 
   return {
     participants,
     loading,
     registerAbsence,
-    refreshParticipants: () => setRefreshKey((prev) => prev + 1),
     hasIncidentHistory,
+    refetchParticipants: fetchParticipants, // Expose refetch if needed
   }
 }

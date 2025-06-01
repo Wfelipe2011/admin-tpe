@@ -4,13 +4,44 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useParticipantsAttendance } from "@/hooks/use-participants-attendance"
+import type { Participant } from "@/types/participants" // Assuming this type exists
 
-export const ParticipantsTab = () => {
-  const { participants, loading, registerAbsence, hasIncidentHistory } = useParticipantsAttendance()
+interface ParticipantsTabProps {
+  participants: Participant[] // Participants from DesignarPage
+  isAbsent: (participant: Participant) => boolean
+  onRegisterAbsence: (participantId: string) => void
+  loading: boolean
+  groupId?: string // New groupId prop
+}
+
+export const ParticipantsTab = ({
+  participants: propsParticipants,
+  isAbsent: propsIsAbsent,
+  onRegisterAbsence: propsOnRegisterAbsence,
+  loading: propsLoading,
+  groupId,
+}: ParticipantsTabProps) => {
+  // The useParticipantsAttendance hook will now be responsible for fetching based on groupId
+  // or potentially using the groupId for other logic if participants are primarily from props.
+  // For this example, let's assume useParticipantsAttendance will use the groupId.
+  // If propsParticipants should be the primary source, this hook call might change or be conditional.
+  const {
+    participants: hookParticipants, // These might be different from propsParticipants
+    loading: hookLoading,
+    registerAbsence: hookRegisterAbsence,
+    hasIncidentHistory,
+  } = useParticipantsAttendance({ groupId }) // Pass groupId to the hook
+
+  // Determine which set of participants and loading state to use.
+  // This depends on whether the hook refetches based on groupId or if propsParticipants are already filtered.
+  // For simplicity, let's assume the hook provides the definitive list for this tab when groupId is involved.
+  // This part might need further refinement based on your exact data flow logic.
+  const displayParticipants = groupId ? hookParticipants : propsParticipants
+  const isLoading = groupId ? hookLoading : propsLoading
 
   // Separar participantes em dois grupos: sem histórico e com histórico
-  const participantsWithoutHistory = participants.filter((p) => !hasIncidentHistory(p))
-  const participantsWithHistory = participants.filter((p) => hasIncidentHistory(p))
+  const participantsWithoutHistory = displayParticipants.filter((p) => !hasIncidentHistory(p))
+  const participantsWithHistory = displayParticipants.filter((p) => hasIncidentHistory(p))
 
   // Concatenar os dois grupos para que os com histórico apareçam por último
   const sortedParticipants = [...participantsWithoutHistory, ...participantsWithHistory]
@@ -21,7 +52,7 @@ export const ParticipantsTab = () => {
         <CardTitle className="text-base sm:text-lg">Chamada de Voluntários</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-8">
             <div className="animate-pulse flex flex-col items-center">
               <div className="h-12 w-12 rounded-full bg-primary/20 mb-4"></div>
@@ -36,13 +67,13 @@ export const ParticipantsTab = () => {
                 <div
                   key={participant.id}
                   className={`flex flex-row items-center justify-between p-2 border rounded-md gap-2 ${
-                    participant.isAbsent ? "bg-red-50 border-red-200" : ""
+                    propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "" // Using propsIsAbsent
                   } ${hasIncidentHistory(participant) ? "opacity-60" : ""}`}
                 >
                   <div className="flex items-center gap-2">
                     <div
                       className={`h-8 w-8 rounded-full ${
-                        participant.isAbsent ? "bg-red-100" : "bg-primary/10"
+                        propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
                       } flex items-center justify-center flex-shrink-0`}
                     >
                       {participant.profile_photo ? (
@@ -53,7 +84,7 @@ export const ParticipantsTab = () => {
                         />
                       ) : (
                         <span
-                          className={`${participant.isAbsent ? "text-red-500" : "text-primary"} text-sm font-medium`}
+                          className={`${propsIsAbsent(participant) ? "text-red-500" : "text-primary"} text-sm font-medium`}
                         >
                           {participant.name.charAt(0)}
                         </span>
@@ -62,7 +93,7 @@ export const ParticipantsTab = () => {
                     <div className="min-w-0">
                       <div className="font-medium flex items-center gap-1 truncate">
                         {participant.name}
-                        {participant.isAbsent && (
+                        {propsIsAbsent(participant) && (
                           <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" title="Participante ausente" />
                         )}
                       </div>
@@ -77,10 +108,12 @@ export const ParticipantsTab = () => {
                   </div>
                   {!hasIncidentHistory(participant) && (
                     <Button
-                      variant={participant.isAbsent ? "outline" : "destructive"}
+                      variant={propsIsAbsent(participant) ? "outline" : "destructive"}
                       size="sm"
-                      onClick={() => registerAbsence(participant.id)}
-                      disabled={loading || participant.isAbsent}
+                      onClick={() =>
+                        groupId ? hookRegisterAbsence(participant.id) : propsOnRegisterAbsence(participant.id)
+                      } // Decide which registerAbsence to use
+                      disabled={isLoading || propsIsAbsent(participant)}
                       className="w-auto"
                     >
                       Ausentar

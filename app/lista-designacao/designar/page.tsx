@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ParticipantsTab } from "@/components/designation/participants-tab"
 import { ProtectedLayout } from "@/app/layout-protected"
@@ -39,6 +40,21 @@ export default function DesignarPage() {
     setIsOptional,
     registerAbsence,
   } = useDesignation()
+
+  const [groupIdFromCookie, setGroupIdFromCookie] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    // Helper to get cookie by name
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`
+      const parts = value.split(`; ${name}=`)
+      if (parts.length === 2) return parts.pop()?.split(";").shift()
+      return undefined
+    }
+
+    const gdId = getCookie("groupId") // Assuming the cookie is named 'groupId'
+    setGroupIdFromCookie(gdId)
+  }, [])
 
   return (
     <ProtectedLayout
@@ -129,6 +145,7 @@ export default function DesignarPage() {
                   isAbsent={isAbsent}
                   onRegisterAbsence={registerAbsence}
                   loading={loading}
+                  groupId={groupIdFromCookie} // Pass the groupId from cookie
                 />
               </TabsContent>
             </Tabs>

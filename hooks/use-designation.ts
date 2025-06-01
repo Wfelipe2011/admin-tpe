@@ -477,11 +477,9 @@ export function useDesignation() {
     if (!designationData?.id) return
 
     try {
-      const response = await apiClient.post(`/incidents`, {
-        participantId,
-        reason: "Não estava presente na chamada",
-        status: "ACTIVE",
-      })
+       const response = await apiClient.post(`/participants/${participantId}/incidences`, {
+          reason: "Não estava presente na chamada",
+        })
 
       // Atualiza os dados após registrar a ausência
       await fetchDesignationData()
