@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Search, LayoutGrid, List } from "lucide-react"
+import { Search, LayoutGrid, List, Filter } from "lucide-react"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
 import { ParticipantCard } from "@/components/designation/participant-card"
@@ -13,6 +13,14 @@ import { DesignationCountdown } from "@/components/designation/designation-count
 import type { IParticipants, IDesignation } from "@/types/designation"
 import Link from "next/link"
 import { useGroupStore } from "@/lib/stores/use-group-store"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function DesignationList() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid")
@@ -20,6 +28,7 @@ export function DesignationList() {
   const [designationDetails, setDesignationDetails] = useState<IDesignation | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [presenceFilter, setPresenceFilter] = useState<"todos" | "presente" | "ausente">("todos")
   const { selectedGroupId } = useGroupStore()
 
   // Get user token and extract groupId
@@ -66,9 +75,18 @@ export function DesignationList() {
   }
 
   // Filter participants based on search term
-  const filteredParticipants = participants.filter((participant) =>
-    participant.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredParticipants = participants
+    .filter((participant) => participant.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((participant) => {
+      if (presenceFilter === "ausente") {
+        return participant.isAbsent === true
+      }
+      if (presenceFilter === "presente") {
+        // Assumes isAbsent is false or undefined if present
+        return participant.isAbsent === false || participant.isAbsent === undefined
+      }
+      return true // "todos"
+    })
 
   // Add the getStatusText function inside the component
   const getStatusText = (status: string) => {
@@ -165,6 +183,24 @@ export function DesignationList() {
               />
             </div>
             <div className="flex flex-wrap gap-2 items-center justify-between sm:justify-start w-full sm:w-auto">
+              {/* Presence Filter Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filtrar
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Filtro Presença</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => setPresenceFilter("ausente")}>Ausente</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setPresenceFilter("presente")}>Presente</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setPresenceFilter("todos")}>Todos</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* View Mode Buttons */}
               <div className="flex border rounded-md overflow-hidden">
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
@@ -183,6 +219,7 @@ export function DesignationList() {
                   <LayoutGrid className="h-4 w-4" />
                 </Button>
               </div>
+              {/* Participant Count */}
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <span className="font-medium text-primary">{filteredParticipants.length}</span> participantes
               </div>
@@ -200,13 +237,13 @@ export function DesignationList() {
           {!loading && (
             <div
               className={`
-              grid gap-4 
-              ${
-                viewMode === "list"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
-                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
-              }
-            `}
+            grid gap-4 
+            ${
+              viewMode === "list"
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
+            }
+          `}
             >
               {filteredParticipants.map((participant) =>
                 viewMode === "list" ? (
