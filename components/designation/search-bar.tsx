@@ -48,7 +48,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       </div>
       <div>
         <Button
-          variant="outline"
           className="flex items-center gap-1 sm:gap-2 whitespace-nowrap h-9 sm:h-10 text-xs sm:text-sm"
           onClick={onAutoAssign}
           disabled={isDisabled}
