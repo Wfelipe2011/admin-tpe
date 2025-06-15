@@ -5,9 +5,9 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
-import { toast } from "@/components/ui/use-toast"
 import { useGroupStore } from "@/lib/stores/use-group-store"
 import type { IDesignationParticipants, Assignment, Incident } from "@/types/designation-participants"
+import toast from "react-hot-toast"
 
 // Hook para debounce de valores
 export function useDebounce<T>(value: T, delay: number): T {
@@ -81,17 +81,14 @@ export function useDesignation() {
         `/groups/${groupId}/designations/week?groupId=${groupId}`,
       )
 
+      toast.success("Designação carregada com sucesso!")
       setDesignationData(response)
       setAssignments(response.assignments || [])
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
     } catch (error) {
       console.error("Error fetching designation data:", error)
-      toast({
-        title: "Erro ao carregar dados",
-        description: "Não foi possível carregar os dados da designação.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao carregar designação. Tente novamente.")
     } finally {
       setLoading(false)
       isUpdatingRef.current = false
@@ -214,25 +211,18 @@ export function useDesignation() {
     try {
       await navigator.clipboard.writeText(linkToCopy)
       setCopyStatus("copied")
-      toast({
-        title: "Link copiado",
-        description: "Link copiado para a área de transferência.",
-      })
+      toast.success("Link copiado com sucesso!")
       setTimeout(() => setCopyStatus("able"), 3000)
     } catch (error) {
       setCopyStatus("error")
-      toast({
-        title: "Erro ao copiar",
-        description: "Não foi possível copiar o link.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao copiar o link. Tente novamente.")
       setTimeout(() => setCopyStatus("able"), 3000)
     }
   }
 
   const autoAssign = async () => {
     if (!designationData?.id) return
-
+    const loadingToast = toast.loading("Realizando designação automática...")
     setLoading(true)
     try {
       const user = getUserFromToken()
@@ -248,32 +238,26 @@ export function useDesignation() {
       const response = await apiClient.get<IDesignationParticipants>(
         `/groups/${groupId}/designations/week?groupId=${groupId}&random=true`,
       )
-
+      
       // Atualiza o estado completo com a resposta da API
       setDesignationData(response)
       setAssignments(response.assignments || [])
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
 
-      toast({
-        title: "Designação automática",
-        description: "A designação automática foi realizada com sucesso.",
-      })
+      toast.success("Designação automática realizada com sucesso!")
     } catch (error) {
       console.error("Error auto assigning:", error)
-      toast({
-        title: "Erro na designação automática",
-        description: "Não foi possível realizar a designação automática.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao realizar designação automática. Tente novamente.")
     } finally {
+      toast.dismiss(loadingToast)
       setLoading(false)
     }
   }
 
   const sendDesignation = async () => {
     if (!designationData?.id) return
-
+    const loadingToast = toast.loading("Enviando designação...")
     setLoading(true)
     try {
       const response = await apiClient.post<IDesignationParticipants>(`/designations/${designationData.id}/send`, {
@@ -286,25 +270,19 @@ export function useDesignation() {
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
 
-      toast({
-        title: "Designação enviada",
-        description: "A designação foi enviada com sucesso.",
-      })
+      toast.success("Designação enviada com sucesso!")
     } catch (error) {
       console.error("Error sending designation:", error)
-      toast({
-        title: "Erro ao enviar designação",
-        description: "Não foi possível enviar a designação.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao enviar designação. Tente novamente.")
     } finally {
       setLoading(false)
+      toast.dismiss(loadingToast)
     }
   }
 
   const cancelDesignation = async (justification: string) => {
     if (!designationData?.id || !justification.trim()) return
-
+    const loadingToast = toast.loading("Cancelando designação...")
     setLoading(true)
     try {
       const response = await apiClient.patch<IDesignationParticipants>(`/designations/${designationData.id}/cancel`, {
@@ -317,28 +295,22 @@ export function useDesignation() {
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
 
-      toast({
-        title: "Designação cancelada",
-        description: "A designação foi cancelada com sucesso.",
-      })
+      toast.success("Designação cancelada com sucesso!")
 
       // Close the modal
       setShowCancelModal(false)
     } catch (error) {
       console.error("Error cancelling designation:", error)
-      toast({
-        title: "Erro ao cancelar designação",
-        description: "Não foi possível cancelar a designação.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao cancelar designação. Tente novamente.")
     } finally {
       setLoading(false)
+      toast.dismiss(loadingToast)
     }
   }
 
   const handleUpdatePoint = async (pointId: string, status: boolean) => {
     if (!designationData?.id) return
-
+    const loadingToast = toast.loading("Atualizando ponto...")
     try {
       const response = await apiClient.patch<IDesignationParticipants>(
         `/designations/${designationData.id}/points/${pointId}`,
@@ -353,25 +325,19 @@ export function useDesignation() {
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
 
-      toast({
-        title: "Ponto atualizado",
-        description: `O ponto foi ${status ? "ativado" : "desativado"} com sucesso.`,
-      })
+      toast.success(`Ponto ${status ? "ativado" : "desativado"} com sucesso!`)
     } catch (error) {
       console.error("Error updating point:", error)
-      toast({
-        title: "Erro ao atualizar ponto",
-        description: "Não foi possível atualizar o status do ponto.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao atualizar ponto. Tente novamente.")
     } finally {
       setLoading(false)
+      toast.dismiss(loadingToast)
     }
   }
 
   const handleUpdatePointParticipants = async (pointId: string, participantIds: string[]) => {
     if (!designationData?.id) return
-
+    const loadingToast = toast.loading("Atualizando participantes do ponto...")
     try {
       const response = await apiClient.put<IDesignationParticipants>(
         `/designations/${designationData.id}/points/${pointId}/participants`,
@@ -386,19 +352,14 @@ export function useDesignation() {
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
 
-      toast({
-        title: "Participantes atualizados",
-        description: "Os participantes do ponto foram atualizados com sucesso.",
-      })
+      toast.success("Participantes do ponto atualizados com sucesso!")
+      toast.dismiss(loadingToast)
 
       return response
     } catch (error) {
       console.error("Error updating point participants:", error)
-      toast({
-        title: "Erro ao atualizar participantes",
-        description: "Não foi possível atualizar os participantes do ponto.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao atualizar participantes do ponto. Tente novamente.")
+      toast.dismiss(loadingToast)
       throw error
     }
   }
@@ -475,7 +436,7 @@ export function useDesignation() {
 
   const registerAbsence = async (participantId: string) => {
     if (!designationData?.id) return
-
+    const loadingToast = toast.loading("Registrando ausência...")
     try {
        const response = await apiClient.post(`/participants/${participantId}/incidences`, {
           reason: "Não estava presente na chamada",
@@ -484,19 +445,14 @@ export function useDesignation() {
       // Atualiza os dados após registrar a ausência
       await fetchDesignationData()
 
-      toast({
-        title: "Ausência registrada",
-        description: "A ausência do participante foi registrada com sucesso.",
-      })
+      toast.success("Ausência registrada com sucesso!")
+      toast.dismiss(loadingToast)
 
       return response
     } catch (error) {
       console.error("Error registering absence:", error)
-      toast({
-        title: "Erro ao registrar ausência",
-        description: "Não foi possível registrar a ausência do participante.",
-        variant: "destructive",
-      })
+      toast.error("Erro ao registrar ausência. Tente novamente.")
+      toast.dismiss(loadingToast)
       throw error
     }
   }

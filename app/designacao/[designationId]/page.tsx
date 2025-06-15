@@ -10,6 +10,7 @@ import { LinkNotFound } from "@/components/public/link-not-found"
 import { DesignationHeader } from "@/components/public/designation-header"
 import { MobileOnlyWrapper } from "@/components/public/mobile-only-wrapper"
 import { DesignationLoading } from "@/components/public/designation-loading"
+import toast from "react-hot-toast"
 
 export default function DesignationListPage() {
   const params = useParams()
@@ -20,23 +21,29 @@ export default function DesignationListPage() {
   const designationId = params.designationId as string
 
   const fetchDesignations = async () => {
+    const loadingToast = toast.loading('Carregando designações...')
     try {
       setLoading(true)
       const data = await apiClient.get<WeekDesignation[]>(`/designations/${designationId}/participants`, {
         endpoint: "legacy",
       })
+      toast.dismiss(loadingToast)
 
       setDesignations(data || [])
 
       if (!data || data.length === 0) {
         setPage("not-found")
+        toast.error("Nenhuma designação encontrada para este link.")
         return
       }
 
       setPage("screen")
+      toast.success("Designações carregadas com sucesso!")
     } catch (err) {
       console.error("Error fetching designations:", err)
+      toast.dismiss(loadingToast)
       setPage("not-found")
+      toast.error("Erro ao carregar designações. Tente novamente")
     } finally {
       setLoading(false)
     }

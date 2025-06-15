@@ -153,7 +153,7 @@ importers:
         specifier: latest
         version: 7.56.4(react@19.0.0)
       react-hot-toast:
-        specifier: latest
+        specifier: ^2.5.2
         version: 2.5.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-resizable-panels:
         specifier: ^2.1.7

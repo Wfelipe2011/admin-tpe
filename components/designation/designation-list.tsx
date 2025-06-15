@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import toast from "react-hot-toast"
 
 export function DesignationList() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid")
@@ -33,6 +34,7 @@ export function DesignationList() {
 
   // Get user token and extract groupId
   const fetchData = async () => {
+    const loadingToast = toast.loading("Carregando designações...")
     try {
       setLoading(true)
       const user = getUserFromToken()
@@ -47,6 +49,10 @@ export function DesignationList() {
       const groupId = selectedGroupId || user.groupId
 
       if (!groupId || groupId === "todos") {
+        toast.dismiss(loadingToast)
+        toast("Selecione um grupo para visualizar as designações.", {
+          icon: "⚠️",
+        })
         setLoading(false)
         return
       }
@@ -58,7 +64,11 @@ export function DesignationList() {
       // Fetch participants
       const participantsData = await apiClient.get<IParticipants[]>(`/participants?groupId=${groupId}`)
       setParticipants(participantsData)
+      toast.dismiss(loadingToast)
+      toast.success("Designações carregadas com sucesso!")
     } catch (error) {
+      toast.dismiss(loadingToast)
+      toast.error("Erro ao carregar designações. Tente novamente.")
       console.error("Error fetching data:", error)
     } finally {
       setLoading(false)
