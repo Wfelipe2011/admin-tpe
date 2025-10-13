@@ -159,7 +159,7 @@ export function DesignationList() {
       <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mx-auto">
         <div className="space-y-4">
           {/* Status and Designate button */}
-          <div className="flex flex-col md:flex-row justify-between items-start xs:items-center gap-2">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-3">
             <div className="text-sm text-muted-foreground">
               Status:{" "}
               <span
@@ -174,11 +174,18 @@ export function DesignationList() {
                   : "Carregando..."}
               </span>
             </div>
-            <Link href="/lista-designacao/designar">
-              <Button size="sm" className="px-4 w-full xs:w-auto">
-                {designationDetails?.designation?.status === "OPEN" ? "Designar" : "Consultar Designação"}
-              </Button>
-            </Link>
+            <div className="flex flex-col xs:flex-row gap-2 w-full md:w-auto">
+              <Link href="/lista-designacao/chamada" className="w-full xs:w-auto">
+                <Button variant="outline" size="sm" className="px-4 w-full">
+                  Chamada
+                </Button>
+              </Link>
+              <Link href="/lista-designacao/designar" className="w-full xs:w-auto">
+                <Button size="sm" className="px-4 w-full">
+                  {designationDetails?.designation?.status === "OPEN" ? "Designar" : "Consultar Designação"}
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Search and filters */}
@@ -247,24 +254,28 @@ export function DesignationList() {
           {!loading && (
             <div
               className={`
-            grid gap-4 
-            ${
-              viewMode === "list"
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
-                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
-            }
-          `}
+                grid gap-4
+                ${
+                  viewMode === "list"
+                    ? "grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                }
+              `}
             >
               {filteredParticipants.map((participant) =>
                 viewMode === "list" ? (
-                  <div key={participant.id} className="max-w-[288px] w-full justify-self-center">
-                    <ParticipantCard participant={participant} onStatusChange={handleParticipantStatusChange} />
-                  </div>
+                  <ParticipantCard
+                    key={participant.id}
+                    participant={participant}
+                    onStatusChange={handleParticipantStatusChange}
+                    className="min-w-[280px]"
+                  />
                 ) : (
                   <ParticipantCardLarge
                     key={participant.id}
                     participant={participant}
                     onStatusChange={handleParticipantStatusChange}
+                    className="min-w-[320px]"
                   />
                 ),
               )}

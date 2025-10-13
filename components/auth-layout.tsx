@@ -93,7 +93,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
             {/* Image */}
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Group%20199-y235wHlteDw2QWdLliDzJ5zI07jEkd.png"
+              src="/images/design-mode/Group%20199.png"
               alt="TPE Digital Dashboard Preview"
               width={1000}
               height={750}
@@ -109,7 +109,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-16 bg-white">
         <div className="md:hidden mb-8 flex flex-col items-center space-y-4">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-yYRKoSISJ9zPWfIf4YEtjQ1eX3qa1x.png"
+            src="/images/design-mode/logo.png"
             alt="TPE Digital Logo"
             width={250}
             height={250}

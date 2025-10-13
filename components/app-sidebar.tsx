@@ -75,7 +75,7 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, userProfil
         {collapsed && !isMobile ? (
           <div className="px-4 py-2">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo_branco-N0d5vAhKbAXR1RM8LeLw2lw4JCjpqq.png"
+              src="/images/design-mode/logo_branco.png"
               alt="TPE Digital"
               width={200}
               height={200}
@@ -86,7 +86,7 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, userProfil
         ) : (
           <div className="flex items-center mx-2">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo_branco-N0d5vAhKbAXR1RM8LeLw2lw4JCjpqq.png"
+              src="/images/design-mode/logo_branco.png"
               alt="TPE Digital"
               width={200}
               height={200}

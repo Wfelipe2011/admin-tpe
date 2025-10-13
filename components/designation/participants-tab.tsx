@@ -1,17 +1,19 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useParticipantsAttendance } from "@/hooks/use-participants-attendance"
-import type { Participant } from "@/types/participants" // Assuming this type exists
+import type { Participant } from "@/types/participants"
+import { useState, useMemo } from "react"
 
 interface ParticipantsTabProps {
-  participants: Participant[] // Participants from DesignarPage
+  participants: Participant[]
   isAbsent: (participant: Participant) => boolean
   onRegisterAbsence: (participantId: string) => void
   loading: boolean
-  groupId?: string // New groupId prop
+  groupId?: string
 }
 
 export const ParticipantsTab = ({
@@ -21,108 +23,147 @@ export const ParticipantsTab = ({
   loading: propsLoading,
   groupId,
 }: ParticipantsTabProps) => {
-  // The useParticipantsAttendance hook will now be responsible for fetching based on groupId
-  // or potentially using the groupId for other logic if participants are primarily from props.
-  // For this example, let's assume useParticipantsAttendance will use the groupId.
-  // If propsParticipants should be the primary source, this hook call might change or be conditional.
+  const [searchTerm, setSearchTerm] = useState("")
+
   const {
-    participants: hookParticipants, // These might be different from propsParticipants
+    participants: hookParticipants,
     loading: hookLoading,
     registerAbsence: hookRegisterAbsence,
     hasIncidentHistory,
-  } = useParticipantsAttendance({ groupId }) // Pass groupId to the hook
+  } = useParticipantsAttendance({ groupId })
 
-  // Determine which set of participants and loading state to use.
-  // This depends on whether the hook refetches based on groupId or if propsParticipants are already filtered.
-  // For simplicity, let's assume the hook provides the definitive list for this tab when groupId is involved.
-  // This part might need further refinement based on your exact data flow logic.
   const displayParticipants = groupId ? hookParticipants : propsParticipants
   const isLoading = groupId ? hookLoading : propsLoading
 
+  // Filter participants based on search term
+  const filteredParticipants = useMemo(() => {
+    if (!searchTerm) return displayParticipants
+
+    return displayParticipants.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  }, [displayParticipants, searchTerm])
+
   // Separar participantes em dois grupos: sem histórico e com histórico
-  const participantsWithoutHistory = displayParticipants.filter((p) => !hasIncidentHistory(p))
-  const participantsWithHistory = displayParticipants.filter((p) => hasIncidentHistory(p))
+  const participantsWithoutHistory = filteredParticipants.filter((p) => !hasIncidentHistory(p))
+  const participantsWithHistory = filteredParticipants.filter((p) => hasIncidentHistory(p))
 
   // Concatenar os dois grupos para que os com histórico apareçam por último
   const sortedParticipants = [...participantsWithoutHistory, ...participantsWithHistory]
 
+  // Statistics
+  const totalParticipants = displayParticipants.length
+  const presentCount = displayParticipants.filter((p) => !propsIsAbsent(p)).length
+  const absentCount = totalParticipants - presentCount
+
   return (
-    <Card className="max-w-5xl mx-auto border-none shadow-none">
-      <CardHeader className="pb-2 sm:pb-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-base sm:text-lg">Chamada de Voluntários</CardTitle>
+    <Card className="w-full border shadow-sm">
+      <CardHeader className="pb-3 sm:pb-4 space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <CardTitle className="text-lg sm:text-xl">Chamada de Voluntários</CardTitle>
+
+          {/* Statistics */}
+          <div className="flex gap-2 text-xs sm:text-sm">
+            <div className="px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-200">
+              Presentes: <span className="font-semibold">{presentCount}</span>
+            </div>
+            <div className="px-3 py-1 bg-red-50 text-red-700 rounded-full border border-red-200">
+              Ausentes: <span className="font-semibold">{absentCount}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Search bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Buscar voluntário..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-10"
+          />
+        </div>
       </CardHeader>
-      <CardContent className="p-0">
+
+      <CardContent className="p-3 sm:p-6">
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-pulse flex flex-col items-center">
-              <div className="h-12 w-12 rounded-full bg-primary/20 mb-4"></div>
-              <div className="h-4 w-48 bg-primary/20 rounded mb-2"></div>
+          <div className="flex justify-center py-12">
+            <div className="animate-pulse flex flex-col items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-primary/20"></div>
+              <div className="h-4 w-48 bg-primary/20 rounded"></div>
               <div className="h-3 w-32 bg-primary/10 rounded"></div>
             </div>
           </div>
         ) : (
           <div className="space-y-2">
             {sortedParticipants.length > 0 ? (
-              sortedParticipants.map((participant) => (
-                <div
-                  key={participant.id}
-                  className={`flex flex-row items-center justify-between p-2 border rounded-md gap-2 ${
-                    propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "" // Using propsIsAbsent
-                  } ${hasIncidentHistory(participant) ? "opacity-60" : ""}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`h-8 w-8 rounded-full ${
-                        propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
-                      } flex items-center justify-center flex-shrink-0`}
-                    >
-                      {participant.profile_photo ? (
-                        <img
-                          src={participant.profile_photo || "/placeholder.svg"}
-                          alt={participant.name}
-                          className="h-full w-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <span
-                          className={`${propsIsAbsent(participant) ? "text-red-500" : "text-primary"} text-sm font-medium`}
-                        >
-                          {participant.name.charAt(0)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-medium flex items-center gap-1 truncate">
-                        {participant.name}
-                        {propsIsAbsent(participant) && (
-                          <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" title="Participante ausente" />
+              <div className="grid grid-cols-1 gap-2">
+                {sortedParticipants.map((participant) => (
+                  <div
+                    key={participant.id}
+                    className={`flex flex-row items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 transition-all hover:shadow-sm ${
+                      propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "bg-white"
+                    } ${hasIncidentHistory(participant) ? "opacity-60" : ""}`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div
+                        className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full ${
+                          propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
+                        } flex items-center justify-center flex-shrink-0`}
+                      >
+                        {participant.profile_photo ? (
+                          <img
+                            src={participant.profile_photo || "/placeholder.svg"}
+                            alt={participant.name}
+                            className="h-full w-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <span
+                            className={`${
+                              propsIsAbsent(participant) ? "text-red-600" : "text-primary"
+                            } text-base sm:text-lg font-semibold`}
+                          >
+                            {participant.name.charAt(0).toUpperCase()}
+                          </span>
                         )}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {participant.profile === "CAPTAIN"
-                          ? "Capitão"
-                          : participant.profile === "COORDINATOR"
-                            ? "Coordenador"
-                            : "Voluntário"}
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-sm sm:text-base flex items-center gap-2 truncate">
+                          {participant.name}
+                          {propsIsAbsent(participant) && (
+                            <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" title="Participante ausente" />
+                          )}
+                        </div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {participant.profile === "CAPTAIN"
+                            ? "Capitão"
+                            : participant.profile === "COORDINATOR"
+                              ? "Coordenador"
+                              : "Voluntário"}
+                        </div>
                       </div>
                     </div>
+                    {!hasIncidentHistory(participant) && (
+                      <Button
+                        variant={propsIsAbsent(participant) ? "outline" : "destructive"}
+                        size="sm"
+                        onClick={() =>
+                          groupId ? hookRegisterAbsence(participant.id) : propsOnRegisterAbsence(participant.id)
+                        }
+                        disabled={isLoading || propsIsAbsent(participant)}
+                        className="flex-shrink-0 h-8 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm"
+                      >
+                        {propsIsAbsent(participant) ? "Ausente" : "Ausentar"}
+                      </Button>
+                    )}
                   </div>
-                  {!hasIncidentHistory(participant) && (
-                    <Button
-                      variant={propsIsAbsent(participant) ? "outline" : "destructive"}
-                      size="sm"
-                      onClick={() =>
-                        groupId ? hookRegisterAbsence(participant.id) : propsOnRegisterAbsence(participant.id)
-                      } // Decide which registerAbsence to use
-                      disabled={isLoading || propsIsAbsent(participant)}
-                      className="w-auto"
-                    >
-                      Ausentar
-                    </Button>
-                  )}
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
-              <div className="text-center py-4 text-muted-foreground">Não há voluntários disponíveis</div>
+              <div className="text-center py-8 sm:py-12">
+                <div className="text-muted-foreground text-sm sm:text-base">
+                  {searchTerm ? "Nenhum voluntário encontrado" : "Não há voluntários disponíveis"}
+                </div>
+              </div>
             )}
           </div>
         )}
