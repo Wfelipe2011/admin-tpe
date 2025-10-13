@@ -3,6 +3,7 @@
 import { useFormContext } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { FormSectionWrapper } from "../ui/form-section-wrapper"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { CongregationCombobox } from "../ui/congregation-combobox"
@@ -19,15 +20,16 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
   const form = useFormContext<PetitionFormValues>()
   const congregationId = form.getValues("congregationId")
   const gender = form.watch("sex")
+  const groups = form.watch("groups") || []
 
   // Filter attribution options based on gender
   const attributionOptions = [
     { value: "PIONEIRO", label: "Pioneiro" },
     ...(gender === "MALE"
       ? [
-          { value: "ANCIÃO", label: "Ancião" },
-          { value: "SERVO_MINISTERIAL", label: "Servo Ministerial" },
-        ]
+        { value: "ANCIÃO", label: "Ancião" },
+        { value: "SERVO_MINISTERIAL", label: "Servo Ministerial" },
+      ]
       : []),
   ]
 
@@ -219,6 +221,19 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
             </FormItem>
           )}
         />
+
+        {groups.length > 0 && (
+          <div className="space-y-2 md:col-span-2">
+            <FormLabel>Grupos que participa</FormLabel>
+            <div className="flex flex-wrap gap-2">
+              {groups.map((group) => (
+                <Badge key={group.id} variant="default" className="text-sm">
+                  {group.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </FormSectionWrapper>
   )

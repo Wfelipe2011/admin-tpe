@@ -121,6 +121,12 @@ export const petitionFormSchema = z
       Sunday: { morning: false, afternoon: false, evening: false },
     }),
     image: z.string().optional(),
+    groups: z.array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      })
+    ).optional().default([]),
   })
   .refine(
     (data) => {
