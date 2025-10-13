@@ -1,14 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { ProtectedLayout } from "@/app/layout-protected"
 import { ParticipantsTab } from "@/components/designation/participants-tab"
 import { useDesignation } from "@/hooks/use-designation"
-import { useGroupStore } from "@/lib/stores/use-group-store"
 
 export default function ChamadaPage() {
   const { loading, participants, groupId, isAbsent, registerAbsence } = useDesignation()
-
 
   return (
     <ProtectedLayout
@@ -17,7 +14,7 @@ export default function ChamadaPage() {
     >
       <div className="w-full max-w-5xl mx-auto px-3 sm:px-4 md:px-6">
         <ParticipantsTab
-          participants={participants}
+          participants={participants || []}
           isAbsent={isAbsent}
           onRegisterAbsence={registerAbsence}
           loading={loading}

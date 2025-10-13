@@ -32,26 +32,28 @@ export const ParticipantsTab = ({
     hasIncidentHistory,
   } = useParticipantsAttendance({ groupId })
 
-  const displayParticipants = groupId ? hookParticipants : propsParticipants
+  // Garantir que sempre temos um array válido
+  const displayParticipants = groupId ? hookParticipants || [] : propsParticipants || []
   const isLoading = groupId ? hookLoading : propsLoading
 
   // Filter participants based on search term
   const filteredParticipants = useMemo(() => {
+    if (!displayParticipants || displayParticipants.length === 0) return []
     if (!searchTerm) return displayParticipants
 
-    return displayParticipants.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    return displayParticipants.filter((p) => p?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
   }, [displayParticipants, searchTerm])
 
   // Separar participantes em dois grupos: sem histórico e com histórico
-  const participantsWithoutHistory = filteredParticipants.filter((p) => !hasIncidentHistory(p))
-  const participantsWithHistory = filteredParticipants.filter((p) => hasIncidentHistory(p))
+  const participantsWithoutHistory = filteredParticipants.filter((p) => p && !hasIncidentHistory(p))
+  const participantsWithHistory = filteredParticipants.filter((p) => p && hasIncidentHistory(p))
 
   // Concatenar os dois grupos para que os com histórico apareçam por último
   const sortedParticipants = [...participantsWithoutHistory, ...participantsWithHistory]
 
   // Statistics
-  const totalParticipants = displayParticipants.length
-  const presentCount = displayParticipants.filter((p) => !propsIsAbsent(p)).length
+  const totalParticipants = displayParticipants?.length || 0
+  const presentCount = displayParticipants?.filter((p) => p && !propsIsAbsent(p)).length || 0
   const absentCount = totalParticipants - presentCount
 
   return (
@@ -122,7 +124,7 @@ export const ParticipantsTab = ({
                               propsIsAbsent(participant) ? "text-red-600" : "text-primary"
                             } text-base sm:text-lg font-semibold`}
                           >
-                            {participant.name.charAt(0).toUpperCase()}
+                            {participant.name?.charAt(0)?.toUpperCase() || "?"}
                           </span>
                         )}
                       </div>
