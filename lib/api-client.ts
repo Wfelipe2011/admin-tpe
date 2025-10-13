@@ -4,7 +4,7 @@ import { getAuthToken } from "@/lib/auth-utils"
 type ApiEndpoint = "legacy" | "new"
 
 interface RequestOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE"
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   body?: any
   headers?: Record<string, string>
   endpoint?: ApiEndpoint
@@ -19,7 +19,7 @@ export class ApiClient {
   constructor() {
     this.legacyAxios = axios.create({
       baseURL: this.legacyBaseUrl,
-      timeout: 30000, // Changed from 10000 to 30000
+      timeout: 30000,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -28,7 +28,7 @@ export class ApiClient {
 
     this.newAxios = axios.create({
       baseURL: this.newBaseUrl,
-      timeout: 30000, // Changed from 10000 to 30000
+      timeout: 30000,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -119,7 +119,6 @@ export class ApiClient {
     const { endpoint = "new", headers = {} } = options
     const axiosInstance = this.getAxiosInstance(endpoint)
 
-    // Configurar cabeçalhos para upload de arquivos
     const uploadHeaders = {
       ...headers,
       "Content-Type": "multipart/form-data",
