@@ -35,7 +35,6 @@ export const ParticipantsTab = ({
   // Garantir que sempre temos um array válido
   const displayParticipants = groupId ? hookParticipants || [] : propsParticipants || []
   const isLoading = groupId ? hookLoading : propsLoading
-
   // Filter participants based on search term
   const filteredParticipants = useMemo(() => {
     if (!displayParticipants || displayParticipants.length === 0) return []
@@ -102,15 +101,13 @@ export const ParticipantsTab = ({
                 {sortedParticipants.map((participant) => (
                   <div
                     key={participant.id}
-                    className={`flex flex-row items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 transition-all hover:shadow-sm ${
-                      propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "bg-white"
-                    } ${hasIncidentHistory(participant) ? "opacity-60" : ""}`}
+                    className={`flex flex-row items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 transition-all hover:shadow-sm ${propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "bg-white"
+                      } ${hasIncidentHistory(participant) ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div
-                        className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full ${
-                          propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
-                        } flex items-center justify-center flex-shrink-0`}
+                        className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full ${propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
+                          } flex items-center justify-center flex-shrink-0`}
                       >
                         {participant.profile_photo ? (
                           <img
@@ -120,9 +117,8 @@ export const ParticipantsTab = ({
                           />
                         ) : (
                           <span
-                            className={`${
-                              propsIsAbsent(participant) ? "text-red-600" : "text-primary"
-                            } text-base sm:text-lg font-semibold`}
+                            className={`${propsIsAbsent(participant) ? "text-red-600" : "text-primary"
+                              } text-base sm:text-lg font-semibold`}
                           >
                             {participant.name?.charAt(0)?.toUpperCase() || "?"}
                           </span>

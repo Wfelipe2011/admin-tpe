@@ -29,8 +29,6 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
   const { groupId } = options || {}
   const [participants, setParticipants] = useState<ParticipantWithAttendance[]>([])
   const [loading, setLoading] = useState(true)
-  // Add other necessary states, e.g., for error handling
-  const [refreshKey, setRefreshKey] = useState(0)
 
   const fetchParticipants = useCallback(async () => {
     setLoading(true)
@@ -44,7 +42,6 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
       // const endpoint = "/api/all-participants-for-attendance";
 
       const response = await apiClient.get<ParticipantWithAttendance[]>(endpoint) // Replace with your actual API call
-
       // If filtering client-side based on a property within participant data:
       // let fetchedParticipants = response.data;
       // if (groupId) {
@@ -52,7 +49,7 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
       // }
       // setParticipants(fetchedParticipants);
 
-      setParticipants(response.data) // Assuming API handles filtering or groupId is for other purpose
+      setParticipants(response) // Assuming API handles filtering or groupId is for other purpose
     } catch (error) {
       console.error("Failed to fetch participants for attendance:", error)
       toast({
@@ -82,8 +79,7 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
           description: "A ausência do participante foi registrada com sucesso.",
         })
 
-        // Atualizar a lista de participantes, forçando um refetch
-        setRefreshKey((prev) => prev + 1)
+        fetchParticipants() // Refetch para atualizar a lista após registrar a ausência
       } catch (error) {
         console.error("Error registering absence:", error)
         toast({
