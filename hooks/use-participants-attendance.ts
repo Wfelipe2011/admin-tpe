@@ -35,10 +35,11 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
   const fetchParticipants = useCallback(async () => {
     setLoading(true)
     try {
+      console.log("Fetching participants with groupId:", groupId)
       // Example: Adjust API endpoint or query params based on groupId
       const endpoint = groupId
-        ? `/api/participants?groupId=${groupId}&attendance=true`
-        : "/api/participants?attendance=true"
+        ? `/participants?groupId=${groupId}&attendance=true`
+        : "/participants?attendance=true"
       // Or, if groupId is for client-side filtering after a general fetch:
       // const endpoint = "/api/all-participants-for-attendance";
 

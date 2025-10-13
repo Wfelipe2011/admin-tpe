@@ -238,7 +238,7 @@ export function useDesignation() {
       const response = await apiClient.get<IDesignationParticipants>(
         `/groups/${groupId}/designations/week?groupId=${groupId}&random=true`,
       )
-      
+
       // Atualiza o estado completo com a resposta da API
       setDesignationData(response)
       setAssignments(response.assignments || [])
@@ -438,9 +438,9 @@ export function useDesignation() {
     if (!designationData?.id) return
     const loadingToast = toast.loading("Registrando ausência...")
     try {
-       const response = await apiClient.post(`/participants/${participantId}/incidences`, {
-          reason: "Não estava presente na chamada",
-        })
+      const response = await apiClient.post(`/participants/${participantId}/incidences`, {
+        reason: "Não estava presente na chamada",
+      })
 
       // Atualiza os dados após registrar a ausência
       await fetchDesignationData()
@@ -478,6 +478,7 @@ export function useDesignation() {
     showConfirmModal,
     showCancelModal,
     lastUpdateTime: formattedLastUpdateTime,
+    groupId: selectedGroupId,
     setShowConfirmModal,
     setShowCancelModal,
     handleSearch,
