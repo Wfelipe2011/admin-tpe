@@ -54,7 +54,7 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
     } finally {
       setLoading(false)
     }
-  }, [groupId]) // Refetch if groupId changes
+  }, [groupId, designationId]) // Refetch if groupId changes
 
   useEffect(() => {
     fetchParticipants()
@@ -64,9 +64,7 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
     async (participantId: string) => {
       setLoading(true) // Certifique-se de que o estado de loading é ativado
       try {
-        const endpoint = designationId
-          ? `/designations/${designationId}/participants/${participantId}/incidences`
-          : `/participants/${participantId}/incidences`
+        const endpoint = `/designations/${designationId}/participants/${participantId}/incidences`
 
         await apiClient.post(endpoint, {
           reason: "Não estava presente",
