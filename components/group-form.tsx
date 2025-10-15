@@ -284,7 +284,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                       Tipo
                       <RequiredIndicator />
                     </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o tipo" />
@@ -310,7 +310,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                       Dia da Semana
                       <RequiredIndicator />
                     </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o dia" />
@@ -340,7 +340,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                       Status
                       <RequiredIndicator />
                     </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o status" />
