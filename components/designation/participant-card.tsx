@@ -11,10 +11,11 @@ import type { IParticipants } from "@/types/designation"
 
 interface ParticipantCardProps {
   participant: IParticipants
+  designationId?: string
   onStatusChange?: () => void
 }
 
-export function ParticipantCard({ participant, onStatusChange }: ParticipantCardProps) {
+export function ParticipantCard({ participant, designationId, onStatusChange }: ParticipantCardProps) {
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false)
   const [isReasonModalOpen, setIsReasonModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -29,7 +30,7 @@ export function ParticipantCard({ participant, onStatusChange }: ParticipantCard
 
     setIsLoading(true)
     try {
-      await apiClient.delete(`/participants/${participant.id}/incidences/${participant.incident_history.id}`)
+      await apiClient.delete(`/designations/${designationId}/participants/${participant.id}/incidences/${participant.incident_history.id}`)
       if (onStatusChange) onStatusChange()
     } catch (error) {
       console.error("Error reverting absence:", error)
@@ -81,11 +82,12 @@ export function ParticipantCard({ participant, onStatusChange }: ParticipantCard
         </div>
       </Card>
 
-      {onStatusChange && (
+      {onStatusChange && designationId && (
         <AbsenceModal
           isOpen={isAbsenceModalOpen}
           onClose={() => setIsAbsenceModalOpen(false)}
           participantId={participant.id}
+          designationId={designationId}
           onSuccess={onStatusChange}
         />
       )}

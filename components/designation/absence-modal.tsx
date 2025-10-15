@@ -11,10 +11,11 @@ interface AbsenceModalProps {
   isOpen: boolean
   onClose: () => void
   participantId: string
+  designationId: string
   onSuccess: () => void
 }
 
-export function AbsenceModal({ isOpen, onClose, participantId, onSuccess }: AbsenceModalProps) {
+export function AbsenceModal({ isOpen, onClose, participantId, designationId, onSuccess }: AbsenceModalProps) {
   const [reason, setReason] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -29,7 +30,7 @@ export function AbsenceModal({ isOpen, onClose, participantId, onSuccess }: Abse
     setError(null)
 
     try {
-      await apiClient.post(`/participants/${participantId}/incidences`, { reason })
+      await apiClient.post(`/designations/${designationId}/participants/${participantId}/incidences`, { reason })
       onSuccess()
       onClose()
       setReason("")

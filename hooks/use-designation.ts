@@ -438,7 +438,7 @@ export function useDesignation() {
     if (!designationData?.id) return
     const loadingToast = toast.loading("Registrando ausência...")
     try {
-      const response = await apiClient.post(`/participants/${participantId}/incidences`, {
+      const response = await apiClient.post(`/designations/${designationData.id}/participants/${participantId}/incidences`, {
         reason: "Não estava presente na chamada",
       })
 
@@ -479,6 +479,7 @@ export function useDesignation() {
     showCancelModal,
     lastUpdateTime: formattedLastUpdateTime,
     groupId: selectedGroupId,
+    designationId: designationData?.id,
     setShowConfirmModal,
     setShowCancelModal,
     handleSearch,

@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { apiClient } from "@/lib/api-client"
-import { toast } from "@/components/ui/use-toast"
-import type { Participant } from "@/types/participants" // Assuming this type exists
-import type { Incident } from "@/types/designation" // Assuming this type exists
+import { toast } from "@/hooks/use-toast"
 
 // Interface para os participantes
 // export interface IParticipant {
@@ -18,16 +16,12 @@ import type { Incident } from "@/types/designation" // Assuming this type exists
 
 interface UseParticipantsAttendanceOptions {
   groupId?: string
-}
-
-interface ParticipantWithAttendance extends Participant {
-  isAbsent?: boolean
-  incidents?: Incident[] // Or some structure for incident history
+  designationId?: string
 }
 
 export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOptions) => {
-  const { groupId } = options || {}
-  const [participants, setParticipants] = useState<ParticipantWithAttendance[]>([])
+  const { groupId, designationId } = options || {}
+  const [participants, setParticipants] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchParticipants = useCallback(async () => {
@@ -41,7 +35,7 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
       // Or, if groupId is for client-side filtering after a general fetch:
       // const endpoint = "/api/all-participants-for-attendance";
 
-      const response = await apiClient.get<ParticipantWithAttendance[]>(endpoint) // Replace with your actual API call
+      const response = await apiClient.get<any[]>(endpoint) // Replace with your actual API call
       // If filtering client-side based on a property within participant data:
       // let fetchedParticipants = response.data;
       // if (groupId) {
@@ -70,7 +64,11 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
     async (participantId: string) => {
       setLoading(true) // Certifique-se de que o estado de loading é ativado
       try {
-        await apiClient.post(`/participants/${participantId}/incidences`, {
+        const endpoint = designationId
+          ? `/designations/${designationId}/participants/${participantId}/incidences`
+          : `/participants/${participantId}/incidences`
+
+        await apiClient.post(endpoint, {
           reason: "Não estava presente",
         })
 
@@ -91,10 +89,10 @@ export const useParticipantsAttendance = (options?: UseParticipantsAttendanceOpt
         setLoading(false) // Certifique-se de que o estado de loading é desativado
       }
     },
-    [groupId], // Mantenha groupId nas dependências se ele for usado em algum lugar ou se a lógica de refresh depender dele
+    [groupId, designationId], // Mantenha groupId nas dependências se ele for usado em algum lugar ou se a lógica de refresh depender dele
   )
 
-  const hasIncidentHistory = useCallback((participant: ParticipantWithAttendance): boolean => {
+  const hasIncidentHistory = useCallback((participant: any): boolean => {
     // Your logic to determine if a participant has incident history
     // This might check a property on the participant object
     return !!(participant.incidents && participant.incidents.length > 0)

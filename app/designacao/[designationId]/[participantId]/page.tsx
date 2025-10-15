@@ -63,7 +63,7 @@ export default function ParticipantDesignationPage() {
 
   const handleAbsent = async (reason: string) => {
     try {
-      await apiClient.post(`/participants/${participantId}/incidences`, { reason }, { endpoint: "legacy" })
+      await apiClient.post(`/designations/${designationId}/participants/${participantId}/incidences`, { reason }, { endpoint: "legacy" })
       await fetchDesignations()
       return Promise.resolve()
     } catch (error) {
@@ -74,7 +74,7 @@ export default function ParticipantDesignationPage() {
 
   const handleUpdateIncident = async (reason: string, incidentId: string) => {
     try {
-      await apiClient.put(`/participants/${participantId}/incidences/${incidentId}`, { reason }, { endpoint: "legacy" })
+      await apiClient.put(`/designations/${designationId}/participants/${participantId}/incidences/${incidentId}`, { reason }, { endpoint: "legacy" })
       await fetchDesignations()
       return Promise.resolve()
     } catch (error) {

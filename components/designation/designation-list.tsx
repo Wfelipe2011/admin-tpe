@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import toast from "react-hot-toast"
 
-export function DesignationList() {
+export function DesignationList({ designationId }: { designationId?: string } = {}) {
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid")
   const [participants, setParticipants] = useState<IParticipants[]>([])
   const [designationDetails, setDesignationDetails] = useState<IDesignation | null>(null)
@@ -87,7 +87,7 @@ export function DesignationList() {
   // Filter participants based on search term
   const filteredParticipants = participants
     .filter((participant) => participant.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter((participant) => {
+    .filter((participant: any) => {
       if (presenceFilter === "ausente") {
         return participant.isAbsent === true
       }
@@ -255,10 +255,9 @@ export function DesignationList() {
             <div
               className={`
                 grid gap-4
-                ${
-                  viewMode === "list"
-                    ? "grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
-                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                ${viewMode === "list"
+                  ? "grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
                 }
               `}
             >
@@ -267,15 +266,15 @@ export function DesignationList() {
                   <ParticipantCard
                     key={participant.id}
                     participant={participant}
+                    designationId={designationId || designationDetails?.designation?.id}
                     onStatusChange={handleParticipantStatusChange}
-                    className="min-w-[280px]"
                   />
                 ) : (
                   <ParticipantCardLarge
                     key={participant.id}
                     participant={participant}
+                    designationId={designationId || designationDetails?.designation?.id}
                     onStatusChange={handleParticipantStatusChange}
-                    className="min-w-[320px]"
                   />
                 ),
               )}

@@ -12,10 +12,11 @@ import type { IParticipants } from "@/types/designation"
 
 interface ParticipantCardLargeProps {
   participant: IParticipants
+  designationId?: string
   onStatusChange: () => void
 }
 
-export function ParticipantCardLarge({ participant, onStatusChange }: ParticipantCardLargeProps) {
+export function ParticipantCardLarge({ participant, designationId, onStatusChange }: ParticipantCardLargeProps) {
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false)
   const [isReasonModalOpen, setIsReasonModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -30,7 +31,7 @@ export function ParticipantCardLarge({ participant, onStatusChange }: Participan
 
     setIsLoading(true)
     try {
-      await apiClient.delete(`/participants/${participant.id}/incidences/${participant.incident_history.id}`)
+      await apiClient.delete(`/designations/${designationId}/participants/${participant.id}/incidences/${participant.incident_history.id}`)
       onStatusChange()
     } catch (error) {
       console.error("Error reverting absence:", error)
@@ -115,12 +116,15 @@ export function ParticipantCardLarge({ participant, onStatusChange }: Participan
         </div>
       </Card>
 
-      <AbsenceModal
-        isOpen={isAbsenceModalOpen}
-        onClose={() => setIsAbsenceModalOpen(false)}
-        participantId={participant.id}
-        onSuccess={onStatusChange}
-      />
+      {designationId && (
+        <AbsenceModal
+          isOpen={isAbsenceModalOpen}
+          onClose={() => setIsAbsenceModalOpen(false)}
+          participantId={participant.id}
+          designationId={designationId}
+          onSuccess={onStatusChange}
+        />
+      )}
 
       {participant.incident_history && (
         <ReasonModal

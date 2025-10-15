@@ -5,15 +5,17 @@ import { AlertCircle, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useParticipantsAttendance } from "@/hooks/use-participants-attendance"
-import type { Participant } from "@/types/participants"
+import type { IParticipants as Participant } from "@/types/participants"
+import type { Incident } from "@/types/designation-participants"
 import { useState, useMemo } from "react"
 
 interface ParticipantsTabProps {
-  participants: Participant[]
-  isAbsent: (participant: Participant) => boolean
+  participants: Participant[] | Incident[]
+  isAbsent: (participant: Participant | Incident) => boolean
   onRegisterAbsence: (participantId: string) => void
   loading: boolean
   groupId?: string
+  designationId?: string
 }
 
 export const ParticipantsTab = ({
@@ -22,6 +24,7 @@ export const ParticipantsTab = ({
   onRegisterAbsence: propsOnRegisterAbsence,
   loading: propsLoading,
   groupId,
+  designationId,
 }: ParticipantsTabProps) => {
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -30,7 +33,7 @@ export const ParticipantsTab = ({
     loading: hookLoading,
     registerAbsence: hookRegisterAbsence,
     hasIncidentHistory,
-  } = useParticipantsAttendance({ groupId })
+  } = useParticipantsAttendance({ groupId, designationId })
 
   // Garantir que sempre temos um array válido
   const displayParticipants = groupId ? hookParticipants || [] : propsParticipants || []
@@ -128,7 +131,7 @@ export const ParticipantsTab = ({
                         <div className="font-medium text-sm sm:text-base flex items-center gap-2 truncate">
                           {participant.name}
                           {propsIsAbsent(participant) && (
-                            <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" title="Participante ausente" />
+                            <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
                           )}
                         </div>
                         <div className="text-xs sm:text-sm text-muted-foreground">
