@@ -76,7 +76,7 @@ export default function DesignarPage() {
             {searchTerm && filteredAssignments.length > 0 && (
               <div className="space-y-2 sm:space-y-4">
                 <h3 className="text-base sm:text-lg md:text-xl font-semibold">Resultados Filtrados</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-4">
                   {filteredAssignments.map((assignment) => (
                     <AssignmentCard
                       key={`filtered-${assignment.point.id}`}
@@ -94,7 +94,7 @@ export default function DesignarPage() {
             )}
 
             {/* Main assignments grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-4">
               {assignments.map((assignment) => (
                 <AssignmentCard
                   key={assignment.point.id}

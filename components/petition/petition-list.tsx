@@ -27,7 +27,7 @@ export function PetitionList() {
   const [statusFilter, setStatusFilter] = useState<Status>("ALL")
   const [itemsToShow, setItemsToShow] = useState(10)
   const [hasMoreItems, setHasMoreItems] = useState(false)
-  
+
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
@@ -76,7 +76,7 @@ export function PetitionList() {
     ALL: "bg-gray-100",
   }
 
-  const fetchPetitions = useCallback(async () => {
+  const fetchPetitions = async () => {
     setIsLoading(true)
     try {
       let url = "https://server.tpedigital.com.br/petitions"
@@ -96,25 +96,25 @@ export function PetitionList() {
 
       const response = await fetch(url)
       const data = await response.json()
-      
+
       // Armazenar todos os dados
       setAllPetitions(data)
       // Reset para mostrar apenas os primeiros 10
       setItemsToShow(10)
       setDisplayedPetitions(data.slice(0, 10))
       setHasMoreItems(data.length > 10)
-      
+
     } catch (error) {
       console.error("Error fetching petitions:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [searchTerm, statusFilter])
+  }
 
   // Função simples para carregar mais itens
   const loadMoreItems = useCallback(() => {
     if (!hasMoreItems) return
-    
+
     const newItemsToShow = itemsToShow + 10
     setItemsToShow(newItemsToShow)
     setDisplayedPetitions(allPetitions.slice(0, newItemsToShow))
@@ -147,10 +147,10 @@ export function PetitionList() {
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       fetchPetitions()
-    }, 500)
+    }, 1000)
 
     return () => clearTimeout(debounceTimer)
-  }, [fetchPetitions])
+  }, [searchTerm, statusFilter])
 
   const formatDate = (date: Date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: ptBR })
@@ -250,9 +250,8 @@ export function PetitionList() {
             {displayedPetitions.map((petition, index) => (
               <div
                 key={petition.id}
-                className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                } hover:bg-gray-100 transition-colors border-b`}
+                className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } hover:bg-gray-100 transition-colors border-b`}
               >
                 {/* Layout para dispositivos móveis */}
                 <div className="flex flex-col md:hidden mb-4">
@@ -357,7 +356,7 @@ export function PetitionList() {
                 </div>
               </div>
             ))}
-            
+
             {/* Elemento trigger para scroll infinito */}
             {hasMoreItems && (
               <div ref={loadMoreRef} className="h-10 flex items-center justify-center">

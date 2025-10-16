@@ -52,22 +52,22 @@ export function AssignmentCard({
         className={`
           ${assignment.error ? "border-red-200 shadow-[0_0_0_1px_rgba(254,202,202,0.5)]" : ""}
           ${!assignment.point.status ? "opacity-70" : ""}
-          min-h-[300px]
+          min-h-[300px] relative
         `}
       >
-        <CardHeader className="pb-2">
+        <CardHeader className="p-4 pt-7">
           <div className="flex justify-between items-center">
             <CardTitle className="text-lg">{assignment.point.name}</CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant={assignment.point.status ? "default" : "outline"}>
-                {assignment.point.status ? "Ativo" : "Inativo"}
-              </Badge>
-              <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2 ">
+              <div className="flex items-center gap-1 absolute top-0 left-0 m-1 ml-2">
                 <User className="h-4 w-4" />
                 <span>
                   {assignment.participants.length}/{assignment.config.max}
                 </span>
               </div>
+              <Badge variant={assignment.point.status ? "default" : "outline"} className="absolute top-0 right-0 m-1 mr-2">
+                {assignment.point.status ? "Ativo" : "Inativo"}
+              </Badge>
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
@@ -123,7 +123,7 @@ export function AssignmentCard({
                       {isAbsent(participant) && (
                         <AlertCircle
                           className="h-4 w-4 text-red-500 flex-shrink-0"
-                          //  title="Participante ausente"
+                        //  title="Participante ausente"
                         />
                       )}
                     </div>
