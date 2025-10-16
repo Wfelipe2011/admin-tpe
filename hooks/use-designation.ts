@@ -206,7 +206,7 @@ export function useDesignation() {
 
   const copyToClipboard = async () => {
     if (!designationData?.id) return
-    const linkToCopy = `${window.location.origin}/lista-designacao/${designationData.id}`
+    const linkToCopy = `${window.location.origin}/designacao/${designationData.id}`
 
     try {
       await navigator.clipboard.writeText(linkToCopy)
