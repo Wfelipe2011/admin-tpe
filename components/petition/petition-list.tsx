@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -20,10 +20,15 @@ import { getUserFromToken } from "@/lib/auth-utils"
 import { ParticipantProfile } from "@/types/auth"
 
 export function PetitionList() {
-  const [petitions, setPetitions] = useState<IPetitions[]>([])
+  const [allPetitions, setAllPetitions] = useState<IPetitions[]>([])
+  const [displayedPetitions, setDisplayedPetitions] = useState<IPetitions[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<Status>("ALL")
+  const [itemsToShow, setItemsToShow] = useState(10)
+  const [hasMoreItems, setHasMoreItems] = useState(false)
+  
+  const loadMoreRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
 
@@ -71,7 +76,7 @@ export function PetitionList() {
     ALL: "bg-gray-100",
   }
 
-  const fetchPetitions = async () => {
+  const fetchPetitions = useCallback(async () => {
     setIsLoading(true)
     try {
       let url = "https://server.tpedigital.com.br/petitions"
@@ -91,13 +96,53 @@ export function PetitionList() {
 
       const response = await fetch(url)
       const data = await response.json()
-      setPetitions(data)
+      
+      // Armazenar todos os dados
+      setAllPetitions(data)
+      // Reset para mostrar apenas os primeiros 10
+      setItemsToShow(10)
+      setDisplayedPetitions(data.slice(0, 10))
+      setHasMoreItems(data.length > 10)
+      
     } catch (error) {
       console.error("Error fetching petitions:", error)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [searchTerm, statusFilter])
+
+  // Função simples para carregar mais itens
+  const loadMoreItems = useCallback(() => {
+    if (!hasMoreItems) return
+    
+    const newItemsToShow = itemsToShow + 10
+    setItemsToShow(newItemsToShow)
+    setDisplayedPetitions(allPetitions.slice(0, newItemsToShow))
+    setHasMoreItems(newItemsToShow < allPetitions.length)
+  }, [itemsToShow, allPetitions, hasMoreItems])
+
+  // Observer simples para o scroll infinito
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreItems) {
+          loadMoreItems()
+        }
+      },
+      { threshold: 1 }
+    )
+
+    const currentRef = loadMoreRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [loadMoreItems, hasMoreItems])
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -105,7 +150,7 @@ export function PetitionList() {
     }, 500)
 
     return () => clearTimeout(debounceTimer)
-  }, [searchTerm, statusFilter])
+  }, [fetchPetitions])
 
   const formatDate = (date: Date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: ptBR })
@@ -200,9 +245,9 @@ export function PetitionList() {
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
             <p className="mt-4 text-gray-500">Carregando petições...</p>
           </div>
-        ) : petitions.length > 0 ? (
+        ) : displayedPetitions.length > 0 ? (
           <div>
-            {petitions.map((petition, index) => (
+            {displayedPetitions.map((petition, index) => (
               <div
                 key={petition.id}
                 className={`md:grid md:grid-cols-12 gap-4 p-4 items-center ${
@@ -312,6 +357,13 @@ export function PetitionList() {
                 </div>
               </div>
             ))}
+            
+            {/* Elemento trigger para scroll infinito */}
+            {hasMoreItems && (
+              <div ref={loadMoreRef} className="h-10 flex items-center justify-center">
+                <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-12">
