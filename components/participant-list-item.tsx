@@ -108,13 +108,12 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
               <span className="font-medium flex items-center gap-2">{participant.name}</span>
               <Badge
                 variant="secondary"
-                className={`text-xs ${
-                  participant.sex === "MALE"
+                className={`text-xs ${participant.sex === "MALE"
                     ? "bg-blue-50 text-blue-700"
                     : participant.sex === "FEMALE"
                       ? "bg-pink-50 text-pink-700"
                       : "bg-gray-50 text-gray-700"
-                }`}
+                  }`}
               >
                 {participant.profile === "COORDINATOR"
                   ? "Coordenador"
@@ -149,7 +148,7 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
               })()}
             </div>
             <p className="text-sm text-muted-foreground">
-              <strong>Congregação:</strong> {participant.congregationId || "Não informada"}
+              <strong>Congregação:</strong> {participant.congregation?.name || "Não informada"}
             </p>
             <p className="text-sm text-muted-foreground">
               <strong>Atribuições:</strong>{" "}
