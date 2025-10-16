@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, List, Users, FileText, LayoutDashboard } from "lucide-react"
+import { Search, List, Users, FileText, LayoutDashboard, MapPinned } from "lucide-react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
 import type { ParticipantProfile } from "@/types/auth"
@@ -61,6 +61,9 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, userProfil
         break
       case "Users":
         icon = <Users className="h-5 w-5" />
+        break
+      case "MapPinned":
+        icon = <MapPinned className="h-5 w-5" />
         break
       default:
         icon = <LayoutDashboard className="h-5 w-5" />
