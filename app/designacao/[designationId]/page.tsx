@@ -86,7 +86,7 @@ export default function DesignationListPage() {
                   key={index}
                   designation={designation}
                   isLast={index === designations.length - 1}
-                  onRefuse={() => {}}
+                  onRefuse={() => { }}
                   showRefuseButton={false}
                 />
               ))}

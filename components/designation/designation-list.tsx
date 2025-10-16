@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -33,7 +33,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
   const { selectedGroupId } = useGroupStore()
 
   // Get user token and extract groupId
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const loadingToast = toast.loading("Carregando designações...")
     try {
       setLoading(true)
@@ -73,16 +73,16 @@ export function DesignationList({ designationId }: { designationId?: string } = 
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedGroupId]) // Adicione selectedGroupId como dependência
 
   useEffect(() => {
     fetchData()
-  }, [selectedGroupId]) // Add selectedGroupId to dependency array
+  }, [fetchData]) // Use fetchData como dependência ao invés de selectedGroupId
 
   // Handle participant status change (absence added or removed)
-  const handleParticipantStatusChange = () => {
+  const handleParticipantStatusChange = useCallback(() => {
     fetchData() // Refresh the data
-  }
+  }, [fetchData])
 
   // Filter participants based on search term
   const filteredParticipants = participants
