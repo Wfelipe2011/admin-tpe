@@ -25,6 +25,7 @@ export function SpiritualInfoSection({ handleCongregationChange, isLoading = fal
   // Filter attribution options based on gender
   const attributionOptions = [
     { value: "PIONEIRO", label: "Pioneiro" },
+    { value: "P. AUXILIAR", label: "P. Auxiliar" },
     ...(gender === "MALE"
       ? [
         { value: "ANCIÃO", label: "Ancião" },
