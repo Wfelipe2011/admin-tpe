@@ -169,7 +169,7 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar title={title} user={user} sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
         <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
-          <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 min-h-0 flex-1">
+          <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 min-h-0 flex-1 relative">
             <div className="flex justify-between items-center mb-4">
               {breadcrumbs.length > 0 ? <BreadcrumbNav items={breadcrumbs} /> : <div></div>}
             </div>

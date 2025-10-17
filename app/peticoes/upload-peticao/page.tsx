@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useRef, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ProtectedLayout } from "@/app/layout-protected"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -21,15 +21,21 @@ interface UploadResponse {
   updatedAt: Date
 }
 
+type UploadStatus = "idle" | "success" | "error"
+
 export default function UploadPeticaoPage() {
   const router = useRouter()
-  const [isUploading, setIsUploading] = useState(false)
-  const [fileName, setFileName] = useState<string | null>(null)
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const searchParams = useSearchParams()
+  const petitionId = searchParams.get('id') // Detecta se é atualização
+  const isUpdateMode = !!petitionId // true = atualizar, false = nova petição
+
   const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [fileName, setFileName] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const validateFile = (file: File): boolean => {
     // Check if file is a PDF
@@ -124,8 +130,15 @@ export default function UploadPeticaoPage() {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch("https://server.tpedigital.com.br/petitions/upload", {
-        method: "POST",
+      // Definir URL e método baseado no modo
+      const url = isUpdateMode
+        ? `https://server.tpedigital.com.br/petitions/upload/${petitionId}`
+        : "https://server.tpedigital.com.br/petitions/upload"
+
+      const method = isUpdateMode ? "PUT" : "POST"
+
+      const response = await fetch(url, {
+        method,
         body: formData,
       })
 
@@ -139,7 +152,7 @@ export default function UploadPeticaoPage() {
       setUploadStatus("success")
       toast({
         title: "Sucesso",
-        description: "Arquivo enviado com sucesso",
+        description: isUpdateMode ? "Arquivo atualizado com sucesso" : "Arquivo enviado com sucesso",
       })
 
       // Reset the file input
@@ -148,8 +161,14 @@ export default function UploadPeticaoPage() {
       }
       setFileName(null)
 
-      // Navigate to the visualization page
-      router.push(`/peticoes/visualizar/${data.id}`)
+      // Navigate baseado no modo
+      if (isUpdateMode) {
+        // Volta para a tela de edição
+        router.push(`/peticoes/completar/${petitionId}`)
+      } else {
+        // Navigate to the visualization page
+        router.push(`/peticoes/visualizar/${data.id}`)
+      }
     } catch (error) {
       setUploadStatus("error")
       const message = error instanceof Error ? error.message : "Erro ao fazer upload do arquivo"
@@ -166,21 +185,23 @@ export default function UploadPeticaoPage() {
 
   return (
     <ProtectedLayout
-      title="Upload de Petição"
+      title={isUpdateMode ? "Atualizar Petição" : "Upload de Petição"}
       breadcrumbs={[
         { label: "Início", href: "/" },
         { label: "Petições", href: "/peticoes" },
-        { label: "Upload de Petição" },
+        { label: isUpdateMode ? "Atualizar Petição" : "Upload de Petição" },
       ]}
     >
       <Card>
         <CardHeader>
-          <CardTitle>Upload de Nova Petição</CardTitle>
+          <CardTitle>{isUpdateMode ? "Atualizar Arquivo da Petição" : "Upload de Nova Petição"}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-6">
-            Faça o upload de uma nova petição em formato PDF. Após o envio, você será redirecionado para visualizar as
-            versões pública e privada do documento.
+            {isUpdateMode
+              ? "Faça o upload de um novo arquivo PDF para substituir o arquivo atual da petição."
+              : "Faça o upload de uma nova petição em formato PDF. Após o envio, você será redirecionado para visualizar as versões pública e privada do documento."
+            }
           </p>
 
           <div
@@ -224,7 +245,7 @@ export default function UploadPeticaoPage() {
               </Button>
               {fileName && (
                 <Button onClick={handleUpload} disabled={isUploading}>
-                  {isUploading ? "Enviando..." : "Enviar"}
+                  {isUploading ? "Enviando..." : isUpdateMode ? "Atualizar Arquivo" : "Enviar"}
                 </Button>
               )}
             </div>
