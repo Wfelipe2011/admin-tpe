@@ -36,6 +36,7 @@ function UploadPeticaoContent() {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showBypassOption, setShowBypassOption] = useState(false)
 
   const validateFile = (file: File): boolean => {
     // Check if file is a PDF
@@ -111,7 +112,7 @@ function UploadPeticaoContent() {
     }
   }
 
-  const handleUpload = async () => {
+  const handleUpload = async (bypassValidation = false) => {
     const file = fileInputRef.current?.files?.[0]
     if (!file) {
       toast({
@@ -131,25 +132,37 @@ function UploadPeticaoContent() {
       formData.append("file", file)
 
       // Definir URL e método baseado no modo
-      const url = isUpdateMode
+      let baseUrl = isUpdateMode
         ? `https://server.tpedigital.com.br/petitions/upload/${petitionId}`
         : "https://server.tpedigital.com.br/petitions/upload"
 
+      // Adicionar parâmetro bypass se necessário
+      if (bypassValidation) {
+        baseUrl += "?bypass=1"
+      }
+
       const method = isUpdateMode ? "PUT" : "POST"
 
-      const response = await fetch(url, {
+      const response = await fetch(baseUrl, {
         method,
         body: formData,
       })
 
       if (!response.ok) {
         const errorData = await response.json()
+
+        // Se falhou na primeira tentativa (sem bypass), mostrar opção de bypass
+        if (!bypassValidation) {
+          setShowBypassOption(true)
+        }
+
         throw new Error(errorData.message || "Erro ao fazer upload do arquivo")
       }
 
       const data: UploadResponse = await response.json()
 
       setUploadStatus("success")
+      setShowBypassOption(false) // Reset bypass option on success
       toast({
         title: "Sucesso",
         description: isUpdateMode ? "Arquivo atualizado com sucesso" : "Arquivo enviado com sucesso",
@@ -181,6 +194,10 @@ function UploadPeticaoContent() {
     } finally {
       setIsUploading(false)
     }
+  }
+
+  const handleBypassUpload = () => {
+    handleUpload(true)
   }
 
   return (
@@ -239,14 +256,39 @@ function UploadPeticaoContent() {
               </div>
             )}
 
+            {showBypassOption && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-amber-800">Validação de conteúdo falhou</p>
+                    <p className="text-amber-700 mt-1">
+                      O PDF não passou na validação automática. Você pode forçar o upload se tem certeza de que o arquivo está correto.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <Button onClick={handleFileSelect} variant="outline" disabled={isUploading}>
                 Selecionar Arquivo
               </Button>
               {fileName && (
-                <Button onClick={handleUpload} disabled={isUploading}>
-                  {isUploading ? "Enviando..." : isUpdateMode ? "Atualizar Arquivo" : "Enviar"}
-                </Button>
+                <>
+                  <Button onClick={() => handleUpload()} disabled={isUploading}>
+                    {isUploading ? "Enviando..." : isUpdateMode ? "Atualizar Arquivo" : "Enviar"}
+                  </Button>
+                  {showBypassOption && (
+                    <Button
+                      onClick={handleBypassUpload}
+                      disabled={isUploading}
+                      className="bg-amber-500 hover:bg-amber-600 text-white font-semibold"
+                    >
+                      {isUploading ? "Enviando..." : "Força Upload"}
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>
