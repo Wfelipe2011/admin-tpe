@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProtectedLayout } from "@/app/layout-protected"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,7 +23,7 @@ interface UploadResponse {
 
 type UploadStatus = "idle" | "success" | "error"
 
-export default function UploadPeticaoPage() {
+function UploadPeticaoContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const petitionId = searchParams.get('id') // Detecta se é atualização
@@ -253,5 +253,26 @@ export default function UploadPeticaoPage() {
         </CardContent>
       </Card>
     </ProtectedLayout>
+  )
+}
+
+export default function UploadPeticaoPage() {
+  return (
+    <Suspense fallback={
+      <ProtectedLayout
+        title="Upload de Petição"
+        breadcrumbs={[
+          { label: "Início", href: "/" },
+          { label: "Petições", href: "/peticoes" },
+          { label: "Upload de Petição" },
+        ]}
+      >
+        <div className="flex justify-center items-center h-64">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+        </div>
+      </ProtectedLayout>
+    }>
+      <UploadPeticaoContent />
+    </Suspense>
   )
 }
