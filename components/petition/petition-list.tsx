@@ -97,12 +97,17 @@ export function PetitionList() {
       const response = await fetch(url)
       const data = await response.json()
 
-      // Armazenar todos os dados
-      setAllPetitions(data)
+      // Ordenar por data de atualização (mais novo primeiro) - DESC
+      const sortedData = data.sort((a: IPetitions, b: IPetitions) => {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      })
+
+      // Armazenar todos os dados ordenados
+      setAllPetitions(sortedData)
       // Reset para mostrar apenas os primeiros 10
       setItemsToShow(10)
-      setDisplayedPetitions(data.slice(0, 10))
-      setHasMoreItems(data.length > 10)
+      setDisplayedPetitions(sortedData.slice(0, 10))
+      setHasMoreItems(sortedData.length > 10)
 
     } catch (error) {
       console.error("Error fetching petitions:", error)
@@ -287,7 +292,7 @@ export function PetitionList() {
                       <Button
                         variant="default"
                         className="w-full bg-[#374192] hover:bg-[#2d3575]"
-                        onClick={() => router.push(`/peticoes/completar/${petition.id}`)}
+                        onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                       >
                         Editar
                       </Button>
@@ -303,7 +308,7 @@ export function PetitionList() {
                       <Button
                         variant="default"
                         className="w-full bg-[#374192] hover:bg-[#2d3575]"
-                        onClick={() => router.push(`/peticoes/completar/${petition.id}`)}
+                        onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                       >
                         Completar
                       </Button>
@@ -332,7 +337,7 @@ export function PetitionList() {
                     <Button
                       variant="default"
                       className="bg-[#374192] hover:bg-[#2d3575] min-w-[100px]"
-                      onClick={() => router.push(`/peticoes/completar/${petition.id}`)}
+                      onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                     >
                       Editar
                     </Button>
@@ -348,7 +353,7 @@ export function PetitionList() {
                     <Button
                       variant="default"
                       className="bg-[#374192] hover:bg-[#2d3575] min-w-[100px]"
-                      onClick={() => router.push(`/peticoes/completar/${petition.id}`)}
+                      onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                     >
                       Completar
                     </Button>

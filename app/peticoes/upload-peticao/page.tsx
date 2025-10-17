@@ -131,7 +131,7 @@ export default function UploadPeticaoPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Erro ao fazer upload do arquivo")
+        throw new Error(errorData.message || "Erro ao fazer upload do arquivo")
       }
 
       const data: UploadResponse = await response.json()
@@ -184,9 +184,8 @@ export default function UploadPeticaoPage() {
           </p>
 
           <div
-            className={`h-64 flex flex-col items-center justify-center border-2 rounded-md border-dashed p-6 transition-colors ${
-              isDragging ? "border-primary bg-primary/5" : "border-gray-200 bg-gray-50"
-            }`}
+            className={`h-64 flex flex-col items-center justify-center border-2 rounded-md border-dashed p-6 transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-gray-200 bg-gray-50"
+              }`}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}

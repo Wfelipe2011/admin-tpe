@@ -12,6 +12,7 @@ export interface IPetitions {
   protocol: string
   status: Status
   createdAt: Date
+  updatedAt: Date
   participants: Participant[]
   publicUrl?: string
 }
