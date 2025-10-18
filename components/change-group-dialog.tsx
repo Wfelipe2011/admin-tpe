@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import type { IGroups } from "@/types/groups"
 import type { Participant } from "@/types/group-participants"
+import { apiClient } from "@/lib/api-client"
 
 interface ChangeGroupDialogProps {
   open: boolean
@@ -45,8 +46,7 @@ export function ChangeGroupDialog({
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch("https://server.tpedigital.com.br/groups")
-      const data = await response.json()
+      const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
       // Filtra apenas grupos do mesmo tipo
       const filteredGroups = data.filter((group: IGroups) => group.type === groupType)
       setGroups(filteredGroups)
@@ -60,21 +60,12 @@ export function ChangeGroupDialog({
   const handleChangeGroup = async (newGroup: IGroups) => {
     try {
       // Remove do grupo atual
-      await fetch(`https://server.tpedigital.com.br/groups/${currentGroupId}/participants/${participant.id}`, {
-        method: "DELETE",
-      })
+      await apiClient.delete(`/groups/${currentGroupId}/participants/${participant.id}`, { endpoint: "new" })
 
       // Adiciona ao novo grupo
-      const response = await fetch(
-        `https://server.tpedigital.com.br/groups/${newGroup.id}/participants/${participant.id}`,
-        { method: "PATCH" },
-      )
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || "Erro ao trocar de grupo")
-      }
+      const result = await apiClient.patch(`/groups/${newGroup.id}/participants/${participant.id}`, null, {
+        endpoint: "new",
+      })
 
       toast({
         title: "Sucesso",

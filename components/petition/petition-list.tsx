@@ -14,7 +14,7 @@ import { ptBR } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Upload } from "lucide-react"
-import { petitionApi } from "@/lib/api-client"
+import { petitionApi, apiClient } from "@/lib/api-client"
 import toast from "react-hot-toast"
 
 // Add import for getUserFromToken and ParticipantProfile
@@ -103,7 +103,7 @@ export function PetitionList() {
   const fetchPetitions = async () => {
     setIsLoading(true)
     try {
-      let url = "https://server.tpedigital.com.br/petitions"
+      let url = "/petitions"
       const params = new URLSearchParams()
 
       if (searchTerm) {
@@ -118,8 +118,7 @@ export function PetitionList() {
         url += `?${params.toString()}`
       }
 
-      const response = await fetch(url)
-      const data = await response.json()
+      const data = await apiClient.get<IPetitions[]>(url, { endpoint: "new" })
 
       // Ordenar por data de atualização (mais novo primeiro) - DESC
       const sortedData = data.sort((a: IPetitions, b: IPetitions) => {

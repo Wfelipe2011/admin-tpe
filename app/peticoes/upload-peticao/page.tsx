@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, Check, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/lib/api-client"
 
 interface UploadResponse {
   id: string
@@ -131,35 +132,20 @@ function UploadPeticaoContent() {
       const formData = new FormData()
       formData.append("file", file)
 
-      // Definir URL e método baseado no modo
-      let baseUrl = isUpdateMode
-        ? `https://server.tpedigital.com.br/petitions/upload/${petitionId}`
-        : "https://server.tpedigital.com.br/petitions/upload"
+      // Definir URL baseado no modo
+      let url = isUpdateMode
+        ? `/petitions/upload/${petitionId}`
+        : "/petitions/upload"
 
       // Adicionar parâmetro bypass se necessário
       if (bypassValidation) {
-        baseUrl += "?bypass=1"
+        url += "?bypass=1"
       }
 
-      const method = isUpdateMode ? "PUT" : "POST"
-
-      const response = await fetch(baseUrl, {
-        method,
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-
-        // Se falhou na primeira tentativa (sem bypass), mostrar opção de bypass
-        if (!bypassValidation) {
-          setShowBypassOption(true)
-        }
-
-        throw new Error(errorData.message || "Erro ao fazer upload do arquivo")
-      }
-
-      const data: UploadResponse = await response.json()
+      // Usar o método correto do apiClient
+      const data: UploadResponse = isUpdateMode
+        ? await apiClient.put(url, formData, { endpoint: "new" })
+        : await apiClient.post(url, formData, { endpoint: "new" })
 
       setUploadStatus("success")
       setShowBypassOption(false) // Reset bypass option on success
@@ -182,9 +168,15 @@ function UploadPeticaoContent() {
         // Navigate to the visualization page
         router.push(`/peticoes/visualizar/${data.id}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       setUploadStatus("error")
-      const message = error instanceof Error ? error.message : "Erro ao fazer upload do arquivo"
+
+      // Se falhou na primeira tentativa (sem bypass), mostrar opção de bypass
+      if (!bypassValidation && error.response?.status === 400) {
+        setShowBypassOption(true)
+      }
+
+      const message = error?.response?.data?.message || error.message || "Erro ao fazer upload do arquivo"
       setErrorMessage(message)
       toast({
         title: "Erro",

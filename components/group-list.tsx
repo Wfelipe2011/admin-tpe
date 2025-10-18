@@ -9,6 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown } from "lucide-react"
 import type { IGroups } from "@/types/groups"
 import Link from "next/link"
+import { apiClient } from "@/lib/api-client"
 
 export function GroupList() {
   const [groups, setGroups] = useState<IGroups[]>([])
@@ -17,8 +18,7 @@ export function GroupList() {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch("https://server.tpedigital.com.br/groups")
-      const data = await response.json()
+      const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
       setGroups(data)
       setIsLoading(false)
     } catch (error) {
