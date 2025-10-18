@@ -135,3 +135,9 @@ export class ApiClient {
 }
 
 export const apiClient = new ApiClient()
+
+// Petition specific methods
+export const petitionApi = {
+  exclude: (id: string) => apiClient.patch(`/petitions/exclude/${id}`, {}, { endpoint: "new" }),
+  activate: (id: string) => apiClient.patch(`/petitions/activate/${id}`, {}, { endpoint: "new" }),
+}

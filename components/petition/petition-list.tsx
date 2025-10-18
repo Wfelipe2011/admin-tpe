@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Search, FileText, Calendar } from "lucide-react"
+import { Search, FileText, Calendar, Trash2, RotateCcw } from "lucide-react"
 import type { IPetitions, Status } from "@/types/petitions"
 import { InfoIcon, CheckIcon, BanIcon, XIcon, ClockIcon } from "lucide-react"
 import { format } from "date-fns"
@@ -14,6 +14,8 @@ import { ptBR } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Upload } from "lucide-react"
+import { petitionApi } from "@/lib/api-client"
+import toast from "react-hot-toast"
 
 // Add import for getUserFromToken and ParticipantProfile
 import { getUserFromToken } from "@/lib/auth-utils"
@@ -35,6 +37,28 @@ export function PetitionList() {
   // In the PetitionList component, add this code near the beginning of the component function:
   const user = getUserFromToken()
   const isAdminAnalyst = user?.profile === ParticipantProfile.ADMIN_ANALYST
+
+  const handleExcludePetition = async (petitionId: string) => {
+    try {
+      await petitionApi.exclude(petitionId)
+      toast.success("Petição excluída com sucesso")
+      fetchPetitions() // Refresh the list
+    } catch (error) {
+      console.error("Error excluding petition:", error)
+      toast.error("Erro ao excluir petição")
+    }
+  }
+
+  const handleActivatePetition = async (petitionId: string) => {
+    try {
+      await petitionApi.activate(petitionId)
+      toast.success("Petição ativada com sucesso")
+      fetchPetitions() // Refresh the list
+    } catch (error) {
+      console.error("Error activating petition:", error)
+      toast.error("Erro ao ativar petição")
+    }
+  }
 
   const status: Record<Status, string> = {
     WAITING_INFORMATION: "Aguardando Informações",
@@ -287,31 +311,70 @@ export function PetitionList() {
                     </div>
                   </div>
 
-                  <div className="mt-2">
+                  <div className="mt-2 flex gap-2">
                     {petition.status === "WAITING" ? (
-                      <Button
-                        variant="default"
-                        className="w-full bg-[#374192] hover:bg-[#2d3575]"
-                        onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
-                      >
-                        Editar
-                      </Button>
+                      <>
+                        <Button
+                          variant="default"
+                          className="flex-1 bg-[#374192] hover:bg-[#2d3575]"
+                          onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleExcludePetition(petition.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
                     ) : petition.status === "CREATED" ? (
+                      <>
+                        <Button
+                          variant="default"
+                          className="flex-1 bg-[#374192] hover:bg-[#2d3575]"
+                          onClick={() => router.push(`/peticoes/visualizar/${petition.id}`)}
+                        >
+                          Visualizar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleExcludePetition(petition.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : petition.status === "EXCLUDED" ? (
                       <Button
-                        variant="default"
-                        className="bg-[#374192] hover:bg-[#2d3575]"
-                        onClick={() => router.push(`/peticoes/visualizar/${petition.id}`)}
+                        variant="outline"
+                        className="w-full border-green-500 text-green-500 hover:bg-green-50"
+                        onClick={() => handleActivatePetition(petition.id)}
                       >
-                        Visualizar
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Ativar
                       </Button>
                     ) : (
-                      <Button
-                        variant="default"
-                        className="w-full bg-[#374192] hover:bg-[#2d3575]"
-                        onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
-                      >
-                        Completar
-                      </Button>
+                      <>
+                        <Button
+                          variant="default"
+                          className="flex-1 bg-[#374192] hover:bg-[#2d3575]"
+                          onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
+                        >
+                          Completar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleExcludePetition(petition.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -333,31 +396,76 @@ export function PetitionList() {
                 </div>
                 <div className="hidden md:block md:col-span-2 text-center">{formatDate(petition.createdAt)}</div>
                 <div className="hidden md:block md:col-span-2 text-center">
-                  {petition.status === "WAITING" ? (
-                    <Button
-                      variant="default"
-                      className="bg-[#374192] hover:bg-[#2d3575] min-w-[100px]"
-                      onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
-                    >
-                      Editar
-                    </Button>
-                  ) : petition.status === "CREATED" ? (
-                    <Button
-                      variant="default"
-                      className="bg-[#374192] hover:bg-[#2d3575] min-w-[100px]"
-                      onClick={() => router.push(`/peticoes/visualizar/${petition.id}`)}
-                    >
-                      Visualizar
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="default"
-                      className="bg-[#374192] hover:bg-[#2d3575] min-w-[100px]"
-                      onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
-                    >
-                      Completar
-                    </Button>
-                  )}
+                  <div className="flex gap-2 justify-center">
+                    {petition.status === "WAITING" ? (
+                      <>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="bg-[#374192] hover:bg-[#2d3575]"
+                          onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleExcludePetition(petition.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : petition.status === "CREATED" ? (
+                      <>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="bg-[#374192] hover:bg-[#2d3575]"
+                          onClick={() => router.push(`/peticoes/visualizar/${petition.id}`)}
+                        >
+                          Visualizar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleExcludePetition(petition.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : petition.status === "EXCLUDED" ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-green-500 text-green-500 hover:bg-green-50"
+                        onClick={() => handleActivatePetition(petition.id)}
+                      >
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Ativar
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="bg-[#374192] hover:bg-[#2d3575]"
+                          onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
+                        >
+                          Completar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleExcludePetition(petition.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
