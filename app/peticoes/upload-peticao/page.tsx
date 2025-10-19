@@ -142,10 +142,11 @@ function UploadPeticaoContent() {
         url += "?bypass=1"
       }
 
-      // Usar o método correto do apiClient
-      const data: UploadResponse = isUpdateMode
-        ? await apiClient.put(url, formData, { endpoint: "new" })
-        : await apiClient.post(url, formData, { endpoint: "new" })
+      // Usar o método upload do apiClient
+      const data: UploadResponse = await apiClient.upload(url, formData, { 
+        method: isUpdateMode ? "PUT" : "POST",
+        endpoint: "new" 
+      })
 
       setUploadStatus("success")
       setShowBypassOption(false) // Reset bypass option on success

@@ -115,8 +115,8 @@ export class ApiClient {
     return this.request<T>(url, { ...options, method: "DELETE" })
   }
 
-  async upload<T>(url: string, formData: FormData, options: Omit<RequestOptions, "method" | "body"> = {}): Promise<T> {
-    const { endpoint = "new", headers = {} } = options
+  async upload<T>(url: string, formData: FormData, options: Omit<RequestOptions, "body"> = {}): Promise<T> {
+    const { method = "POST", endpoint = "new", headers = {} } = options
     const axiosInstance = this.getAxiosInstance(endpoint)
 
     const uploadHeaders = {
@@ -125,7 +125,9 @@ export class ApiClient {
     }
 
     try {
-      const response = await axiosInstance.post(url, formData, { headers: uploadHeaders })
+      const response = method === "PUT" 
+        ? await axiosInstance.put(url, formData, { headers: uploadHeaders })
+        : await axiosInstance.post(url, formData, { headers: uploadHeaders })
       return response.data
     } catch (error) {
       console.error("API upload error:", error)
