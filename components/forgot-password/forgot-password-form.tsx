@@ -95,8 +95,8 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-4">
         <Label htmlFor="phone" className="text-[#333333] font-semibold text-sm">
           Número de Telefone
         </Label>
@@ -104,7 +104,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
           id="phone"
           type="tel"
           placeholder="(00) 00000-0000"
-          className="h-10 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+          className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
           value={phoneDisplay}
           onChange={handlePhoneChange}
           required
@@ -112,16 +112,16 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
       </div>
 
       {error && (
-        <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-4 rounded-xl text-sm font-medium">
+        <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-6 rounded-xl text-sm font-medium shadow-sm">
           {error}
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-10 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm"
+          className="w-full h-12 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
 
         <Link
           href="/login"
-          className="flex items-center justify-center text-sm text-[#374192] hover:text-[#46607F] font-medium transition-colors gap-2"
+          className="flex items-center justify-center text-sm text-[#374192] hover:text-[#46607F] font-medium transition-colors gap-2 py-2"
         >
           <ArrowLeft className="h-4 w-4" />
           Voltar para o login

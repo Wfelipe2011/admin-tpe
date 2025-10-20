@@ -90,7 +90,7 @@ export function LoginForm() {
       const response = await apiClient.post("/auth/login", {
         phone: phoneRaw,
         password: password,
-      })
+      }) as { token?: string; message?: string }
 
       console.log("Login successful, response:", response)
 
@@ -163,13 +163,13 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
       {loginSuccess ? (
-        <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/20 text-[#2ECC71] p-4 rounded-xl text-center">
-          <p className="font-semibold mb-2 text-[#333333]">Login realizado com sucesso!</p>
-          <p className="text-sm">Redirecionando para o dashboard em {redirectCountdown} segundos...</p>
+        <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/20 text-[#2ECC71] p-6 rounded-xl text-center shadow-sm">
+          <p className="font-semibold mb-2 text-[#333333] text-base">Login realizado com sucesso!</p>
+          <p className="text-sm text-[#666666]">Redirecionando para o dashboard em {redirectCountdown} segundos...</p>
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Label htmlFor="phone" className="text-[#333333] font-semibold text-sm">
               Telefone
             </Label>
@@ -179,13 +179,13 @@ export function LoginForm() {
               type="tel"
               required
               placeholder="(00) 00000-0000"
-              className="h-10 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+              className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
               value={phoneDisplay}
               onChange={handlePhoneChange}
             />
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Label htmlFor="password" className="text-[#333333] font-semibold text-sm">
               Senha
             </Label>
@@ -195,21 +195,21 @@ export function LoginForm() {
               type="password"
               required
               placeholder="Digite sua senha"
-              className="h-10 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+              className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
               value={password}
               onChange={handlePasswordChange}
             />
           </div>
 
           {error && (
-            <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-4 rounded-xl text-sm font-medium">
+            <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-6 rounded-xl text-sm font-medium shadow-sm">
               {error}
             </div>
           )}
 
           <Button
             type="submit"
-            className="w-full h-10 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm"
+            className="w-full h-12 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -222,7 +222,7 @@ export function LoginForm() {
             )}
           </Button>
 
-          <div className="text-center pt-2">
+          <div className="text-center pt-4">
             <Link
               href="/forgot-password"
               className="text-[#374192] hover:text-[#46607F] hover:underline text-sm font-medium transition-colors"
