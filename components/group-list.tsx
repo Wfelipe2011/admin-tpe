@@ -10,6 +10,7 @@ import { ChevronDown } from "lucide-react"
 import type { IGroups } from "@/types/groups"
 import Link from "next/link"
 import { apiClient } from "@/lib/api-client"
+import { sortGroupsByDayAndTime } from "@/lib/utils"
 
 export function GroupList() {
   const [groups, setGroups] = useState<IGroups[]>([])
@@ -33,9 +34,9 @@ export function GroupList() {
 
   const filteredGroups = groups.filter((group) => group.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
-  const mainGroups = filteredGroups.filter((group) => group.type === "MAIN")
-  const additionalGroups = filteredGroups.filter((group) => group.type === "ADDITIONAL")
-  const specialGroups = filteredGroups.filter((group) => group.type === "SPECIAL")
+  const mainGroups = sortGroupsByDayAndTime(filteredGroups.filter((group) => group.type === "MAIN"))
+  const additionalGroups = sortGroupsByDayAndTime(filteredGroups.filter((group) => group.type === "ADDITIONAL"))
+  const specialGroups = sortGroupsByDayAndTime(filteredGroups.filter((group) => group.type === "SPECIAL"))
 
   return (
     <div className="mt-4 space-y-6">

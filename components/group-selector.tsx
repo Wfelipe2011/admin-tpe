@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getUserFromToken } from "@/lib/auth-utils"
 import type { IGroups } from "@/types/groups"
 import { apiClient } from "@/lib/api-client"
-import { cn } from "@/lib/utils"
+import { cn, sortGroupsByDayAndTime } from "@/lib/utils"
 import { useGroupStore } from "@/lib/stores/use-group-store"
 
 interface GroupSelectorProps {
@@ -83,7 +83,7 @@ export function GroupSelector({ className = "", isMobileView = false }: GroupSel
       try {
         setIsLoadingGroups(true)
         const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
-        const sortedGroups = sortGroupsByWeekdayAndTime(data)
+        const sortedGroups = sortGroupsByDayAndTime(data)
         setGroups(sortedGroups)
         setError(null)
       } catch (err) {
