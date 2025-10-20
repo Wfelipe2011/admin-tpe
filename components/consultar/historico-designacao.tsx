@@ -182,18 +182,18 @@ export function HistoricoDesignacao() {
               placeholder="Data final"
               className="w-[180px]"
             />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleDateReset} 
-              disabled={!dateFrom && !dateTo} 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDateReset}
+              disabled={!dateFrom && !dateTo}
               className="h-9 border-[#929BD2] text-[#374192] hover:bg-[#374192]/10"
             >
               Limpar
             </Button>
-            <Button 
-              size="sm" 
-              onClick={fetchDesignations} 
+            <Button
+              size="sm"
+              onClick={fetchDesignations}
               className="h-9 bg-[#374192] hover:bg-[#46607F] text-white"
             >
               Filtrar
@@ -210,7 +210,7 @@ export function HistoricoDesignacao() {
             Histórico de Designações
           </h3>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -279,7 +279,7 @@ export function HistoricoDesignacao() {
           </table>
         </div>
       </div>
-      
+
       <DesignationViewModal
         isOpen={viewModalOpen}
         onClose={() => setViewModalOpen(false)}
