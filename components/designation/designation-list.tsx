@@ -211,7 +211,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
                 id="participant-search"
                 type="search"
                 placeholder="Pesquisar Voluntário..."
-                className="pl-10 h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+                className="pl-10 h-10 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 aria-describedby="search-help"
@@ -248,8 +248,8 @@ export function DesignationList({ designationId }: { designationId?: string } = 
                   variant="ghost"
                   size="sm"
                   className={`rounded-md transition-all font-medium ${viewMode === "list"
-                      ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
-                      : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                    ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                    : 'text-[#666666] hover:bg-white hover:text-[#374192]'
                     }`}
                   onClick={() => setViewMode("list")}
                   aria-pressed={viewMode === "list"}
@@ -264,8 +264,8 @@ export function DesignationList({ designationId }: { designationId?: string } = 
                   variant="ghost"
                   size="sm"
                   className={`rounded-md transition-all font-medium ${viewMode === "grid"
-                      ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
-                      : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                    ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                    : 'text-[#666666] hover:bg-white hover:text-[#374192]'
                     }`}
                   onClick={() => setViewMode("grid")}
                   aria-pressed={viewMode === "grid"}

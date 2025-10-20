@@ -111,7 +111,7 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
             placeholder="Pesquisar participante..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+            className="pl-10 h-10 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
           />
         </div>
 
@@ -122,8 +122,8 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
               variant="ghost"
               size="sm"
               className={`rounded-md transition-all font-medium ${!isGridView
-                  ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
-                  : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                : 'text-[#666666] hover:bg-white hover:text-[#374192]'
                 }`}
               onClick={() => setIsGridView(false)}
               aria-pressed={!isGridView}
@@ -139,8 +139,8 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
               variant="ghost"
               size="sm"
               className={`rounded-md transition-all font-medium ${isGridView
-                  ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
-                  : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                : 'text-[#666666] hover:bg-white hover:text-[#374192]'
                 }`}
               onClick={() => setIsGridView(true)}
               aria-pressed={isGridView}
@@ -157,7 +157,7 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
           {/* Assign Button */}
           <Button
             onClick={() => setIsAssignDialogOpen(true)}
-            className="bg-[#374192] hover:bg-[#46607F] text-white h-12 px-6 rounded-lg font-medium transition-colors"
+            className="bg-[#374192] hover:bg-[#46607F] text-white h-10 px-6 rounded-lg font-medium transition-colors"
           >
             Atribuir Participante
           </Button>

@@ -179,7 +179,7 @@ export function LoginForm() {
               type="tel"
               required
               placeholder="(00) 00000-0000"
-              className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+              className="h-10 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
               value={phoneDisplay}
               onChange={handlePhoneChange}
             />
@@ -195,7 +195,7 @@ export function LoginForm() {
               type="password"
               required
               placeholder="Digite sua senha"
-              className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+              className="h-10 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
               value={password}
               onChange={handlePasswordChange}
             />
@@ -209,7 +209,7 @@ export function LoginForm() {
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm"
+            className="w-full h-10 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm"
             disabled={isLoading}
           >
             {isLoading ? (

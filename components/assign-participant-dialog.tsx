@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { Search, User, UserCheck } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
@@ -117,7 +117,7 @@ export function AssignParticipantDialog({
             <div className="max-h-[400px] space-y-3 overflow-y-auto">
               {participants.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#F8F8F8] mb-3">
+                  <div className="inline-flex items-center justify-center w-12 h-10 rounded-full bg-[#F8F8F8] mb-3">
                     <Search className="h-6 w-6 text-[#929BD2]" />
                   </div>
                   <p className="text-[#333333] font-medium">Nenhum participante encontrado</p>
@@ -157,9 +157,28 @@ export function AssignParticipantDialog({
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-[#333333] mb-1">
-                              <span className="text-sm text-[#666666] font-normal">Nome:</span> {participant.name}
-                            </p>
+                            <div className="flex items-center gap-2 mb-2">
+                              <p className="font-semibold text-[#333333]">
+                                <span className="text-sm text-[#666666] font-normal">Nome:</span> {participant.name}
+                              </p>
+
+                              {/* Indicador de Gênero */}
+                              {participant.sex === "MALE" ? (
+                                <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-1 flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  Irmão
+                                </Badge>
+                              ) : participant.sex === "FEMALE" ? (
+                                <Badge className="bg-pink-50 text-pink-700 border-pink-200 text-xs px-2 py-1 flex items-center gap-1">
+                                  <UserCheck className="h-3 w-3" />
+                                  Irmã
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1">
+                                  Não informado
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-sm text-[#666666] mb-1">
                               <span className="font-medium text-[#333333]">Congregação:</span> {participant.congregation?.name || "Não informada"}
                             </p>
@@ -185,8 +204,8 @@ export function AssignParticipantDialog({
                             disabled={isInSameGroup}
                             onClick={() => handleAssignParticipant(participant)}
                             className={`h-9 px-4 rounded-lg font-medium transition-colors ${isInSameGroup
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-[#374192] hover:bg-[#46607F] text-white'
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-[#374192] hover:bg-[#46607F] text-white'
                               }`}
                           >
                             {sameTypeGroup ? "Substituir" : "Atribuir"}

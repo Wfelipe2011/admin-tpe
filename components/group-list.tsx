@@ -46,7 +46,7 @@ export function GroupList() {
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Pesquisar grupos..."
-            className="pl-10 h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+            className="pl-10 h-10 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -58,7 +58,7 @@ export function GroupList() {
             </span>
           </div>
           <Link href="/grupos/novo" passHref>
-            <Button className="bg-[#374192] hover:bg-[#46607F] text-white h-12 px-6 rounded-lg font-medium transition-colors">
+            <Button className="bg-[#374192] hover:bg-[#46607F] text-white h-10 px-6 rounded-lg font-medium transition-colors">
               <Plus className="mr-2 h-4 w-4" />
               Criar Novo Grupo
             </Button>

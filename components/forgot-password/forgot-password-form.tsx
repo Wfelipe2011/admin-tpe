@@ -104,7 +104,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
           id="phone"
           type="tel"
           placeholder="(00) 00000-0000"
-          className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+          className="h-10 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
           value={phoneDisplay}
           onChange={handlePhoneChange}
           required
@@ -121,7 +121,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-12 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm"
+          className="w-full h-10 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">

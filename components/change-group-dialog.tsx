@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { Search, User, UserCheck } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import type { IGroups } from "@/types/groups"
@@ -125,9 +125,27 @@ export function ChangeGroupDialog({
           <DialogTitle className="text-lg font-semibold text-[#333333]">Trocar de grupo</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 pt-4">
-          <p className="text-sm text-[#666666]">
-            Escolha o Grupo que deseja adicionar <span className="font-medium text-[#374192]">{participant.name}</span>
-          </p>
+          <div className="flex items-center gap-3 p-3 bg-[#F8F8F8] rounded-lg">
+            <p className="text-sm text-[#666666]">
+              Escolha o Grupo que deseja adicionar{" "}
+              <span className="font-medium text-[#374192]">{participant.name}</span>
+            </p>
+            {participant.sex === "MALE" ? (
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-1 flex items-center gap-1">
+                <User className="h-3 w-3" />
+                Irmão
+              </Badge>
+            ) : participant.sex === "FEMALE" ? (
+              <Badge className="bg-pink-50 text-pink-700 border-pink-200 text-xs px-2 py-1 flex items-center gap-1">
+                <UserCheck className="h-3 w-3" />
+                Irmã
+              </Badge>
+            ) : (
+              <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1">
+                Não informado
+              </Badge>
+            )}
+          </div>
 
           <div className="relative">
             <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -150,7 +168,7 @@ export function ChangeGroupDialog({
             <div className="max-h-[400px] space-y-3 overflow-y-auto">
               {filteredGroups.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#F8F8F8] mb-3">
+                  <div className="inline-flex items-center justify-center w-12 h-10 rounded-full bg-[#F8F8F8] mb-3">
                     <Search className="h-6 w-6 text-[#929BD2]" />
                   </div>
                   <p className="text-[#333333] font-medium">Nenhum grupo encontrado</p>

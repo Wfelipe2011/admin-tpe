@@ -301,7 +301,7 @@ export function PetitionList() {
                 <div className="flex flex-col md:hidden space-y-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex-shrink-0 w-12 h-12 flex items-center justify-center ${statusBgColor[petition.status]} rounded-lg`}
+                      className={`flex-shrink-0 w-12 h-10 flex items-center justify-center ${statusBgColor[petition.status]} rounded-lg`}
                     >
                       <FileText className={`w-5 h-5 ${statusColor[petition.status]}`} />
                     </div>

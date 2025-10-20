@@ -15,7 +15,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, User, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
 import type { Participant } from "@/types/group-participants"
@@ -108,14 +108,26 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
           <div className="space-y-2">
             <div className="flex items-center gap-3 flex-wrap">
               <span className="font-semibold text-[#333333] flex items-center gap-2">{participant.name}</span>
-              <Badge
-                className={`text-xs font-medium px-2 py-1 ${participant.sex === "MALE"
-                  ? "bg-[#374192]/10 text-[#374192] border-[#374192]/20"
-                  : participant.sex === "FEMALE"
-                    ? "bg-[#929BD2]/10 text-[#929BD2] border-[#929BD2]/20"
-                    : "bg-gray-100 text-gray-700 border-gray-200"
-                  }`}
-              >
+
+              {/* Indicador de Gênero */}
+              {participant.sex === "MALE" ? (
+                <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-1 flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  Irmão
+                </Badge>
+              ) : participant.sex === "FEMALE" ? (
+                <Badge className="bg-pink-50 text-pink-700 border-pink-200 text-xs px-2 py-1 flex items-center gap-1">
+                  <UserCheck className="h-3 w-3" />
+                  Irmã
+                </Badge>
+              ) : (
+                <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1">
+                  Não informado
+                </Badge>
+              )}
+
+              {/* Badge de Perfil/Função */}
+              <Badge className="text-xs font-medium px-2 py-1 bg-[#F8F8F8] text-[#333333] border-gray-200">
                 {participant.profile === "COORDINATOR"
                   ? "Coordenador"
                   : participant.profile === "CAPTAIN"

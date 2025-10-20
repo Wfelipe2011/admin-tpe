@@ -16,7 +16,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, User, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
 import type { Participant } from "@/types/group-participants"
@@ -89,6 +89,26 @@ export function ParticipantCard({ participant, groupId, onUpdate }: ParticipantC
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <p className="font-semibold text-[#333333] truncate">{participant.name}</p>
+
+              {/* Indicador de Gênero */}
+              <div className="flex items-center gap-1">
+                {participant.sex === "MALE" ? (
+                  <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-1 flex items-center gap-1">
+                    <User className="h-3 w-3" />
+                    Irmão
+                  </Badge>
+                ) : participant.sex === "FEMALE" ? (
+                  <Badge className="bg-pink-50 text-pink-700 border-pink-200 text-xs px-2 py-1 flex items-center gap-1">
+                    <UserCheck className="h-3 w-3" />
+                    Irmã
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1">
+                    Não informado
+                  </Badge>
+                )}
+              </div>
+
               {participant.profile === "COORDINATOR" && (
                 <Badge className="bg-[#374192] text-white text-xs px-2 py-1">
                   Coordenador
