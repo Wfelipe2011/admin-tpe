@@ -184,11 +184,10 @@ export function AssignParticipantDialog({
                           <Button
                             disabled={isInSameGroup}
                             onClick={() => handleAssignParticipant(participant)}
-                            className={`h-9 px-4 rounded-lg font-medium transition-colors ${
-                              isInSameGroup 
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            className={`h-9 px-4 rounded-lg font-medium transition-colors ${isInSameGroup
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 : 'bg-[#374192] hover:bg-[#46607F] text-white'
-                            }`}
+                              }`}
                           >
                             {sameTypeGroup ? "Substituir" : "Atribuir"}
                           </Button>

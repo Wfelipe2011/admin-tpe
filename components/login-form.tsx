@@ -207,9 +207,9 @@ export function LoginForm() {
             </div>
           )}
 
-          <Button 
-            type="submit" 
-            className="w-full h-12 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm" 
+          <Button
+            type="submit"
+            className="w-full h-12 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -223,8 +223,8 @@ export function LoginForm() {
           </Button>
 
           <div className="text-center pt-2">
-            <Link 
-              href="/forgot-password" 
+            <Link
+              href="/forgot-password"
               className="text-[#374192] hover:text-[#46607F] hover:underline text-sm font-medium transition-colors"
             >
               Esqueci minha senha

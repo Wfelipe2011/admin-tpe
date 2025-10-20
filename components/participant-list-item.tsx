@@ -110,10 +110,10 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
               <span className="font-semibold text-[#333333] flex items-center gap-2">{participant.name}</span>
               <Badge
                 className={`text-xs font-medium px-2 py-1 ${participant.sex === "MALE"
-                    ? "bg-[#374192]/10 text-[#374192] border-[#374192]/20"
-                    : participant.sex === "FEMALE"
-                      ? "bg-[#929BD2]/10 text-[#929BD2] border-[#929BD2]/20"
-                      : "bg-gray-100 text-gray-700 border-gray-200"
+                  ? "bg-[#374192]/10 text-[#374192] border-[#374192]/20"
+                  : participant.sex === "FEMALE"
+                    ? "bg-[#929BD2]/10 text-[#929BD2] border-[#929BD2]/20"
+                    : "bg-gray-100 text-gray-700 border-gray-200"
                   }`}
               >
                 {participant.profile === "COORDINATOR"
@@ -162,10 +162,10 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
         </div>
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild disabled={isLoading}>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 text-[#666666] hover:text-[#374192] hover:bg-[#374192]/10 transition-colors" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-[#666666] hover:text-[#374192] hover:bg-[#374192]/10 transition-colors"
               ref={dropdownTriggerRef}
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -180,19 +180,19 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent className="bg-white border-gray-200 shadow-lg">
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleChangeProfile("CAPTAIN")}
                       className="text-[#333333] focus:bg-[#374192]/10"
                     >
                       Capitão
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}
                       className="text-[#333333] focus:bg-[#374192]/10"
                     >
                       Capitão Assistente
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleChangeProfile("PARTICIPANT")}
                       className="text-[#333333] focus:bg-[#374192]/10"
                     >
@@ -202,15 +202,15 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             )}
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onSelect={() => setIsChangeGroupDialogOpen(true)}
               className="text-[#333333] focus:bg-[#374192]/10"
             >
               Trocar de grupo
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuItem 
-              className="text-[#E74C3C] focus:text-[#E74C3C] focus:bg-[#E74C3C]/10" 
+            <DropdownMenuItem
+              className="text-[#E74C3C] focus:text-[#E74C3C] focus:bg-[#E74C3C]/10"
               onSelect={handleRemoveParticipant}
             >
               Remover do grupo

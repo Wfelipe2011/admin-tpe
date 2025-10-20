@@ -100,9 +100,9 @@ export function ParticipantCard({ participant, groupId, onUpdate }: ParticipantC
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild disabled={isLoading}>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8 text-[#666666] hover:text-[#374192] hover:bg-[#374192]/10 transition-colors"
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -117,19 +117,19 @@ export function ParticipantCard({ participant, groupId, onUpdate }: ParticipantC
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent className="bg-white border-gray-200 shadow-lg">
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleChangeProfile("CAPTAIN")}
                       className="text-[#333333] focus:bg-[#374192]/10"
                     >
                       Capitão
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}
                       className="text-[#333333] focus:bg-[#374192]/10"
                     >
                       Capitão Assistente
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => handleChangeProfile("PARTICIPANT")}
                       className="text-[#333333] focus:bg-[#374192]/10"
                     >
@@ -143,8 +143,8 @@ export function ParticipantCard({ participant, groupId, onUpdate }: ParticipantC
               Trocar de dia
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuItem 
-              className="text-[#E74C3C] focus:text-[#E74C3C] focus:bg-[#E74C3C]/10" 
+            <DropdownMenuItem
+              className="text-[#E74C3C] focus:text-[#E74C3C] focus:bg-[#E74C3C]/10"
               onClick={handleRemoveParticipant}
             >
               Remover do grupo

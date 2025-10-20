@@ -118,8 +118,8 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
       )}
 
       <div className="space-y-4">
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isLoading}
           className="w-full h-12 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm"
         >
@@ -133,8 +133,8 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
           )}
         </Button>
 
-        <Link 
-          href="/login" 
+        <Link
+          href="/login"
           className="flex items-center justify-center text-sm text-[#374192] hover:text-[#46607F] font-medium transition-colors gap-2"
         >
           <ArrowLeft className="h-4 w-4" />

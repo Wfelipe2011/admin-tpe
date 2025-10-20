@@ -280,10 +280,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         <RequiredIndicator />
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Digite o nome do grupo" 
+                        <Input
+                          placeholder="Digite o nome do grupo"
                           className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage className="text-[#E74C3C] text-xs" />
@@ -406,10 +406,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         <RequiredIndicator />
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          type="time" 
+                        <Input
+                          type="time"
                           className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage className="text-[#E74C3C] text-xs" />
@@ -427,10 +427,10 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         <RequiredIndicator />
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          type="time" 
+                        <Input
+                          type="time"
                           className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage className="text-[#E74C3C] text-xs" />
@@ -535,17 +535,17 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => router.push("/grupos")} 
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/grupos")}
               disabled={isSubmitting}
               className="h-11 px-6 border-gray-300 text-[#666666] hover:bg-gray-50 rounded-lg font-medium transition-colors"
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
               className="h-11 px-6 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
             >

@@ -164,9 +164,8 @@ export function ChangeGroupDialog({
                   return (
                     <div
                       key={group.id}
-                      className={`rounded-lg border border-gray-200 p-4 bg-white transition-colors ${
-                        isCurrentGroup || isFull ? "opacity-60 bg-gray-50" : "hover:bg-[#F8F8F8]"
-                      }`}
+                      className={`rounded-lg border border-gray-200 p-4 bg-white transition-colors ${isCurrentGroup || isFull ? "opacity-60 bg-gray-50" : "hover:bg-[#F8F8F8]"
+                        }`}
                     >
                       <div className="space-y-3">
                         <div className="flex items-start justify-between">
@@ -204,7 +203,7 @@ export function ChangeGroupDialog({
                                 Lotado
                               </Badge>
                             ) : (
-                              <Button 
+                              <Button
                                 onClick={() => handleChangeGroup(group)}
                                 className="h-9 px-4 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors"
                               >
