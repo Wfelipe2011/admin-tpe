@@ -127,18 +127,33 @@ export function GroupSelector({ className = "", isMobileView = false }: GroupSel
       <Select value={selectedGroupId} onValueChange={handleGroupChange} disabled={isLoadingGroups || isSelectDisabled}>
         <SelectTrigger
           className={cn(
+            "border border-gray-200 shadow-sm transition-all duration-200",
             isMobileView
-              ? "bg-transparent border-gray-300 text-gray-800 focus:ring-gray-300 h-8 px-0 w-full"
-              : "bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground focus:ring-primary-foreground/30 min-w-[180px] h-9",
+              ? "bg-white text-[#333333] focus:ring-[#374192]/20 focus:border-[#374192] h-8 px-3 w-full"
+              : "bg-white/20 border-white/30 text-white focus:ring-white/30 focus:border-white/50 min-w-[180px] h-9 hover:bg-white/30",
           )}
         >
           <SelectValue placeholder={isLoadingGroups ? "Carregando grupos..." : "Selecione um grupo"}>
-            {isMobileView ? <span className="truncate block">{getSelectedGroupName()}</span> : getSelectedGroupName()}
+            {isMobileView ? (
+              <span className="truncate block text-sm font-medium">{getSelectedGroupName()}</span>
+            ) : (
+              <span className="text-sm font-medium">{getSelectedGroupName()}</span>
+            )}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className={isMobileView ? "w-[260px]" : ""}>
+        <SelectContent className={cn(
+          "bg-white border border-gray-200 shadow-lg rounded-lg",
+          isMobileView ? "w-[260px]" : ""
+        )}>
           {/* Only show "Todos os Grupos" option if user is not CAPTAIN */}
-          {!isSelectDisabled && <SelectItem value="todos">Todos os Grupos</SelectItem>}
+          {!isSelectDisabled && (
+            <SelectItem
+              value="todos"
+              className="text-[#333333] hover:bg-[#374192]/10 focus:bg-[#374192]/10 font-medium"
+            >
+              Todos os Grupos
+            </SelectItem>
+          )}
 
           {/* Filter groups if user is CAPTAIN */}
           {groups
@@ -147,13 +162,29 @@ export function GroupSelector({ className = "", isMobileView = false }: GroupSel
               return !isSelectDisabled || group.id === user?.groupId
             })
             .map((group) => (
-              <SelectItem key={group.id} value={group.id}>
-                {group.name} - {formatWeekday(group.configWeekday)} {group.configStartHour}
+              <SelectItem
+                key={group.id}
+                value={group.id}
+                className="text-[#333333] hover:bg-[#374192]/10 focus:bg-[#374192]/10"
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium">{group.name}</span>
+                  <span className="text-xs text-[#666666]">
+                    {formatWeekday(group.configWeekday)} {group.configStartHour}
+                  </span>
+                </div>
               </SelectItem>
             ))}
         </SelectContent>
       </Select>
-      {error && <p className={cn("text-xs mt-1", isMobileView ? "text-red-600" : "text-red-300")}>{error}</p>}
+      {error && (
+        <p className={cn(
+          "text-xs mt-2 font-medium",
+          isMobileView ? "text-red-600" : "text-red-200"
+        )}>
+          {error}
+        </p>
+      )}
     </div>
   )
 }

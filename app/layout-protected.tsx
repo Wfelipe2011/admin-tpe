@@ -140,10 +140,13 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
   // Show loading state
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-          <p className="text-sm text-muted-foreground">Carregando...</p>
+      <div className="flex h-screen w-full items-center justify-center bg-[#F8F8F8]">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="w-12 h-12 border-4 border-[#374192] border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-center space-y-2">
+            <p className="text-base font-semibold text-[#333333]">Carregando...</p>
+            <p className="text-sm text-[#666666]">Aguarde enquanto preparamos sua experiência</p>
+          </div>
         </div>
       </div>
     )
@@ -157,7 +160,7 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
 
   // If authenticated and not loading, render the layout with the sidebar
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#F8F8F8]">
       <div className="hidden md:block transition-all duration-300">
         <AppSidebar
           collapsed={!sidebarOpen}
@@ -168,9 +171,9 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
       </div>
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar title={title} user={user} sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
-          <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 min-h-0 flex-1 relative">
-            <div className="flex justify-between items-center mb-4">
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-0 flex-1 relative">
+            <div className="flex justify-between items-center mb-6">
               {breadcrumbs.length > 0 ? <BreadcrumbNav items={breadcrumbs} /> : <div></div>}
             </div>
             {children}

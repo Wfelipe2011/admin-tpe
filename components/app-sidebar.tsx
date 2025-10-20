@@ -72,11 +72,11 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, userProfil
   })
 
   const SidebarContent = () => (
-    <div className={`h-full ${collapsed && !isMobile ? "w-16" : "w-64"} bg-primary text-primary-foreground`}>
+    <div className={`h-full ${collapsed && !isMobile ? "w-16" : "w-64"} bg-gradient-to-b from-[#181C43] to-[#374192] text-white shadow-lg`}>
       {/* Header */}
-      <div className="h-16 flex items-center border-b border-primary-foreground/20">
+      <div className="h-16 flex items-center border-b border-white/10">
         {collapsed && !isMobile ? (
-          <div className="px-4 py-2">
+          <div className="px-4 py-2 flex justify-center w-full">
             <Image
               src="/images/design-mode/logo_branco.png"
               alt="TPE Digital"
@@ -87,37 +87,40 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, userProfil
             />
           </div>
         ) : (
-          <div className="flex items-center mx-2">
+          <div className="flex items-center mx-4 gap-3">
             <Image
               src="/images/design-mode/logo_branco.png"
               alt="TPE Digital"
               width={200}
               height={200}
-              className="w-auto h-16 p-2"
+              className="w-auto h-12"
               priority
             />
-            <span className="text-sm sm:text-base">TPE DIGITAL</span>
+            <span className="text-sm sm:text-base font-semibold tracking-wide">TPE DIGITAL</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-2">
-        <ul className="space-y-1">
+      <div className="flex-1 overflow-y-auto p-4">
+        <ul className="space-y-2">
           {menuItemsWithIcons.map((item) => (
             <li key={item.name}>
               <Link
                 href={item.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs sm:text-sm transition-colors ${
-                  pathname === item.path
-                    ? "bg-white/20 text-white font-medium"
-                    : "hover:bg-white/10 text-primary-foreground"
-                } ${collapsed && !isMobile ? "justify-center" : ""}`}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 ${pathname === item.path
+                    ? "bg-white/20 text-white font-semibold shadow-sm border border-white/30"
+                    : "hover:bg-white/10 text-white/90 hover:text-white font-medium"
+                  } ${collapsed && !isMobile ? "justify-center" : ""}`}
                 title={collapsed && !isMobile ? item.name : undefined}
                 onClick={() => isMobile && setOpen(false)}
               >
-                {item.icon}
-                {(!collapsed || isMobile) && <span className="truncate">{item.name}</span>}
+                <div className={`flex-shrink-0 ${pathname === item.path ? "text-white" : "text-white/80"}`}>
+                  {item.icon}
+                </div>
+                {(!collapsed || isMobile) && (
+                  <span className="truncate">{item.name}</span>
+                )}
               </Link>
             </li>
           ))}
