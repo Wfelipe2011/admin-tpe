@@ -273,7 +273,7 @@ function PersonItem({ name, count, image, blurred = false }: PersonItemProps) {
   return (
     <div className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer">
       <div className="flex items-center gap-3">
-        <Avatar>
+        <Avatar className={blurred ? "blur-sm select-none" : ""}>
           <AvatarImage src={image || "/placeholder.svg"} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
