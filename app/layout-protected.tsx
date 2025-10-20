@@ -5,9 +5,9 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { isAuthenticated, getUserFromToken, getAuthToken } from "@/lib/auth-utils"
-import { TopBar } from "@/components/top-bar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BreadcrumbNav } from "@/components/breadcrumb-nav"
+import { Menu } from "lucide-react"
 import type { IToken } from "@/types/auth"
 
 // Import the ParticipantProfile and role utils
@@ -59,7 +59,7 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
               return false
             }
 
-            if (!hasRouteAccess(userInfo.profile, pathname)) {
+            if (!hasRouteAccess(userInfo.profile as ParticipantProfile, pathname)) {
               console.log("[ProtectedLayout] User does not have access to this route, redirecting to dashboard")
               router.replace("/dashboard")
               return false
@@ -137,6 +137,11 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
     }
   }
 
+  // Desktop sidebar collapse toggle
+  const toggleSidebarCollapsed = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
+
   // Show loading state
   if (loading) {
     return (
@@ -166,11 +171,39 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
           collapsed={!sidebarOpen}
           isOpen={mobileSidebarOpen}
           onOpenChange={setMobileSidebarOpen}
-          userProfile={user?.profile || ParticipantProfile.PARTICIPANT}
+          onToggleCollapsed={toggleSidebarCollapsed}
+          userProfile={(user?.profile as ParticipantProfile) || ParticipantProfile.PARTICIPANT}
+          user={user}
         />
       </div>
+
+      {/* Mobile sidebar */}
+      <div className="md:hidden">
+        <AppSidebar
+          collapsed={false}
+          isOpen={mobileSidebarOpen}
+          onOpenChange={setMobileSidebarOpen}
+          userProfile={(user?.profile as ParticipantProfile) || ParticipantProfile.PARTICIPANT}
+          user={user}
+        />
+      </div>
+
       <div className="flex flex-col flex-1 overflow-hidden">
-        <TopBar title={title} user={user} sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+        {/* Mobile header with menu toggle */}
+        <div className="md:hidden bg-gradient-to-r from-[#181C43] to-[#374192] text-white shadow-sm border-b border-[#374192]/20">
+          <div className="flex h-16 items-center justify-between px-6">
+            <button
+              onClick={toggleSidebar}
+              className="text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+              aria-label="Abrir menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <h1 className="text-lg font-semibold text-white">{title}</h1>
+            <div className="w-9"></div> {/* Spacer for centering */}
+          </div>
+        </div>
+
         <main className="flex-1 overflow-y-auto p-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-0 flex-1 relative">
             <div className="flex justify-between items-center mb-6">

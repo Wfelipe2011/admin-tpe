@@ -130,7 +130,7 @@ export function GroupSelector({ className = "", isMobileView = false }: GroupSel
             "border border-gray-200 shadow-sm transition-all duration-200",
             isMobileView
               ? "bg-white text-[#333333] focus:ring-[#374192]/20 focus:border-[#374192] h-8 px-3 w-full"
-              : "bg-white/20 border-white/30 text-white focus:ring-white/30 focus:border-white/50 min-w-[180px] h-9 hover:bg-white/30",
+              : "bg-white/20 border-white/30 text-white focus:ring-white/30 focus:border-white/50 min-w-[200px] h-10 hover:bg-white/30 backdrop-blur-sm",
           )}
         >
           <SelectValue placeholder={isLoadingGroups ? "Carregando grupos..." : "Selecione um grupo"}>
