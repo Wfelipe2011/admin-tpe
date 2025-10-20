@@ -101,17 +101,17 @@ export function HistoricoDesignacao() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "text-yellow-600"
+        return "bg-yellow-50 text-yellow-700 border border-yellow-200"
       case "IN_PROGRESS":
-        return "text-blue-600"
+        return "bg-blue-50 text-blue-700 border border-blue-200"
       case "COMPLETED":
-        return "text-green-600"
+        return "bg-green-50 text-green-700 border border-green-200"
       case "ARCHIVED":
-        return "text-gray-600"
+        return "bg-gray-50 text-gray-700 border border-gray-200"
       case "CANCELLED":
-        return "text-red-600"
+        return "bg-red-50 text-red-700 border border-red-200"
       default:
-        return "text-gray-600"
+        return "bg-gray-50 text-gray-700 border border-gray-200"
     }
   }
 
@@ -143,86 +143,131 @@ export function HistoricoDesignacao() {
   // If selectedGroupId is "todos", show a message instead of the table
   if (selectedGroupId === "todos") {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-lg text-gray-500 mb-4">
-          Selecione um grupo específico para visualizar o histórico de designações.
+      <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-lg border border-gray-100 shadow-sm">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#374192]/10 mb-6">
+          <Eye className="h-8 w-8 text-[#374192]" aria-hidden="true" />
+        </div>
+        <h3 className="text-lg font-semibold text-[#333333] mb-2">Selecione um Grupo</h3>
+        <p className="text-[#666666] max-w-md">
+          Para visualizar o histórico de designações, é necessário selecionar um grupo específico no seletor acima.
         </p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row justify-start gap-4">
-        <div className="flex gap-2 items-center">
-          <DatePicker
-            selected={dateFrom}
-            onSelect={setDateFrom}
-            mode="single"
-            locale={ptBR}
-            placeholder="Data inicial"
-            className="w-[180px]"
-          />
-          <span className="text-sm text-muted-foreground">até</span>
-          <DatePicker
-            selected={dateTo}
-            onSelect={setDateTo}
-            mode="single"
-            locale={ptBR}
-            placeholder="Data final"
-            className="w-[180px]"
-          />
-          <Button variant="outline" size="sm" onClick={handleDateReset} disabled={!dateFrom && !dateTo} className="h-9">
-            Limpar
-          </Button>
-          <Button size="sm" onClick={fetchDesignations} className="h-9">
-            Filtrar
-          </Button>
+    <div className="space-y-6">
+      {/* Filtros Section */}
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-[#333333] mb-4 flex items-center gap-2">
+          <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
+          Filtros de Busca
+        </h3>
+        <div className="flex flex-col md:flex-row justify-start gap-4">
+          <div className="flex flex-wrap gap-3 items-center">
+            <DatePicker
+              selected={dateFrom}
+              onSelect={setDateFrom}
+              mode="single"
+              locale={ptBR}
+              placeholder="Data inicial"
+              className="w-[180px]"
+            />
+            <span className="text-sm text-[#666666] font-medium">até</span>
+            <DatePicker
+              selected={dateTo}
+              onSelect={setDateTo}
+              mode="single"
+              locale={ptBR}
+              placeholder="Data final"
+              className="w-[180px]"
+            />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleDateReset} 
+              disabled={!dateFrom && !dateTo} 
+              className="h-9 border-[#929BD2] text-[#374192] hover:bg-[#374192]/10"
+            >
+              Limpar
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={fetchDesignations} 
+              className="h-9 bg-[#374192] hover:bg-[#46607F] text-white"
+            >
+              Filtrar
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+      {/* Tabela Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-[#333333] flex items-center gap-2">
+            <div className="w-2 h-2 bg-[#929BD2] rounded-full"></div>
+            Histórico de Designações
+          </h3>
+        </div>
+        
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Data Da Designação</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Presença</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-700">Visualizar</th>
+              <tr className="bg-[#F8F8F8] border-b border-gray-200">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-[#333333]">Data da Designação</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-[#333333]">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-[#333333]">Presença</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-[#333333]">Ações</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-4 text-center text-sm text-gray-500">
-                    <div className="flex justify-center">
-                      <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div>
+                  <td colSpan={4} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-[#666666] font-medium">Carregando histórico...</p>
                     </div>
                   </td>
                 </tr>
               ) : filteredDesignations.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-4 text-center text-sm text-gray-500">
-                    Nenhuma designação encontrada
+                  <td colSpan={4} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#929BD2]/10">
+                        <Eye className="h-6 w-6 text-[#929BD2]" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <p className="text-[#333333] font-medium">Nenhuma designação encontrada</p>
+                        <p className="text-sm text-[#666666] mt-1">
+                          Tente ajustar os filtros ou verificar se há designações para este período
+                        </p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredDesignations.map((designation) => (
-                  <tr key={designation.id} className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm">{formatDate(designation.designationDate)}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={getStatusColor(designation.status)}>{getStatusText(designation.status)}</span>
+                  <tr key={designation.id} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="px-6 py-4 text-sm text-[#333333] font-medium">
+                      {formatDate(designation.designationDate)}
                     </td>
-                    <td className="px-4 py-3 text-sm">
+                    <td className="px-6 py-4 text-sm">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(designation.status)}`}>
+                        {getStatusText(designation.status)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#666666]">
                       {getPresenceText(designation.mandatoryPresence, designation.status === "CANCELLED")}
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-6 py-4 text-center">
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => handleViewDesignation(designation.id)}
-                        title="Visualizar"
+                        className="text-[#374192] hover:bg-[#374192]/10 h-8 w-8 p-0"
+                        title="Visualizar detalhes da designação"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -234,6 +279,7 @@ export function HistoricoDesignacao() {
           </table>
         </div>
       </div>
+      
       <DesignationViewModal
         isOpen={viewModalOpen}
         onClose={() => setViewModalOpen(false)}
