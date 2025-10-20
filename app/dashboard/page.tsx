@@ -99,7 +99,7 @@ export default function DashboardPage() {
   const isLoading = isLoadingDashboard
 
   return (
-    <ProtectedLayout title="Dashboard" breadcrumbs={[]}>
+    <ProtectedLayout title="Dashboard" breadcrumbs={[{ label: "Dashboard" }]}>
       <div className="space-y-8">
         {/* Header Section */}
         <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-8 text-white">
