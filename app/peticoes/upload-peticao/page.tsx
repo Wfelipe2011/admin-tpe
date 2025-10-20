@@ -238,9 +238,9 @@ function UploadPeticaoContent() {
           </p>
 
           <div
-            className={`h-64 flex flex-col items-center justify-center border-2 rounded-lg border-dashed p-6 transition-all duration-200 ${isDragging
-                ? "border-[#374192] bg-[#374192]/5 shadow-sm"
-                : "border-gray-300 bg-gray-50/50 hover:border-[#929BD2] hover:bg-gray-50"
+            className={`min-h-64 flex flex-col items-center justify-center border-2 rounded-lg border-dashed p-6 transition-all duration-200 ${isDragging
+              ? "border-[#374192] bg-[#374192]/5 shadow-sm"
+              : "border-gray-300 bg-gray-50/50 hover:border-[#929BD2] hover:bg-gray-50"
               }`}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
