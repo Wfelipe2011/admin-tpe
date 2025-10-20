@@ -110,28 +110,34 @@ export function PointsList() {
   // Show message when no group is selected
   if (!selectedGroupId || selectedGroupId === "todos") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-4">
-        <div className="text-muted-foreground">
-          <svg
-            className="mx-auto h-16 w-16 mb-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-            />
-          </svg>
-          <h3 className="text-lg font-medium text-foreground">Selecione um grupo</h3>
-          <p className="text-sm">Selecione um grupo para visualizar e editar os pontos.</p>
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-12">
+        <div className="flex flex-col items-center justify-center text-center space-y-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#374192]/10">
+            <svg
+              className="w-8 h-8 text-[#374192]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-[#333333] mb-2">Selecione um Grupo</h3>
+            <p className="text-[#666666]">
+              Selecione um grupo específico para visualizar e gerenciar os pontos de designação.
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -139,10 +145,10 @@ export function PointsList() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <div className="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full" />
-          Carregando pontos...
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-12">
+        <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#666666] font-medium">Carregando pontos...</p>
         </div>
       </div>
     )
@@ -152,22 +158,29 @@ export function PointsList() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Pontos do Grupo</h2>
-          <p className="text-muted-foreground">
-            {allPoints.length === 0
-              ? "Nenhum ponto cadastrado"
-              : `${points.length} ${points.length === 1 ? "ponto cadastrado" : "pontos cadastrados"}${
-                  newPoints.length > 0 ? ` (+${newPoints.length} novo${newPoints.length > 1 ? "s" : ""})` : ""
+      {/* Header Section */}
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
+        <div className="flex justify-between items-start gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-[#333333] flex items-center gap-2">
+              <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
+              Pontos do Grupo
+            </h2>
+            <p className="text-[#666666] mt-2">
+              {allPoints.length === 0
+                ? "Nenhum ponto cadastrado para este grupo"
+                : `${points.length} ${points.length === 1 ? "ponto cadastrado" : "pontos cadastrados"}${newPoints.length > 0 ? ` (+${newPoints.length} novo${newPoints.length > 1 ? "s" : ""})` : ""
                 }`}
-          </p>
+            </p>
+          </div>
+          <Button
+            onClick={handleCreatePoint}
+            className="bg-[#374192] hover:bg-[#46607F] text-white"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Ponto
+          </Button>
         </div>
-        <Button onClick={handleCreatePoint}>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Ponto
-        </Button>
       </div>
 
       {/* Points Grid */}
@@ -189,32 +202,41 @@ export function PointsList() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground">
-            <svg
-              className="mx-auto h-16 w-16 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-              />
-            </svg>
-            <h3 className="text-lg font-medium text-foreground mb-2">Nenhum ponto cadastrado</h3>
-            <p className="text-sm mb-4">Adicione pontos para organizar as designações do grupo.</p>
-            <Button onClick={handleCreatePoint}>
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar Primeiro Ponto
-            </Button>
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-12">
+          <div className="text-center space-y-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#929BD2]/10">
+              <svg
+                className="w-8 h-8 text-[#929BD2]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#333333] mb-2">Nenhum ponto cadastrado</h3>
+              <p className="text-[#666666] mb-6">
+                Adicione pontos para organizar as designações deste grupo de forma eficiente.
+              </p>
+              <Button
+                onClick={handleCreatePoint}
+                className="bg-[#374192] hover:bg-[#46607F] text-white"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar Primeiro Ponto
+              </Button>
+            </div>
           </div>
         </div>
       )}

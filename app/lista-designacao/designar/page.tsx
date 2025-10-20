@@ -81,16 +81,6 @@ export default function DesignarPage() {
                   <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
                   <h2 className="text-lg font-semibold text-[#333333]">Pontos de Designação</h2>
                 </div>
-                <Link href="/lista-designacao/chamada">
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2 border-[#374192] text-[#374192] hover:bg-[#374192] hover:text-white transition-colors font-medium"
-                  >
-                    <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Ir para Chamada</span>
-                    <span className="sm:hidden">Chamada</span>
-                  </Button>
-                </Link>
               </div>
 
               {/* Search, auto-assign and participant overview */}
