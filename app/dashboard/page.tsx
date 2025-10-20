@@ -15,7 +15,7 @@ import { useGroupStore } from "@/lib/stores/use-group-store"
 
 // Add a helper function to format the metric values
 const formatMetricValue = (value: number | string): string => {
-  return value
+  return String(value)
 }
 
 export default function DashboardPage() {

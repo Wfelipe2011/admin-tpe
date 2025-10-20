@@ -10,5 +10,6 @@ export interface IToken {
   name: string
   exp: number
   profile: ParticipantProfile | string
+  profile_photo?: string
   groupId?: string
 }
