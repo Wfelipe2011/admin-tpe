@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Search, LayoutGrid, List, Filter } from "lucide-react"
+import { Search, LayoutGrid, List, Filter, ClipboardList } from "lucide-react"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
 import { ParticipantCard } from "@/components/designation/participant-card"
@@ -137,11 +137,15 @@ export function DesignationList({ designationId }: { designationId?: string } = 
   // If "todos" is selected, show a message
   if (selectedGroupId === "todos") {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mx-auto">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8">
         <div className="flex justify-center items-center h-64">
-          <p className="text-muted-foreground text-center">
-            Selecione um grupo específico para visualizar as designações.
-          </p>
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F8F8F8]">
+              <ClipboardList className="h-8 w-8 text-[#929BD2]" />
+            </div>
+            <p className="text-[#333333] font-medium">Selecione um grupo específico</p>
+            <p className="text-sm text-[#666666]">Escolha um grupo para visualizar as designações</p>
+          </div>
         </div>
       </div>
     )
@@ -156,32 +160,40 @@ export function DesignationList({ designationId }: { designationId?: string } = 
       />
 
       {/* Main content box */}
-      <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mx-auto">
-        <div className="space-y-4">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8">
+        <div className="space-y-8">
           {/* Status and Designate button */}
-          <div className="flex flex-col md:flex-row justify-between items-start gap-3">
-            <div className="text-sm text-muted-foreground">
-              Status:{" "}
-              <span
-                className={
-                  designationDetails?.designation?.status
-                    ? getStatusColor(designationDetails.designation.status)
-                    : "text-gray-600"
-                }
-              >
-                {designationDetails?.designation?.status
-                  ? getStatusText(designationDetails.designation.status)
-                  : "Carregando..."}
-              </span>
+          <div className="flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
+            <div className="bg-[#F8F8F8] rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
+                <span className="text-sm font-medium text-[#666666]">Status da Designação:</span>
+                <span
+                  className={
+                    designationDetails?.designation?.status
+                      ? getStatusColor(designationDetails.designation.status)
+                      : "text-[#666666] font-medium"
+                  }
+                >
+                  {designationDetails?.designation?.status
+                    ? getStatusText(designationDetails.designation.status)
+                    : "Carregando..."}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col xs:flex-row gap-2 w-full md:w-auto">
-              <Link href="/lista-designacao/chamada" className="w-full xs:w-auto">
-                <Button variant="outline" size="sm" className="px-4 w-full">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Link href="/lista-designacao/chamada">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto border-[#929BD2] text-[#374192] hover:bg-[#929BD2] hover:text-white transition-colors font-medium"
+                >
                   Chamada
                 </Button>
               </Link>
-              <Link href="/lista-designacao/designar" className="w-full xs:w-auto">
-                <Button size="sm" className="px-4 w-full">
+              <Link href="/lista-designacao/designar">
+                <Button
+                  className="w-full sm:w-auto bg-[#374192] hover:bg-[#46607F] text-white font-medium transition-colors"
+                >
                   {designationDetails?.designation?.status === "OPEN" ? "Designar" : "Consultar Designação"}
                 </Button>
               </Link>
@@ -189,27 +201,40 @@ export function DesignationList({ designationId }: { designationId?: string } = 
           </div>
 
           {/* Search and filters */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <div className="relative flex-1 max-w-md w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
+            <div className="relative flex-1 max-w-md">
+              <label htmlFor="participant-search" className="sr-only">
+                Pesquisar participantes
+              </label>
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
               <Input
-                placeholder="Pesquisar Voluntário"
-                className="pl-9"
+                id="participant-search"
+                type="search"
+                placeholder="Pesquisar Voluntário..."
+                className="pl-10 h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                aria-describedby="search-help"
               />
+              <div id="search-help" className="sr-only">
+                Digite o nome do participante para filtrar a lista
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 items-center justify-between sm:justify-start w-full sm:w-auto">
+
+            <div className="flex flex-wrap gap-4 items-center justify-between lg:justify-start">
               {/* Presence Filter Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    className="border-gray-300 text-[#666666] hover:bg-gray-50 font-medium"
+                  >
                     <Filter className="mr-2 h-4 w-4" />
                     Filtrar
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Filtro Presença</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-[#333333] font-medium">Filtro Presença</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => setPresenceFilter("ausente")}>Ausente</DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => setPresenceFilter("presente")}>Presente</DropdownMenuItem>
@@ -218,43 +243,72 @@ export function DesignationList({ designationId }: { designationId?: string } = 
               </DropdownMenu>
 
               {/* View Mode Buttons */}
-              <div className="flex border rounded-md overflow-hidden">
+              <div className="flex items-center bg-[#F8F8F8] rounded-lg p-1" role="tablist" aria-label="Opções de visualização">
                 <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
+                  variant="ghost"
                   size="sm"
-                  className="rounded-none"
+                  className={`rounded-md transition-all font-medium ${viewMode === "list"
+                      ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                      : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                    }`}
                   onClick={() => setViewMode("list")}
+                  aria-pressed={viewMode === "list"}
+                  role="tab"
+                  aria-selected={viewMode === "list"}
+                  aria-controls="participants-content"
+                  title="Visualizar em lista"
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-4 w-4" aria-hidden="true" />
                 </Button>
                 <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  variant="ghost"
                   size="sm"
-                  className="rounded-none"
+                  className={`rounded-md transition-all font-medium ${viewMode === "grid"
+                      ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                      : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                    }`}
                   onClick={() => setViewMode("grid")}
+                  aria-pressed={viewMode === "grid"}
+                  role="tab"
+                  aria-selected={viewMode === "grid"}
+                  aria-controls="participants-content"
+                  title="Visualizar em grade"
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
+
               {/* Participant Count */}
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <span className="font-medium text-primary">{filteredParticipants.length}</span> participantes
+              <div className="bg-[#F8F8F8] px-4 py-2 rounded-lg">
+                <span className="text-sm font-medium text-[#666666]">
+                  <span className="text-[#374192] font-semibold">{filteredParticipants.length}</span> participantes
+                </span>
               </div>
             </div>
           </div>
 
           {/* Loading state */}
           {loading && (
-            <div className="flex justify-center items-center h-64">
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+            <div className="flex justify-center items-center h-64" role="status" aria-live="polite">
+              <div className="text-center space-y-4">
+                <div
+                  className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin mx-auto"
+                  aria-hidden="true"
+                ></div>
+                <p className="text-[#666666] font-medium">Carregando participantes...</p>
+                <span className="sr-only">Carregando dados dos participantes</span>
+              </div>
             </div>
           )}
 
           {/* Participants grid */}
           {!loading && (
             <div
+              id="participants-content"
+              role="tabpanel"
+              aria-label={`Participantes em visualização de ${viewMode === "grid" ? 'grade' : 'lista'}`}
               className={`
-                grid gap-4
+                grid gap-6
                 ${viewMode === "list"
                   ? "grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                   : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
@@ -283,9 +337,13 @@ export function DesignationList({ designationId }: { designationId?: string } = 
 
           {/* No results */}
           {!loading && filteredParticipants.length === 0 && (
-            <Card className="p-8 text-center max-w-3xl mx-auto">
-              <p className="text-muted-foreground">Nenhum participante encontrado.</p>
-            </Card>
+            <div className="text-center py-16">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F8F8F8]">
+                <Search className="h-8 w-8 text-[#929BD2]" aria-hidden="true" />
+              </div>
+              <p className="mt-4 text-[#333333] font-medium">Nenhum participante encontrado</p>
+              <p className="text-sm text-[#666666] mt-1">Tente ajustar os filtros de busca ou verifique os critérios</p>
+            </div>
           )}
         </div>
       </div>
