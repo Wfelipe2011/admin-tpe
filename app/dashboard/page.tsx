@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import { ProtectedLayout } from "@/app/layout-protected"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff } from "lucide-react"
+import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff, BarChart3 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DonutChart } from "@/components/dashboard/donut-chart"
 import type { IDashboard } from "@/types/dashboard"
@@ -101,16 +101,40 @@ export default function DashboardPage() {
   return (
     <ProtectedLayout title="Dashboard" breadcrumbs={[]}>
       <div className="space-y-8">
-        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-8 text-white">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-lg">
+              <BarChart3 className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold mb-2">Dashboard</h1>
+              <p className="text-blue-100 text-sm">
+                Visão geral dos dados e métricas importantes da congregação
+              </p>
+            </div>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-sm text-red-700 font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Content Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Dados Gerais */}
-          <Card className="bg-white shadow-sm h-fit">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-medium">Dados Gerais</CardTitle>
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="p-6 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
+                <CardTitle className="text-lg font-semibold text-[#333333]">Dados Gerais</CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <CardContent className="p-6 pt-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MetricCard
                   value={isLoading ? "..." : dashboardData?.groups || 0}
                   label="Grupos"
@@ -144,15 +168,25 @@ export default function DashboardPage() {
           </Card>
 
           {/* Gráficos */}
-          <Card className="bg-white shadow-sm h-fit">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-medium">Gráficos</CardTitle>
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="p-6 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-[#929BD2] rounded-full"></div>
+                <CardTitle className="text-lg font-semibold text-[#333333]">Gráficos</CardTitle>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-8">
                 {isLoading ? (
-                  <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-500">Carregando gráficos...</p>
+                  <div className="flex justify-center items-center h-64" role="status" aria-live="polite">
+                    <div className="text-center space-y-4">
+                      <div
+                        className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin mx-auto"
+                        aria-hidden="true"
+                      ></div>
+                      <p className="text-[#666666] font-medium">Carregando gráficos...</p>
+                      <span className="sr-only">Carregando dados dos gráficos</span>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -166,28 +200,39 @@ export default function DashboardPage() {
           </Card>
 
           {/* Lista de Atenção */}
-          <Card className="bg-white shadow-sm h-fit">
-            <CardHeader className="pb-2 flex flex-row justify-between items-center">
-              <CardTitle className="text-xl font-medium">Lista de Atenção</CardTitle>
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="p-6 pb-4 flex flex-row justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-[#E74C3C] rounded-full"></div>
+                <CardTitle className="text-lg font-semibold text-[#333333]">Lista de Atenção</CardTitle>
+              </div>
               <button
                 onClick={toggleNamesVisibility}
-                className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors"
                 aria-label={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
+                title={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
               >
                 {namesVisible ? (
-                  <EyeOff className="h-5 w-5 text-gray-600" />
+                  <EyeOff className="h-5 w-5 text-[#666666]" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-600" />
+                  <Eye className="h-5 w-5 text-[#666666]" />
                 )}
               </button>
             </CardHeader>
             <CardContent className="p-0">
               {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500">Carregando lista...</p>
+                <div className="flex justify-center items-center h-64" role="status" aria-live="polite">
+                  <div className="text-center space-y-4">
+                    <div
+                      className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin mx-auto"
+                      aria-hidden="true"
+                    ></div>
+                    <p className="text-[#666666] font-medium">Carregando lista...</p>
+                    <span className="sr-only">Carregando dados da lista de atenção</span>
+                  </div>
                 </div>
               ) : dashboardData?.incidents && dashboardData.incidents.length > 0 ? (
-                <div className="divide-y">
+                <div className="divide-y divide-gray-100">
                   {dashboardData.incidents.map((incident, index) => (
                     <PersonItem
                       key={`${incident.name}-${index}`}
@@ -199,7 +244,13 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-4 text-center text-gray-500">Nenhum incidente encontrado</div>
+                <div className="p-8 text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F8F8F8]">
+                    <ClipboardList className="h-8 w-8 text-[#929BD2]" aria-hidden="true" />
+                  </div>
+                  <p className="mt-4 text-[#333333] font-medium">Nenhum incidente encontrado</p>
+                  <p className="text-sm text-[#666666] mt-1">Não há itens de atenção no momento</p>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -219,13 +270,36 @@ interface MetricCardProps {
 
 function MetricCard({ value, label, icon, isLoading = false, selectedGroupId }: MetricCardProps) {
   return (
-    <Card className="overflow-hidden bg-gradient-to-br from-[#1E2462] to-[#374192] text-white border-none">
-      <CardContent className="p-2 flex flex-col items-center justify-center text-center">
-        {icon && <div className="mb-2">{icon}</div>}
-        <div className="text-2xl font-bold mb-1">
-          {isLoading ? <span className="opacity-50">...</span> : formatMetricValue(value)}
+    <Card className="bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-[#374192] to-[#929BD2] rounded-lg text-white flex-shrink-0">
+            {icon}
+          </div>
+          <div className="min-w-0 flex-1">
+            {isLoading ? (
+              <div className="space-y-2">
+                <div
+                  className="h-6 bg-gray-200 rounded animate-pulse"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"
+                  aria-hidden="true"
+                ></div>
+              </div>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-[#333333] leading-none">
+                  {formatMetricValue(value)}
+                </p>
+                <p className="text-sm text-[#666666] mt-1 font-medium">
+                  {label === "Grupos" && selectedGroupId !== "todos" ? "Voluntários" : label}
+                </p>
+              </>
+            )}
+          </div>
         </div>
-        <p className="text-blue-100">{label === "Grupos" && selectedGroupId !== "todos" ? "Voluntários" : label}</p>
       </CardContent>
     </Card>
   )
@@ -253,11 +327,13 @@ function ChartCard({ title, percentage }: ChartCardProps) {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-48 h-48 mb-2">
-        <DonutChart percentage={percentage} centerText={centerText} centerSubtext={centerSubtext} />
+    <div className="bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div className="flex flex-col items-center">
+        <div className="w-32 h-32 mb-4">
+          <DonutChart percentage={percentage} centerText={centerText} centerSubtext={centerSubtext} />
+        </div>
+        <h3 className="text-base font-semibold text-[#333333] text-center">{title}</h3>
       </div>
-      <h3 className="text-lg font-medium">{title}</h3>
     </div>
   )
 }
@@ -271,16 +347,22 @@ interface PersonItemProps {
 
 function PersonItem({ name, count, image, blurred = false }: PersonItemProps) {
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer">
+    <div className="flex items-center justify-between p-6 hover:bg-gray-50/80 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0">
       <div className="flex items-center gap-3">
-        <Avatar className={blurred ? "blur-sm select-none" : ""}>
+        <Avatar className={`w-10 h-10 ${blurred ? "blur-sm select-none" : ""}`}>
           <AvatarImage src={image || "/placeholder.svg"} alt={name} />
-          <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+          <AvatarFallback className="bg-gradient-to-br from-[#374192] to-[#929BD2] text-white font-medium">
+            {name.charAt(0)}
+          </AvatarFallback>
         </Avatar>
-        <span className={`font-medium ${blurred ? "blur-sm select-none" : ""}`}>{name}</span>
+        <span className={`font-medium text-[#333333] ${blurred ? "blur-sm select-none" : ""}`}>
+          {name}
+        </span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium bg-red-100 text-red-800 px-2 py-1 rounded-full">{count}</span>
+        <span className="text-sm font-semibold bg-red-50 text-red-700 px-3 py-1.5 rounded-full border border-red-200">
+          {count}
+        </span>
       </div>
     </div>
   )
