@@ -56,86 +56,118 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
 
   if (isLoading || !group) {
     return (
-      <div className="flex h-40 items-center justify-center">
-        <p>Carregando participantes...</p>
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-[#666666] font-medium">Carregando participantes...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div>
-      {/* Informações do grupo */}
-      <div className="rounded-lg border bg-white p-4 mb-6">
-        <div className="grid gap-4 md:grid-cols-5">
+    <div className="p-8 space-y-8">
+      {/* Group Information Card */}
+      <div className="bg-[#F8F8F8] rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
+          <h2 className="text-lg font-semibold text-[#333333]">Informações do Grupo</h2>
+        </div>
+        <div className="grid gap-6 md:grid-cols-5">
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Tipo de grupo:</h3>
-            <p>{group.type === "MAIN" ? "Principal" : group.type === "ADDITIONAL" ? "Adicional" : "Especial"}</p>
+            <h3 className="text-sm font-medium text-[#666666] mb-1">Tipo de grupo:</h3>
+            <p className="text-[#333333] font-medium">
+              {group.type === "MAIN" ? "Principal" : group.type === "ADDITIONAL" ? "Adicional" : "Especial"}
+            </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Grupo</h3>
-            <p>{group.name}</p>
+            <h3 className="text-sm font-medium text-[#666666] mb-1">Grupo:</h3>
+            <p className="text-[#333333] font-medium">{group.name}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Dia da Semana:</h3>
-            <p>{formatWeekday(group.configWeekday)}</p>
+            <h3 className="text-sm font-medium text-[#666666] mb-1">Dia da Semana:</h3>
+            <p className="text-[#333333] font-medium">{formatWeekday(group.configWeekday)}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Horário:</h3>
-            <p>{`${group.configStartHour.slice(0, 5)} às ${group.configEndHour.slice(0, 5)}`}</p>
+            <h3 className="text-sm font-medium text-[#666666] mb-1">Horário:</h3>
+            <p className="text-[#333333] font-medium">
+              {`${group.configStartHour.slice(0, 5)} às ${group.configEndHour.slice(0, 5)}`}
+            </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground">Participantes:</h3>
-            <p>
+            <h3 className="text-sm font-medium text-[#666666] mb-1">Participantes:</h3>
+            <p className="text-[#333333] font-medium">
               {group.participants.length}/{group.configMax}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Controles de filtro - similar à estrutura de petições */}
-      <div className="grid grid-cols-1 md:grid-cols-10 gap-4 mb-8">
-        <div className="md:col-span-5 lg:col-span-5">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input
-              placeholder="Pesquisar Voluntário"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-white rounded-md border-gray-200 w-full"
-            />
-          </div>
+      {/* Search and Controls */}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <Input
+            placeholder="Pesquisar participante..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+          />
         </div>
-        <div className="md:col-span-3 lg:col-span-3">
-          <div className="flex items-center rounded-md">
+
+        <div className="flex items-center gap-4">
+          {/* View Toggle - Improved Colors */}
+          <div className="flex items-center bg-[#F8F8F8] rounded-lg p-1" role="tablist" aria-label="Opções de visualização">
             <Button
-              variant={isGridView ? "outline" : "secondary"}
-              size="icon"
-              className="rounded-r-none"
+              variant="ghost"
+              size="sm"
+              className={`rounded-md transition-all font-medium ${!isGridView
+                  ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                  : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                }`}
               onClick={() => setIsGridView(false)}
+              aria-pressed={!isGridView}
+              role="tab"
+              aria-selected={!isGridView}
+              aria-controls="participants-content"
+              title="Visualizar em lista"
             >
-              <List className="h-4 w-4" />
+              <List className="h-4 w-4 mr-2" aria-hidden="true" />
+              Lista
             </Button>
             <Button
-              variant={isGridView ? "secondary" : "outline"}
-              size="icon"
-              className="rounded-l-none"
+              variant="ghost"
+              size="sm"
+              className={`rounded-md transition-all font-medium ${isGridView
+                  ? 'bg-[#374192] text-white shadow-sm hover:bg-[#46607F]'
+                  : 'text-[#666666] hover:bg-white hover:text-[#374192]'
+                }`}
               onClick={() => setIsGridView(true)}
+              aria-pressed={isGridView}
+              role="tab"
+              aria-selected={isGridView}
+              aria-controls="participants-content"
+              title="Visualizar em grade"
             >
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="h-4 w-4 mr-2" aria-hidden="true" />
+              Grade
             </Button>
           </div>
-        </div>
-        <div className="md:col-span-2 lg:col-span-2 flex justify-start md:justify-end">
-          <Button onClick={() => setIsAssignDialogOpen(true)} className="w-full md:w-auto">
+
+          {/* Assign Button */}
+          <Button
+            onClick={() => setIsAssignDialogOpen(true)}
+            className="bg-[#374192] hover:bg-[#46607F] text-white h-12 px-6 rounded-lg font-medium transition-colors"
+          >
             Atribuir Participante
           </Button>
         </div>
       </div>
 
-      {/* Lista de participantes - estrutura similar às petições */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Participants List/Grid */}
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         {filteredParticipants && filteredParticipants.length > 0 ? (
-          <div className={isGridView ? "p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" : ""}>
+          <div className={isGridView ? "p-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" : ""}>
             {filteredParticipants.map((participant, index) =>
               isGridView ? (
                 <ParticipantCard
@@ -146,7 +178,7 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
                   onUpdate={fetchGroupParticipants}
                 />
               ) : (
-                <div key={participant.id} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors border-b`}>
+                <div key={participant.id} className={`${index % 2 === 0 ? "bg-white" : "bg-[#F8F8F8]"} hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0`}>
                   <ParticipantListItem
                     participant={participant}
                     groupId={groupId}
@@ -158,12 +190,12 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
             )}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100">
-              <Search className="h-8 w-8 text-gray-400" />
+          <div className="text-center py-16">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F8F8F8]">
+              <Search className="h-8 w-8 text-[#929BD2]" />
             </div>
-            <p className="mt-4 text-gray-500">Nenhum participante encontrado</p>
-            <p className="text-sm text-gray-400">Tente ajustar os filtros de busca</p>
+            <p className="mt-4 text-[#333333] font-medium">Nenhum participante encontrado</p>
+            <p className="text-sm text-[#666666] mt-1">Tente ajustar os filtros de busca ou atribua novos participantes</p>
           </div>
         )}
       </div>

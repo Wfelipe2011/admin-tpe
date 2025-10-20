@@ -97,12 +97,17 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
   }, [group.coordinatorId])
 
   return (
-    <Card className="flex flex-col justify-between overflow-hidden">
-      <div className="flex items-center justify-between bg-gray-50 p-3">
-        <div className="font-medium text-sm truncate">{group.name}</div>
-        <div className="flex items-center gap-2">
+    <Card className="group overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg hover:border-[#374192] transition-all duration-200 bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between bg-gradient-to-r from-[#374192] to-[#46607F] p-4">
+        <div className="font-semibold text-white text-sm truncate pr-2">{group.name}</div>
+        <div className="flex items-center gap-1 flex-shrink-0">
           <Link href={`/grupos/editar/${group.id}`} passHref>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+            >
               <Pencil className="h-4 w-4" />
             </Button>
           </Link>
@@ -110,7 +115,7 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="h-8 w-8 text-white/80 hover:text-white hover:bg-red-500/20 transition-colors"
               onClick={() => setIsDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4" />
@@ -118,41 +123,80 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
           )}
         </div>
       </div>
-      <CardContent className="flex items-center p-3 pt-3">
-        <div className="space-y-1 text-sm">
-          <p className="text-muted-foreground">{weekday}</p>
-          <p>
-            Horário: {startTime} / {endTime}
-          </p>
-          <p>
-            Participantes: {group.participants} / {group.configMax || "∞"}
-          </p>
-          <p className="truncate">
-            Responsável: {isLoadingCoordinator ? "Carregando..." : coordinator ? coordinator.name : "Não atribuído"}
-          </p>
+
+      {/* Content */}
+      <CardContent className="p-6 space-y-4">
+        <div className="space-y-3">
+          {/* Day and Time */}
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-[#374192] rounded-full flex-shrink-0"></div>
+            <span className="text-sm font-medium text-[#333333]">{weekday}</span>
+          </div>
+
+          <div className="space-y-2 text-sm text-[#666666]">
+            <div className="flex justify-between">
+              <span>Horário:</span>
+              <span className="font-medium text-[#333333]">{startTime} - {endTime}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Participantes:</span>
+              <span className="font-medium text-[#333333]">
+                {group.participants} / {group.configMax || "∞"}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-start">
+              <span>Responsável:</span>
+              <span className="font-medium text-[#333333] text-right max-w-[120px] truncate">
+                {isLoadingCoordinator ? (
+                  <span className="text-[#929BD2]">Carregando...</span>
+                ) : coordinator ? (
+                  coordinator.name
+                ) : (
+                  <span className="text-[#929BD2]">Não atribuído</span>
+                )}
+              </span>
+            </div>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="w-full p-3 pt-0">
+
+      {/* Footer */}
+      <CardFooter className="p-4 pt-0">
         <Link href={`/grupos/${group.id}`} passHref className="w-full">
-          <Button variant="secondary" className="w-full">
-            Participantes
+          <Button
+            variant="outline"
+            className="w-full border-[#374192] text-[#374192] hover:bg-[#374192] hover:text-white transition-colors font-medium"
+          >
+            Ver Participantes
           </Button>
         </Link>
       </CardFooter>
+
+      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-lg">
           <DialogHeader>
-            <DialogTitle>Confirmar exclusão</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir o grupo "{group.name}"? Esta ação não pode ser desfeita.
+            <DialogTitle className="text-[#333333] font-semibold">Confirmar exclusão</DialogTitle>
+            <DialogDescription className="text-[#666666]">
+              Tem certeza que deseja excluir o grupo <strong>"{group.name}"</strong>? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+          <DialogFooter className="gap-3 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="border-gray-300 text-[#666666] hover:bg-gray-50"
+            >
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? "Excluindo..." : "Excluir"}
+            <Button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-[#E74C3C] hover:bg-red-600 text-white"
+            >
+              {isDeleting ? "Excluindo..." : "Excluir Grupo"}
             </Button>
           </DialogFooter>
         </DialogContent>
