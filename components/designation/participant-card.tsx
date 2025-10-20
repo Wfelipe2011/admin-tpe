@@ -64,10 +64,12 @@ export function ParticipantCard({ participant, designationId, onStatusChange }: 
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-medium">{participant.name}</span>
-              {participant.profile === "CAPTAIN" && <span className="text-xs text-muted-foreground">(Capitão)</span>}
+              <span className="font-medium text-[#333333]">{participant.name}</span>
+              {participant.profile === "CAPTAIN" && (
+                <span className="text-xs text-[#666666]">(Capitão)</span>
+              )}
             </div>
-            <div className="text-sm text-gray-500">{participant.phone}</div>
+            <div className="text-sm text-[#666666]">{participant.phone}</div>
           </div>
 
           {isAbsent && (

@@ -93,7 +93,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
             {/* Image */}
             <Image
-              src="/images/design-mode/Group%20199.png"
+              src="/images/design-mode/login.png"
               alt="TPE Digital Dashboard Preview"
               width={1000}
               height={750}
@@ -107,7 +107,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
       {/* Right side with content */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-16 bg-white">
-        <div className="md:hidden mb-8 flex flex-col items-center space-y-4">
+        <div className="md:hidden mb-8 flex flex-col items-center space-y-6">
           <Image
             src="/images/design-mode/logo.png"
             alt="TPE Digital Logo"
@@ -115,10 +115,22 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
             height={250}
             className="w-48 h-48"
           />
-          <p className="text-gray-600 text-center">Insira suas informações para realizar o login</p>
+          {subtitle && (
+            <p className="text-[#666666] text-center text-base leading-relaxed">{subtitle}</p>
+          )}
         </div>
 
-        <div className="w-full max-w-md space-y-6">{children}</div>
+        {/* Desktop title and subtitle */}
+        <div className="hidden md:block w-full max-w-md mb-8">
+          {title && (
+            <h1 className="text-2xl font-semibold text-[#333333] mb-3">{title}</h1>
+          )}
+          {subtitle && (
+            <p className="text-[#666666] text-base leading-relaxed">{subtitle}</p>
+          )}
+        </div>
+
+        <div className="w-full max-w-md space-y-8">{children}</div>
       </div>
     </div>
   )

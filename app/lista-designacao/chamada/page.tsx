@@ -3,6 +3,7 @@
 import { ProtectedLayout } from "@/app/layout-protected"
 import { ParticipantsTab } from "@/components/designation/participants-tab"
 import { useDesignation } from "@/hooks/use-designation"
+import { Users } from "lucide-react"
 
 export default function ChamadaPage() {
   const { loading, participants, groupId, designationId, isAbsent, registerAbsence } = useDesignation()
@@ -12,15 +13,33 @@ export default function ChamadaPage() {
       title="Chamada de Voluntários"
       breadcrumbs={[{ label: "Lista para Designação", href: "/lista-designacao" }, { label: "Chamada" }]}
     >
-      <div className="w-full max-w-5xl mx-auto px-3 sm:px-4 md:px-6">
-        <ParticipantsTab
-          participants={participants || []}
-          isAbsent={(participant: any) => isAbsent(participant)}
-          onRegisterAbsence={registerAbsence}
-          loading={loading}
-          groupId={groupId}
-          designationId={designationId}
-        />
+      <div className="space-y-8">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-8 text-white">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-lg">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold mb-2">Chamada de Voluntários</h1>
+              <p className="text-blue-100 text-sm">
+                Registre a presença dos participantes para as designações da semana
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8">
+          <ParticipantsTab
+            participants={participants || []}
+            isAbsent={(participant: any) => isAbsent(participant)}
+            onRegisterAbsence={registerAbsence}
+            loading={loading}
+            groupId={groupId}
+            designationId={designationId}
+          />
+        </div>
       </div>
     </ProtectedLayout>
   )

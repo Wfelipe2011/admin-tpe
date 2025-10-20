@@ -108,47 +108,57 @@ export function PointCard({ point, onUpdate, onCancel, isNew = false }: PointCar
   }
 
   return (
-    <Card className={`min-h-[300px] relative ${isNew ? "border-dashed border-2 border-primary/30" : ""}`}>
-      <CardHeader className="p-4 pt-7">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <MapPinned className="h-5 w-5 text-primary" />
+    <Card className={`min-h-[400px] relative border border-gray-200 shadow-sm hover:shadow-md transition-shadow ${isNew ? "border-dashed border-2 border-[#374192]/50 bg-[#374192]/5" : "bg-white"
+      }`}>
+      <CardHeader className="p-6 pb-4">
+        <div className="flex justify-between items-start gap-3">
+          <div className="flex items-center gap-3 flex-1">
+            <div className={`p-2 rounded-lg ${isNew ? "bg-[#374192]/20" : "bg-[#374192]/10"}`}>
+              <MapPinned className={`h-5 w-5 ${isNew ? "text-[#374192]" : "text-[#374192]"}`} />
+            </div>
             {isEditing ? (
               <Input
                 value={formData.pointName}
                 onChange={(e) => setFormData({ ...formData, pointName: e.target.value })}
                 placeholder="Nome do ponto"
-                className="text-lg font-semibold border-0 p-0 h-auto focus-visible:ring-0"
+                className="text-lg font-semibold border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 flex-1"
               />
             ) : (
-              <CardTitle className="text-lg">{formData.pointName || "Novo Ponto"}</CardTitle>
+              <CardTitle className="text-lg font-semibold text-[#333333]">
+                {formData.pointName || "Novo Ponto"}
+              </CardTitle>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={formData.status ? "default" : "outline"} className="absolute top-0 right-0 m-1 mr-2">
-              {formData.status ? "Ativo" : "Inativo"}
-            </Badge>
-          </div>
+          <Badge
+            variant={formData.status ? "default" : "outline"}
+            className={`${formData.status
+                ? "bg-[#2ECC71] text-white border-[#2ECC71]"
+                : "border-gray-300 text-[#666666] bg-gray-50"
+              }`}
+          >
+            {formData.status ? "Ativo" : "Inativo"}
+          </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-6 pt-0">
         {/* Status Toggle */}
-        <div className="flex items-center justify-between">
-          <Label htmlFor={`status-${point.id}`} className="text-sm font-medium">
-            Status Inicial
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+          <Label htmlFor={`status-${point.id}`} className="text-sm font-medium text-[#333333]">
+            Status do Ponto
           </Label>
           <Checkbox
             id={`status-${point.id}`}
             checked={formData.status}
             onCheckedChange={(checked: boolean) => setFormData({ ...formData, status: checked })}
             disabled={!isEditing}
+            className="data-[state=checked]:bg-[#374192] data-[state=checked]:border-[#374192]"
           />
         </div>
 
         {/* Cart Name */}
         <div className="space-y-2">
-          <Label htmlFor={`cart-${point.id}`} className="text-sm font-medium">
+          <Label htmlFor={`cart-${point.id}`} className="text-sm font-semibold text-[#333333]">
             Nome do Carrinho
           </Label>
           {isEditing ? (
@@ -156,10 +166,11 @@ export function PointCard({ point, onUpdate, onCancel, isNew = false }: PointCar
               id={`cart-${point.id}`}
               value={formData.cartName}
               onChange={(e) => setFormData({ ...formData, cartName: e.target.value })}
-              placeholder="Nome do carrinho"
+              placeholder="Ex: Carrinho A, Carrinho Principal..."
+              className="border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20"
             />
           ) : (
-            <div className="p-2 bg-muted rounded-md text-sm">
+            <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-sm text-[#666666]">
               {formData.cartName || "Não informado"}
             </div>
           )}
@@ -167,7 +178,7 @@ export function PointCard({ point, onUpdate, onCancel, isNew = false }: PointCar
 
         {/* Min Participants */}
         <div className="space-y-2">
-          <Label htmlFor={`min-${point.id}`} className="text-sm font-medium">
+          <Label htmlFor={`min-${point.id}`} className="text-sm font-semibold text-[#333333]">
             Quantidade Mínima
           </Label>
           {isEditing ? (
@@ -179,17 +190,21 @@ export function PointCard({ point, onUpdate, onCancel, isNew = false }: PointCar
               onChange={(e) =>
                 setFormData({ ...formData, minParticipants: parseInt(e.target.value) || 1 })
               }
+              className="border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20"
             />
           ) : (
-            <div className="p-2 bg-muted rounded-md text-sm">
-              {formData.minParticipants} {formData.minParticipants === 1 ? "participante" : "participantes"}
+            <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-sm">
+              <span className="font-medium text-[#333333]">{formData.minParticipants}</span>
+              <span className="text-[#666666] ml-1">
+                {formData.minParticipants === 1 ? "participante" : "participantes"}
+              </span>
             </div>
           )}
         </div>
 
         {/* Max Participants */}
         <div className="space-y-2">
-          <Label htmlFor={`max-${point.id}`} className="text-sm font-medium">
+          <Label htmlFor={`max-${point.id}`} className="text-sm font-semibold text-[#333333]">
             Quantidade Máxima
           </Label>
           {isEditing ? (
@@ -201,22 +216,30 @@ export function PointCard({ point, onUpdate, onCancel, isNew = false }: PointCar
               onChange={(e) =>
                 setFormData({ ...formData, maxParticipants: parseInt(e.target.value) || 1 })
               }
+              className="border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20"
             />
           ) : (
-            <div className="p-2 bg-muted rounded-md text-sm">
-              {formData.maxParticipants} {formData.maxParticipants === 1 ? "participante" : "participantes"}
+            <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-sm">
+              <span className="font-medium text-[#333333]">{formData.maxParticipants}</span>
+              <span className="text-[#666666] ml-1">
+                {formData.maxParticipants === 1 ? "participante" : "participantes"}
+              </span>
             </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-4">
+        <div className="flex gap-3 pt-4">
           {isEditing ? (
             <>
-              <Button onClick={handleSave} disabled={isLoading} className="flex-1">
+              <Button
+                onClick={handleSave}
+                disabled={isLoading}
+                className="flex-1 bg-[#374192] hover:bg-[#46607F] text-white"
+              >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Salvando...
                   </div>
                 ) : (
@@ -226,13 +249,22 @@ export function PointCard({ point, onUpdate, onCancel, isNew = false }: PointCar
                   </div>
                 )}
               </Button>
-              <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isLoading}
+                className="border-gray-300 text-[#666666] hover:bg-gray-50"
+              >
                 <X className="h-4 w-4" />
                 Cancelar
               </Button>
             </>
           ) : (
-            <Button variant="outline" onClick={handleEdit} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={handleEdit}
+              className="flex-1 border-[#929BD2] text-[#374192] hover:bg-[#374192]/10"
+            >
               Editar
             </Button>
           )}

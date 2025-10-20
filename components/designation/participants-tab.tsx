@@ -59,8 +59,9 @@ export const ParticipantsTab = ({
   const absentCount = totalParticipants - presentCount
 
   return (
-    <Card className="w-full border shadow-sm">
-      <CardHeader className="pb-3 sm:pb-4 space-y-3 sm:space-y-4">
+    <>
+
+      <CardHeader className="space-y-3 sm:space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <CardTitle className="text-lg sm:text-xl">Chamada de Voluntários</CardTitle>
 
@@ -88,7 +89,7 @@ export const ParticipantsTab = ({
         </div>
       </CardHeader>
 
-      <CardContent className="p-3 sm:p-6">
+      <CardContent className="">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="animate-pulse flex flex-col items-center gap-3">
@@ -169,6 +170,7 @@ export const ParticipantsTab = ({
           </div>
         )}
       </CardContent>
-    </Card>
+
+    </>
   )
 }

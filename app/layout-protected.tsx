@@ -5,9 +5,9 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { isAuthenticated, getUserFromToken, getAuthToken } from "@/lib/auth-utils"
-import { TopBar } from "@/components/top-bar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BreadcrumbNav } from "@/components/breadcrumb-nav"
+import { Menu } from "lucide-react"
 import type { IToken } from "@/types/auth"
 
 // Import the ParticipantProfile and role utils
@@ -59,7 +59,7 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
               return false
             }
 
-            if (!hasRouteAccess(userInfo.profile, pathname)) {
+            if (!hasRouteAccess(userInfo.profile as ParticipantProfile, pathname)) {
               console.log("[ProtectedLayout] User does not have access to this route, redirecting to dashboard")
               router.replace("/dashboard")
               return false
@@ -137,13 +137,21 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
     }
   }
 
+  // Desktop sidebar collapse toggle
+  const toggleSidebarCollapsed = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
+
   // Show loading state
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-          <p className="text-sm text-muted-foreground">Carregando...</p>
+      <div className="flex h-screen w-full items-center justify-center bg-[#F8F8F8]">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="w-12 h-12 border-4 border-[#374192] border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-center space-y-2">
+            <p className="text-base font-semibold text-[#333333]">Carregando...</p>
+            <p className="text-sm text-[#666666]">Aguarde enquanto preparamos sua experiência</p>
+          </div>
         </div>
       </div>
     )
@@ -157,20 +165,48 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
 
   // If authenticated and not loading, render the layout with the sidebar
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#F8F8F8]">
       <div className="hidden md:block transition-all duration-300">
         <AppSidebar
           collapsed={!sidebarOpen}
           isOpen={mobileSidebarOpen}
           onOpenChange={setMobileSidebarOpen}
-          userProfile={user?.profile || ParticipantProfile.PARTICIPANT}
+          onToggleCollapsed={toggleSidebarCollapsed}
+          userProfile={(user?.profile as ParticipantProfile) || ParticipantProfile.PARTICIPANT}
+          user={user}
         />
       </div>
+
+      {/* Mobile sidebar */}
+      <div className="md:hidden">
+        <AppSidebar
+          collapsed={false}
+          isOpen={mobileSidebarOpen}
+          onOpenChange={setMobileSidebarOpen}
+          userProfile={(user?.profile as ParticipantProfile) || ParticipantProfile.PARTICIPANT}
+          user={user}
+        />
+      </div>
+
       <div className="flex flex-col flex-1 overflow-hidden">
-        <TopBar title={title} user={user} sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
-          <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 min-h-0 flex-1 relative">
-            <div className="flex justify-between items-center mb-4">
+        {/* Mobile header with menu toggle */}
+        <div className="md:hidden bg-gradient-to-r from-[#181C43] to-[#374192] text-white shadow-sm border-b border-[#374192]/20">
+          <div className="flex h-16 items-center justify-between px-6">
+            <button
+              onClick={toggleSidebar}
+              className="text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+              aria-label="Abrir menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <h1 className="text-lg font-semibold text-white">{title}</h1>
+            <div className="w-9"></div> {/* Spacer for centering */}
+          </div>
+        </div>
+
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-0 flex-1 relative">
+            <div className="flex justify-between items-center mb-6">
               {breadcrumbs.length > 0 ? <BreadcrumbNav items={breadcrumbs} /> : <div></div>}
             </div>
             {children}

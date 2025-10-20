@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { Search, User, UserCheck } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import type { IGroups } from "@/types/groups"
@@ -120,18 +120,38 @@ export function ChangeGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white">
-        <DialogHeader>
-          <DialogTitle>Trocar de grupo</DialogTitle>
+      <DialogContent className="sm:max-w-md bg-white border-gray-200 shadow-lg">
+        <DialogHeader className="pb-4 border-b border-gray-100">
+          <DialogTitle className="text-lg font-semibold text-[#333333]">Trocar de grupo</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">Escolha o Grupo que deseja adicionar {participant.name}</p>
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center gap-3 p-3 bg-[#F8F8F8] rounded-lg">
+            <p className="text-sm text-[#666666]">
+              Escolha o Grupo que deseja adicionar{" "}
+              <span className="font-medium text-[#374192]">{participant.name}</span>
+            </p>
+            {participant.sex === "MALE" ? (
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-1 flex items-center gap-1">
+                <User className="h-3 w-3" />
+                Irmão
+              </Badge>
+            ) : participant.sex === "FEMALE" ? (
+              <Badge className="bg-pink-50 text-pink-700 border-pink-200 text-xs px-2 py-1 flex items-center gap-1">
+                <UserCheck className="h-3 w-3" />
+                Irmã
+              </Badge>
+            ) : (
+              <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1">
+                Não informado
+              </Badge>
+            )}
+          </div>
 
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <Input
               placeholder="Buscar grupo"
-              className="pl-8"
+              className="pl-10 h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -139,12 +159,21 @@ export function ChangeGroupDialog({
 
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
-              <p>Carregando grupos...</p>
+              <div className="text-center space-y-4">
+                <div className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-[#666666] font-medium">Carregando grupos...</p>
+              </div>
             </div>
           ) : (
             <div className="max-h-[400px] space-y-3 overflow-y-auto">
               {filteredGroups.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground">Nenhum grupo encontrado</p>
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center justify-center w-12 h-10 rounded-full bg-[#F8F8F8] mb-3">
+                    <Search className="h-6 w-6 text-[#929BD2]" />
+                  </div>
+                  <p className="text-[#333333] font-medium">Nenhum grupo encontrado</p>
+                  <p className="text-sm text-[#666666] mt-1">Tente ajustar os filtros de busca</p>
+                </div>
               ) : (
                 filteredGroups.map((group) => {
                   const isCurrentGroup = group.id === currentGroupId
@@ -153,22 +182,27 @@ export function ChangeGroupDialog({
                   return (
                     <div
                       key={group.id}
-                      className={`rounded-lg border p-4 ${isCurrentGroup || isFull ? "opacity-60" : ""}`}
+                      className={`rounded-lg border border-gray-200 p-4 bg-white transition-colors ${isCurrentGroup || isFull ? "opacity-60 bg-gray-50" : "hover:bg-[#F8F8F8]"
+                        }`}
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <p className="font-medium">Nome: {group.name}</p>
-                            <p className="text-sm text-muted-foreground">Dia: {formatWeekday(group.configWeekday)}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Hora: {formatTime(group.configStartHour)} às {formatTime(group.configEndHour)}
+                          <div className="space-y-2 flex-1">
+                            <p className="font-semibold text-[#333333]">
+                              <span className="text-sm text-[#666666] font-normal">Nome:</span> {group.name}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              Participantes: {group.participants}/{group.configMax}
+                            <p className="text-sm text-[#666666]">
+                              <span className="font-medium text-[#333333]">Dia:</span> {formatWeekday(group.configWeekday)}
+                            </p>
+                            <p className="text-sm text-[#666666]">
+                              <span className="font-medium text-[#333333]">Hora:</span> {formatTime(group.configStartHour)} às {formatTime(group.configEndHour)}
+                            </p>
+                            <p className="text-sm text-[#666666]">
+                              <span className="font-medium text-[#333333]">Participantes:</span> {group.participants}/{group.configMax}
                             </p>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">Tipo Grupo:</span>
-                              <Badge variant="secondary">
+                              <span className="text-sm font-medium text-[#333333]">Tipo Grupo:</span>
+                              <Badge className="text-xs font-medium px-2 py-1 bg-[#374192]/10 text-[#374192] border-[#374192]/20">
                                 {group.type === "MAIN"
                                   ? "Principal"
                                   : group.type === "ADDITIONAL"
@@ -177,17 +211,24 @@ export function ChangeGroupDialog({
                               </Badge>
                             </div>
                           </div>
-                          {isCurrentGroup ? (
-                            <Badge variant="outline">Já incluso</Badge>
-                          ) : isFull ? (
-                            <Badge variant="secondary">Lotado</Badge>
-                          ) : (
-                            <div>
-                              <Button variant="secondary" onClick={() => handleChangeGroup(group)}>
+                          <div className="ml-4">
+                            {isCurrentGroup ? (
+                              <Badge className="text-xs font-medium px-3 py-2 bg-[#2ECC71]/10 text-[#2ECC71] border-[#2ECC71]/20 rounded-lg">
+                                Já incluso
+                              </Badge>
+                            ) : isFull ? (
+                              <Badge className="text-xs font-medium px-3 py-2 bg-[#F1C40F]/10 text-[#F1C40F] border-[#F1C40F]/20 rounded-lg">
+                                Lotado
+                              </Badge>
+                            ) : (
+                              <Button
+                                onClick={() => handleChangeGroup(group)}
+                                className="h-9 px-4 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors"
+                              >
                                 Substituir
                               </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

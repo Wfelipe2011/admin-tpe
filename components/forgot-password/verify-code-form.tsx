@@ -103,7 +103,7 @@ export function VerifyCodeForm({ phone, onSuccess, onBack }: VerifyCodeFormProps
       const response = await apiClient.post("/auth/login-code", {
         phone,
         code,
-      })
+      }) as { token?: string }
 
       // If successful, call the onSuccess callback with the token
       if (response.token) {
@@ -138,11 +138,13 @@ export function VerifyCodeForm({ phone, onSuccess, onBack }: VerifyCodeFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="code-0">Código de Verificação</Label>
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-4">
+        <Label htmlFor="code-0" className="text-[#333333] font-semibold text-sm">
+          Código de Verificação
+        </Label>
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-3">
           {codeDigits.map((digit, index) => (
             <div key={index} className="relative flex-1">
               <Input
@@ -153,8 +155,10 @@ export function VerifyCodeForm({ phone, onSuccess, onBack }: VerifyCodeFormProps
                 onChange={(e) => handleDigitChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={index === 0 ? handlePaste : undefined}
-                ref={(el) => (inputRefs.current[index] = el)}
-                className="text-center text-xl font-semibold h-14"
+                ref={(el) => {
+                  inputRefs.current[index] = el
+                }}
+                className="text-center text-xl font-semibold h-16 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
                 maxLength={1}
                 autoComplete="one-time-code"
                 required
@@ -163,23 +167,34 @@ export function VerifyCodeForm({ phone, onSuccess, onBack }: VerifyCodeFormProps
           ))}
         </div>
 
-        <p className="text-sm text-gray-500 mt-1">Um código de 6 dígitos foi enviado para o seu WhatsApp</p>
+        <p className="text-sm text-[#666666] mt-3">Um código de 6 dígitos foi enviado para o seu WhatsApp</p>
       </div>
 
-      {error && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">{error}</div>}
+      {error && (
+        <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-6 rounded-xl text-sm font-medium shadow-sm">
+          {error}
+        </div>
+      )}
 
-      <div className="flex flex-col space-y-2">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Verificando..." : "Verificar Código"}
+      <div className="flex flex-col space-y-4">
+        <Button type="submit" disabled={isLoading} className="w-full h-12 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm">
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Verificando...
+            </div>
+          ) : (
+            "Verificar Código"
+          )}
         </Button>
 
         <Button
           type="button"
           variant="ghost"
           onClick={onBack}
-          className="flex items-center justify-center text-sm mt-2"
+          className="flex items-center justify-center text-sm text-[#374192] hover:text-[#46607F] font-medium transition-colors py-3"
         >
-          <ArrowLeft className="mr-1 h-4 w-4" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
       </div>

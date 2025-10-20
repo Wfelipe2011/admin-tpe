@@ -28,24 +28,30 @@ export function DonutChart({ percentage, centerText, centerSubtext }: DonutChart
           dataKey="value"
           strokeWidth={0}
         >
-          <Cell fill="#1E2462" />
-          <Cell fill="#f0f0f0" />
+          <Cell fill="#374192" />
+          <Cell fill="#E5E7EB" />
           <Label
             content={({ viewBox }) => {
-              if (!viewBox) return null
-              const { cx, cy } = viewBox
+              if (!viewBox || typeof viewBox !== 'object' || !('cx' in viewBox) || !('cy' in viewBox)) return null
+              const { cx, cy } = viewBox as { cx: number; cy: number }
               return (
                 <g>
-                  <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold">
+                  <text
+                    x={cx}
+                    y={cy}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-[#333333] text-lg font-bold"
+                  >
                     {centerText || `${percentage}%`}
                   </text>
                   {centerSubtext && (
                     <text
                       x={cx}
-                      y={cy + 20}
+                      y={cy + 16}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      className="text-xs text-gray-500"
+                      className="fill-[#666666] text-xs font-medium"
                     >
                       {centerSubtext}
                     </text>

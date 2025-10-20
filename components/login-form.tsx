@@ -90,7 +90,7 @@ export function LoginForm() {
       const response = await apiClient.post("/auth/login", {
         phone: phoneRaw,
         password: password,
-      })
+      }) as { token?: string; message?: string }
 
       console.log("Login successful, response:", response)
 
@@ -163,14 +163,14 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
       {loginSuccess ? (
-        <div className="bg-green-50 text-green-600 p-4 rounded-md text-center">
-          <p className="font-medium mb-2">Login realizado com sucesso!</p>
-          <p>Redirecionando para o dashboard em {redirectCountdown} segundos...</p>
+        <div className="bg-[#2ECC71]/10 border border-[#2ECC71]/20 text-[#2ECC71] p-6 rounded-xl text-center shadow-sm">
+          <p className="font-semibold mb-2 text-[#333333] text-base">Login realizado com sucesso!</p>
+          <p className="text-sm text-[#666666]">Redirecionando para o dashboard em {redirectCountdown} segundos...</p>
         </div>
       ) : (
         <>
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-lg">
+          <div className="space-y-4">
+            <Label htmlFor="phone" className="text-[#333333] font-semibold text-sm">
               Telefone
             </Label>
             <Input
@@ -179,14 +179,14 @@ export function LoginForm() {
               type="tel"
               required
               placeholder="(00) 00000-0000"
-              className="h-12 text-lg"
+              className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
               value={phoneDisplay}
               onChange={handlePhoneChange}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-lg">
+          <div className="space-y-4">
+            <Label htmlFor="password" className="text-[#333333] font-semibold text-sm">
               Senha
             </Label>
             <Input
@@ -195,20 +195,38 @@ export function LoginForm() {
               type="password"
               required
               placeholder="Digite sua senha"
-              className="h-12 text-lg"
+              className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
               value={password}
               onChange={handlePasswordChange}
             />
           </div>
 
-          {error && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">{error}</div>}
+          {error && (
+            <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-6 rounded-xl text-sm font-medium shadow-sm">
+              {error}
+            </div>
+          )}
 
-          <Button type="submit" className="w-full h-14 text-lg uppercase font-medium" disabled={isLoading}>
-            {isLoading ? "Entrando..." : "Entrar"}
+          <Button
+            type="submit"
+            className="w-full h-12 text-base font-semibold bg-[#374192] hover:bg-[#46607F] text-white rounded-lg transition-colors shadow-sm"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Entrando...
+              </div>
+            ) : (
+              "Entrar"
+            )}
           </Button>
 
-          <div className="text-center">
-            <Link href="/forgot-password" className="text-blue-600 hover:underline text-sm">
+          <div className="text-center pt-4">
+            <Link
+              href="/forgot-password"
+              className="text-[#374192] hover:text-[#46607F] hover:underline text-sm font-medium transition-colors"
+            >
               Esqueci minha senha
             </Link>
           </div>

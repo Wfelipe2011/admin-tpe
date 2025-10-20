@@ -19,9 +19,15 @@ export default function LoginPage() {
   }, [searchParams])
 
   return (
-    <LoginContainer>
-      {errorMessage && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4">{errorMessage}</div>}
-      <LoginForm />
-    </LoginContainer>
+    <>
+      {errorMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-6 rounded-xl text-sm font-medium shadow-lg max-w-md w-full mx-4">
+          {errorMessage}
+        </div>
+      )}
+      <LoginContainer>
+        <LoginForm />
+      </LoginContainer>
+    </>
   )
 }

@@ -16,7 +16,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, User, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
 import type { Participant } from "@/types/group-participants"
@@ -77,50 +77,96 @@ export function ParticipantCard({ participant, groupId, onUpdate }: ParticipantC
   }
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white">
       <div className="flex items-start justify-between">
         <div className="flex gap-3">
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-12 w-12 ring-2 ring-gray-100">
             <AvatarImage src={participant.profilePhoto || undefined} alt={participant.name} />
-            <AvatarFallback>{participant.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-[#374192]/10 text-[#374192] font-semibold">
+              {participant.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="font-medium">{participant.name}</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-semibold text-[#333333] truncate">{participant.name}</p>
+
+              {/* Indicador de Gênero */}
+              <div className="flex items-center gap-1">
+                {participant.sex === "MALE" ? (
+                  <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-1 flex items-center gap-1">
+                    <User className="h-3 w-3" />
+                    Irmão
+                  </Badge>
+                ) : participant.sex === "FEMALE" ? (
+                  <Badge className="bg-pink-50 text-pink-700 border-pink-200 text-xs px-2 py-1 flex items-center gap-1">
+                    <UserCheck className="h-3 w-3" />
+                    Irmã
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1">
+                    Não informado
+                  </Badge>
+                )}
+              </div>
+
               {participant.profile === "COORDINATOR" && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="bg-[#374192] text-white text-xs px-2 py-1">
                   Coordenador
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">Tel: {participant.phone || "Não informado"}</p>
+            <p className="text-sm text-[#666666]">Tel: {participant.phone || "Não informado"}</p>
           </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild disabled={isLoading}>
-            <Button variant="ghost" size="icon" className="-m-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-[#666666] hover:text-[#374192] hover:bg-[#374192]/10 transition-colors"
+            >
               <MoreHorizontal className="h-4 w-4" />
               <span className="sr-only">Abrir menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200 shadow-lg">
             {participant.sex === "MALE" && (
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Função</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger className="text-[#333333] focus:bg-[#374192]/10">
+                  Função
+                </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => handleChangeProfile("CAPTAIN")}>Capitão</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}>
+                  <DropdownMenuSubContent className="bg-white border-gray-200 shadow-lg">
+                    <DropdownMenuItem
+                      onClick={() => handleChangeProfile("CAPTAIN")}
+                      className="text-[#333333] focus:bg-[#374192]/10"
+                    >
+                      Capitão
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}
+                      className="text-[#333333] focus:bg-[#374192]/10"
+                    >
                       Capitão Assistente
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChangeProfile("PARTICIPANT")}>Participante</DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleChangeProfile("PARTICIPANT")}
+                      className="text-[#333333] focus:bg-[#374192]/10"
+                    >
+                      Participante
+                    </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             )}
-            <DropdownMenuItem disabled>Trocar de dia</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleRemoveParticipant}>
+            <DropdownMenuItem disabled className="text-[#929BD2]">
+              Trocar de dia
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-gray-200" />
+            <DropdownMenuItem
+              className="text-[#E74C3C] focus:text-[#E74C3C] focus:bg-[#E74C3C]/10"
+              onClick={handleRemoveParticipant}
+            >
               Remover do grupo
             </DropdownMenuItem>
           </DropdownMenuContent>

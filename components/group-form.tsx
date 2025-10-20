@@ -247,250 +247,314 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
   }
 
   // Required field indicator component
-  const RequiredIndicator = () => <span className="ml-1">*</span>
+  const RequiredIndicator = () => <span className="ml-1 text-[#E74C3C]">*</span>
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground mb-4">
-              Todos os campos com <span className="text-red-500">*</span> são obrigatórios
+    <div className="p-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-[#374192]/10 to-[#929BD2]/10 rounded-xl p-6 border border-[#374192]/20">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-3 h-3 bg-[#374192] rounded-full"></div>
+              <h2 className="text-xl font-semibold text-[#333333]">
+                {isEditing ? "Editar Grupo" : "Novo Grupo"}
+              </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Nome do Grupo
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Digite o nome do grupo" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <p className="text-sm text-[#666666] leading-relaxed">
+              Preencha as informações do grupo. Campos marcados com <span className="text-[#E74C3C] font-semibold">*</span> são obrigatórios.
+            </p>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Tipo
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="MAIN">{translateType("MAIN")}</SelectItem>
-                        <SelectItem value="ADDITIONAL">{translateType("ADDITIONAL")}</SelectItem>
-                        <SelectItem value="SPECIAL">{translateType("SPECIAL")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configWeekday"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Dia da Semana
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o dia" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="MONDAY">{translateWeekday("MONDAY")}</SelectItem>
-                        <SelectItem value="TUESDAY">{translateWeekday("TUESDAY")}</SelectItem>
-                        <SelectItem value="WEDNESDAY">{translateWeekday("WEDNESDAY")}</SelectItem>
-                        <SelectItem value="THURSDAY">{translateWeekday("THURSDAY")}</SelectItem>
-                        <SelectItem value="FRIDAY">{translateWeekday("FRIDAY")}</SelectItem>
-                        <SelectItem value="SATURDAY">{translateWeekday("SATURDAY")}</SelectItem>
-                        <SelectItem value="SUNDAY">{translateWeekday("SUNDAY")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Status
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="OPEN">{translateStatus("OPEN")}</SelectItem>
-                        <SelectItem value="CLOSED">{translateStatus("CLOSED")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configStartHour"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Horário de Início
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configEndHour"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Horário de Término
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configMin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Mínimo de Participantes
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        {...field}
-                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configMax"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Máximo de Participantes
-                      <RequiredIndicator />
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        {...field}
-                        onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="coordinatorId"
-                render={({ field }) => {
-                  const coordinator = coordinators?.find((c) => c.id === field.value)
-                  const options = coordinators
-                    .map((coordinator) => ({
-                      value: coordinator.id,
-                      label: coordinator.name,
-                    }))
-                    .filter((option) => (coordinator ? coordinator.id !== option.value : true))
-                  if (coordinator) {
-                    options.unshift({
-                      value: field.value,
-                      label: "Remover",
-                    })
-                  }
-                  return (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>
-                        Coordenador
+          {/* Form Fields */}
+          <Card className="border-gray-200 shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Nome do Grupo
                         <RequiredIndicator />
                       </FormLabel>
-                      <NewCombobox
-                        placeholder="Selecione um coordenador"
-                        inputPlaceholder="Buscar coordenador..."
-                        empytText={isLoading ? "Carregando..." : "Nenhum coordenador encontrado"}
-                        disabled={isLoading}
-                        onChange={(value, label) => {
-                          if (label === "Remover") {
-                            field.onChange("")
-                          } else {
-                            field.onChange(value)
-                          }
-                        }}
-                        value={coordinator?.name || ""}
-                        options={options}
-                      />
-                      <FormMessage />
+                      <FormControl>
+                        <Input
+                          placeholder="Digite o nome do grupo"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
-                  )
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+                  )}
+                />
 
-        <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={() => router.push("/grupos")} disabled={isSubmitting}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Salvar Alterações" : "Criar Grupo"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Tipo
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors">
+                            <SelectValue placeholder="Selecione o tipo" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="border-gray-200 bg-white shadow-lg">
+                          <SelectItem value="MAIN" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateType("MAIN")}
+                          </SelectItem>
+                          <SelectItem value="ADDITIONAL" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateType("ADDITIONAL")}
+                          </SelectItem>
+                          <SelectItem value="SPECIAL" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateType("SPECIAL")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="configWeekday"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Dia da Semana
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors">
+                            <SelectValue placeholder="Selecione o dia" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="border-gray-200 bg-white shadow-lg">
+                          <SelectItem value="MONDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("MONDAY")}
+                          </SelectItem>
+                          <SelectItem value="TUESDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("TUESDAY")}
+                          </SelectItem>
+                          <SelectItem value="WEDNESDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("WEDNESDAY")}
+                          </SelectItem>
+                          <SelectItem value="THURSDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("THURSDAY")}
+                          </SelectItem>
+                          <SelectItem value="FRIDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("FRIDAY")}
+                          </SelectItem>
+                          <SelectItem value="SATURDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("SATURDAY")}
+                          </SelectItem>
+                          <SelectItem value="SUNDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("SUNDAY")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Status
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors">
+                            <SelectValue placeholder="Selecione o status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="border-gray-200 bg-white shadow-lg">
+                          <SelectItem value="OPEN" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateStatus("OPEN")}
+                          </SelectItem>
+                          <SelectItem value="CLOSED" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateStatus("CLOSED")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="configStartHour"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Horário de Início
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="time"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="configEndHour"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Horário de Término
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="time"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="configMin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Mínimo de Participantes
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="Ex: 5"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+                          {...field}
+                          onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="configMax"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
+                        Máximo de Participantes
+                        <RequiredIndicator />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="Ex: 15"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
+                          {...field}
+                          onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[#E74C3C] text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="coordinatorId"
+                  render={({ field }) => {
+                    const coordinator = coordinators?.find((c) => c.id === field.value)
+                    const options = coordinators
+                      .map((coordinator) => ({
+                        value: coordinator.id,
+                        label: coordinator.name,
+                      }))
+                      .filter((option) => (coordinator ? coordinator.id !== option.value : true))
+                    if (coordinator) {
+                      options.unshift({
+                        value: field.value,
+                        label: "Remover",
+                      })
+                    }
+                    return (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="text-[#333333] font-semibold text-sm">
+                          Coordenador
+                          <RequiredIndicator />
+                        </FormLabel>
+                        <NewCombobox
+                          placeholder="Selecione um coordenador"
+                          inputPlaceholder="Buscar coordenador..."
+                          empytText={isLoading ? "Carregando..." : "Nenhum coordenador encontrado"}
+                          disabled={isLoading}
+                          onChange={(value, label) => {
+                            if (label === "Remover") {
+                              field.onChange("")
+                            } else {
+                              field.onChange(value)
+                            }
+                          }}
+                          value={coordinator?.name || ""}
+                          options={options}
+                        />
+                        <FormMessage className="text-[#E74C3C] text-xs" />
+                      </FormItem>
+                    )
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/grupos")}
+              disabled={isSubmitting}
+              className="h-11 px-6 border-gray-300 text-[#666666] hover:bg-gray-50 rounded-lg font-medium transition-colors"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-11 px-6 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
+            >
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditing ? "Salvar Alterações" : "Criar Grupo"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   )
 }

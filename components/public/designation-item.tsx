@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { ShoppingCart } from "lucide-react"
 import Image from "next/image"
 import { type WeekDesignation, DesignationStatusMap } from "@/types/week-designation"
 
@@ -22,90 +23,86 @@ export function DesignationItem({
   const getStatusClass = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "border-blue-700 text-blue-700 bg-blue-100"
+        return "border-[#374192] text-[#374192] bg-[#374192]/10"
       case "CANCELLED":
-        return "border-red-700 text-red-700 bg-red-100"
+        return "border-[#E74C3C] text-[#E74C3C] bg-[#E74C3C]/10"
       case "CLOSED":
-        return "border-green-700 text-green-700 bg-green-100"
+        return "border-[#2ECC71] text-[#2ECC71] bg-[#2ECC71]/10"
       case "IN_PROGRESS":
-        return "border-yellow-700 text-yellow-700 bg-yellow-100"
+        return "border-[#F1C40F] text-[#F1C40F] bg-[#F1C40F]/10"
       default:
-        return ""
+        return "border-gray-300 text-gray-600 bg-gray-50"
     }
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex justify-end mb-2 relative">
+    <div className="flex flex-col">
+      {/* Status Badge */}
+      <div className="flex justify-end mb-3">
         {participantId && (
-          <div>
-            <span
-              className={`text-xs px-2 py-1 rounded-full absolute -top-4 -right-4 ${getStatusClass(
-                designation.status,
-              )}`}
-            >
-              {DesignationStatusMap[designation.status]}
+          <span
+            className={`text-xs px-3 py-1 rounded-full font-medium border ${getStatusClass(
+              designation.status,
+            )}`}
+          >
+            {DesignationStatusMap[designation.status]}
+          </span>
+        )}
+      </div>
+
+      {/* Point and Cart Info */}
+      <div className="flex justify-between items-start gap-3 mb-4">
+        <h3 className="text-lg font-semibold text-[#333333] flex-1 leading-tight">
+          {designation.point}
+        </h3>
+        {designation.publication_carts?.length > 0 && (
+          <div className="flex items-center gap-2 bg-[#374192]/10 px-3 py-1 rounded-lg">
+            <ShoppingCart className="h-4 w-4 text-[#374192]" />
+            <span className="text-sm font-medium text-[#374192]">
+              {designation.publication_carts.join(", ")}
             </span>
           </div>
         )}
       </div>
 
-      <div className="flex justify-between gap-2 text-md">
-        <strong className="truncate w-[80%]">{designation.point}</strong>
-        {designation.publication_carts?.length > 0 && (
-          <span className="flex gap-2 justify-center items-center">
-            <strong>({designation.publication_carts.join(",")})</strong>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M18 8H19C20.1 8 21 8.9 21 10V12C21 13.1 20.1 14 19 14H5C3.9 14 3 13.1 3 12V10C3 8.9 3.9 8 5 8H6M18 8V6C18 4.9 17.1 4 16 4H8C6.9 4 6 4.9 6 6V8M18 8H6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M7 20H9M15 20H17M8 14V17M16 14V17"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
+      {/* Participants List */}
+      <div className="space-y-3 mb-4">
         {designation?.participants?.length
           ? designation.participants.map((participant, index) => (
-              <div key={index} className="flex gap-2 items-center text-md">
-                <div className="rounded-full h-9 w-9 overflow-hidden bg-gray-200">
+            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="relative">
+                <div className="rounded-full h-10 w-10 overflow-hidden bg-gray-200 ring-2 ring-white shadow-sm">
                   {participant.profile_photo ? (
                     <Image
                       src={participant.profile_photo || "/placeholder.svg"}
                       alt={`Foto de ${participant.name}`}
-                      width={36}
-                      height={36}
+                      width={40}
+                      height={40}
                       className="object-cover w-full h-full"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600">
-                      {participant.name.charAt(0)}
+                    <div className="w-full h-full flex items-center justify-center bg-[#374192]/20 text-[#374192] font-semibold text-sm">
+                      {participant.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <span className="w-[90%] truncate">{participant.name}</span>
               </div>
-            ))
+              <span className="text-[#333333] font-medium flex-1 truncate">
+                {participant.name}
+              </span>
+            </div>
+          ))
           : null}
       </div>
 
+      {/* Action Button */}
       {participantId && showRefuseButton && (
-        <div className="flex justify-end mt-2">
+        <div className="flex justify-end">
           <Button
-            className={`${
-              designation?.incident_history?.status === "OPEN" ? "bg-blue-700" : "bg-[#c34a4a] hover:bg-[#b43e3e]"
-            } text-white w-[95px]`}
+            className={`${designation?.incident_history?.status === "OPEN"
+                ? "bg-[#374192] hover:bg-[#46607F] text-white"
+                : "bg-[#E74C3C] hover:bg-[#C0392B] text-white"
+              } px-6 py-2 rounded-lg font-medium shadow-sm`}
             onClick={onRefuse}
             disabled={designation?.incident_history?.status === "OPEN"}
           >
@@ -118,7 +115,10 @@ export function DesignationItem({
         </div>
       )}
 
-      {!isLast && <div className="border-t-2 border-gray-200 my-2"></div>}
+      {/* Divider */}
+      {!isLast && (
+        <div className="border-t border-gray-200 my-6"></div>
+      )}
     </div>
   )
 }

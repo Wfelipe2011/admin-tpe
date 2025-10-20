@@ -97,26 +97,32 @@ export default function ParticipantDesignationPage() {
         <DesignationHeader />
 
         {/* Content */}
-        <div className="flex-1 px-4 pt-8 pb-8">
+        <div className="flex-1 px-6 pt-6 pb-8 bg-gray-50">
+          {/* Header Section */}
           <div className="text-center mb-8">
-            <h2 className="text-xl font-bold mb-2">Designação da Semana</h2>
+            <h2 className="text-2xl font-semibold text-[#333333] mb-3">
+              Designação da Semana
+            </h2>
             {designations.length > 0 && (
-              <div>
-                <strong>{designations[0].event}</strong>
+              <div className="bg-[#374192]/10 px-4 py-2 rounded-xl inline-block mb-4">
+                <span className="text-[#374192] font-medium">{designations[0].event}</span>
               </div>
             )}
-            <p className="text-sm mt-2">
-              {incident
-                ? "Você recusou esta designação. Você pode atualizar o motivo da recusa abaixo."
-                : "Caso não esteja presente, recuse a designação. Qualquer dúvida entre em contato com o capitão do seu grupo."}
-            </p>
+            <div className="bg-white p-4 rounded-xl border border-gray-200 max-w-md mx-auto">
+              <p className="text-sm text-[#666666] leading-relaxed">
+                {incident
+                  ? "Você recusou esta designação. Você pode atualizar o motivo da recusa abaixo."
+                  : "Caso não esteja presente, recuse a designação. Qualquer dúvida entre em contato com o capitão do seu grupo."}
+              </p>
+            </div>
           </div>
 
+          {/* Main Content */}
           {incident ? (
             <IncidentCard incident={incident} onUpdateIncident={handleUpdateIncident} />
           ) : (
-            <Card className="w-full max-w-md mx-auto">
-              <CardContent className="p-4">
+            <Card className="w-full max-w-md mx-auto bg-white border border-gray-200 shadow-sm">
+              <CardContent className="p-6">
                 {designations.map((designation, index) => (
                   <DesignationItem
                     key={index}

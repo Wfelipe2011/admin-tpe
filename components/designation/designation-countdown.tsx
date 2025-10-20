@@ -66,8 +66,8 @@ export function DesignationCountdown({ endDate, className = "" }: DesignationCou
   const formattedCountdown = `${countdown.days.toString().padStart(2, "0")}D ${countdown.hours
     .toString()
     .padStart(2, "0")}:${countdown.minutes.toString().padStart(2, "0")}:${countdown.seconds
-    .toString()
-    .padStart(2, "0")}`
+      .toString()
+      .padStart(2, "0")}`
 
   if (!endDate) {
     return null
@@ -79,6 +79,7 @@ export function DesignationCountdown({ endDate, className = "" }: DesignationCou
       <div className="hidden md:flex justify-end mb-4">
         <div
           className={`
+          absolute top-4
           flex flex-row items-center border-[1px] border-[solid] border-[#ccc] h-[46px] py-1 px-3 md:py-4 md:px-3 rounded-lg gap-2 justify-center
           ${backgroundColor === "blue" ? "bg-blue-900" : ""}
           ${backgroundColor === "yellow" ? "bg-yellow-900" : ""}

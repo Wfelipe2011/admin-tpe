@@ -62,7 +62,7 @@ export function ResetPasswordForm({ phone, token, onSuccess, onBack }: ResetPass
         const loginResponse = await apiClient.post("/auth/login", {
           phone,
           password,
-        })
+        }) as { token?: string }
 
         if (loginResponse.token) {
           // Store the token
@@ -108,21 +108,22 @@ export function ResetPasswordForm({ phone, token, onSuccess, onBack }: ResetPass
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="password">Nova Senha</Label>
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-4">
+        <Label htmlFor="password" className="text-[#333333] font-semibold text-sm">Nova Senha</Label>
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
             placeholder="Digite sua nova senha"
+            className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm pr-12"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#666666] hover:text-[#374192] transition-colors"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -130,32 +131,44 @@ export function ResetPasswordForm({ phone, token, onSuccess, onBack }: ResetPass
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+      <div className="space-y-4">
+        <Label htmlFor="confirmPassword" className="text-[#333333] font-semibold text-sm">Confirmar Senha</Label>
         <Input
           id="confirmPassword"
           type="password"
           placeholder="Confirme sua nova senha"
+          className="h-12 text-base border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors shadow-sm"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
       </div>
 
-      {error && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">{error}</div>}
+      {error && (
+        <div className="bg-[#E74C3C]/10 border border-[#E74C3C]/20 text-[#E74C3C] p-6 rounded-xl text-sm font-medium shadow-sm">
+          {error}
+        </div>
+      )}
 
-      <div className="flex flex-col space-y-2">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Redefinindo..." : "Redefinir Senha"}
+      <div className="flex flex-col space-y-4">
+        <Button type="submit" disabled={isLoading} className="w-full h-12 bg-[#374192] hover:bg-[#46607F] text-white font-semibold rounded-lg transition-colors shadow-sm">
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Redefinindo...
+            </div>
+          ) : (
+            "Redefinir Senha"
+          )}
         </Button>
 
         <Button
           type="button"
           variant="ghost"
           onClick={onBack}
-          className="flex items-center justify-center text-sm mt-2"
+          className="flex items-center justify-center text-sm text-[#374192] hover:text-[#46607F] font-medium transition-colors py-3"
         >
-          <ArrowLeft className="mr-1 h-4 w-4" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
       </div>
