@@ -64,8 +64,9 @@ export function CongregationCombobox({
           if (matchingCongregation) {
             setSelectedCongregation(matchingCongregation)
             if (formContext) {
-              // Atualizamos o valor do campo com o nome da congregação encontrada
-              formContext.setValue(name, matchingCongregation.name)
+              // Atualizamos o valor do campo com o nome e cidade da congregação encontrada
+              const displayValue = `${matchingCongregation.name} - ${matchingCongregation.city}`
+              formContext.setValue(name, displayValue)
             }
           }
         }
@@ -85,7 +86,8 @@ export function CongregationCombobox({
       setFilteredCongregations(congregations)
     } else {
       const filtered = congregations.filter((congregation) =>
-        congregation.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        congregation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        congregation.city.toLowerCase().includes(searchTerm.toLowerCase()),
       )
       setFilteredCongregations(filtered)
     }
@@ -122,13 +124,14 @@ export function CongregationCombobox({
       render={({ field }) => {
         // Função para lidar com a seleção de uma congregação
         const handleSelect = (congregation: Congregation) => {
-          // Set the value as a string, not the object
-          field.onChange(congregation.name)
+          // Set the value as a string with name and city
+          const displayValue = `${congregation.name} - ${congregation.city}`
+          field.onChange(displayValue)
           setSelectedCongregation(congregation)
 
           // Chamar o onChange fornecido pelo componente pai, se existir
           if (onChange) {
-            onChange(congregation.name, congregation.id)
+            onChange(displayValue, congregation.id)
           }
 
           setIsOpen(false)
@@ -151,7 +154,7 @@ export function CongregationCombobox({
         if (field.value && typeof field.value === "string") {
           displayText = field.value
         } else if (selectedCongregation) {
-          displayText = selectedCongregation.name
+          displayText = `${selectedCongregation.name} - ${selectedCongregation.city}`
         }
 
         return (
@@ -204,8 +207,9 @@ export function CongregationCombobox({
                     ) : (
                       <div role="listbox" className="py-1">
                         {filteredCongregations.map((congregation) => {
+                          const congregationDisplayText = `${congregation.name} - ${congregation.city}`
                           const isSelected =
-                            field.value === congregation.name ||
+                            field.value === congregationDisplayText ||
                             (selectedCongregation && selectedCongregation.id === congregation.id)
 
                           return (
@@ -213,7 +217,7 @@ export function CongregationCombobox({
                               key={congregation.id}
                               type="button" // Importante para não submeter o formulário
                               role="option"
-                              aria-selected={isSelected}
+                              aria-selected={isSelected || false}
                               className={cn(
                                 "flex w-full cursor-default select-none gap-4 rounded-sm px-2 py-1.5 text-sm outline-none",
                                 isSelected
@@ -226,7 +230,7 @@ export function CongregationCombobox({
                                 handleSelect(congregation)
                               }}
                             >
-                              <span className="truncate">{congregation.name}</span>
+                              <span className="truncate">{congregationDisplayText}</span>
                               {isSelected && <Check className="ml-2 h-4 w-4 shrink-0 opacity-100" />}
                             </button>
                           )
