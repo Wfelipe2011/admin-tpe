@@ -87,20 +87,20 @@ export function AssignParticipantDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white">
-        <DialogHeader>
-          <DialogTitle>Atribuir participante</DialogTitle>
+      <DialogContent className="sm:max-w-md bg-white border-gray-200 shadow-lg">
+        <DialogHeader className="pb-4 border-b border-gray-100">
+          <DialogTitle className="text-lg font-semibold text-[#333333]">Atribuir participante</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Escolha o voluntário que deseja adicionar ao Grupo {group.name}
+        <div className="space-y-6 pt-4">
+          <p className="text-sm text-[#666666]">
+            Escolha o voluntário que deseja adicionar ao <span className="font-medium text-[#374192]">Grupo {group.name}</span>
           </p>
 
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <Input
               placeholder="Buscar por nome"
-              className="pl-8"
+              className="pl-10 h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -108,12 +108,21 @@ export function AssignParticipantDialog({
 
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
-              <p>Carregando participantes...</p>
+              <div className="text-center space-y-4">
+                <div className="w-8 h-8 border-4 border-[#374192] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-[#666666] font-medium">Carregando participantes...</p>
+              </div>
             </div>
           ) : (
-            <div className="max-h-[400px] space-y-2 overflow-y-auto">
+            <div className="max-h-[400px] space-y-3 overflow-y-auto">
               {participants.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground">Nenhum participante encontrado</p>
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#F8F8F8] mb-3">
+                    <Search className="h-6 w-6 text-[#929BD2]" />
+                  </div>
+                  <p className="text-[#333333] font-medium">Nenhum participante encontrado</p>
+                  <p className="text-sm text-[#666666] mt-1">Tente ajustar os filtros de busca</p>
+                </div>
               ) : (
                 participants
                   .filter((participant) => {
@@ -139,37 +148,47 @@ export function AssignParticipantDialog({
                     const isInSameGroup = sameTypeGroup?.id === group.id
 
                     return (
-                      <div key={participant.id} className="flex items-start justify-between rounded-lg border p-3">
+                      <div key={participant.id} className="flex items-start justify-between rounded-lg border border-gray-200 p-4 bg-white hover:bg-[#F8F8F8] transition-colors">
                         <div className="flex gap-3">
-                          <Avatar>
+                          <Avatar className="h-10 w-10 ring-2 ring-gray-100">
                             <AvatarImage src={participant.profilePhoto} alt={participant.name} />
-                            <AvatarFallback>{participant.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                            <AvatarFallback className="bg-[#374192]/10 text-[#374192] font-semibold">
+                              {participant.name.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="font-medium">Nome: {participant.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Congregação: {participant.congregation?.name || "Não informada"}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-[#333333] mb-1">
+                              <span className="text-sm text-[#666666] font-normal">Nome:</span> {participant.name}
+                            </p>
+                            <p className="text-sm text-[#666666] mb-1">
+                              <span className="font-medium text-[#333333]">Congregação:</span> {participant.congregation?.name || "Não informada"}
                             </p>
                             {sameTypeGroup && (
-                              <p className="text-sm text-muted-foreground">Grupo: {sameTypeGroup.name}</p>
+                              <p className="text-sm text-[#666666] mb-1">
+                                <span className="font-medium text-[#333333]">Grupo:</span> {sameTypeGroup.name}
+                              </p>
                             )}
-                            <div className="mt-1 flex flex-wrap gap-1">
+                            <div className="mt-2 flex flex-wrap gap-1">
                               {participant.attributions?.map((attr, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
+                                <Badge key={index} className="text-xs font-medium px-2 py-1 bg-[#374192]/10 text-[#374192] border-[#374192]/20">
                                   {attr}
                                 </Badge>
                               ))}
                             </div>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              Tel: {participant.phone || "Não informado"}
+                            <p className="mt-2 text-sm text-[#666666]">
+                              <span className="font-medium text-[#333333]">Tel:</span> {participant.phone || "Não informado"}
                             </p>
                           </div>
                         </div>
-                        <div>
+                        <div className="ml-3">
                           <Button
-                            variant="secondary"
                             disabled={isInSameGroup}
                             onClick={() => handleAssignParticipant(participant)}
+                            className={`h-9 px-4 rounded-lg font-medium transition-colors ${
+                              isInSameGroup 
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                : 'bg-[#374192] hover:bg-[#46607F] text-white'
+                            }`}
                           >
                             {sameTypeGroup ? "Substituir" : "Atribuir"}
                           </Button>

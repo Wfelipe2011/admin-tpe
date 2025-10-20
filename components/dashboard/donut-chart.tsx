@@ -32,8 +32,8 @@ export function DonutChart({ percentage, centerText, centerSubtext }: DonutChart
           <Cell fill="#E5E7EB" />
           <Label
             content={({ viewBox }) => {
-              if (!viewBox) return null
-              const { cx, cy } = viewBox
+              if (!viewBox || typeof viewBox !== 'object' || !('cx' in viewBox) || !('cy' in viewBox)) return null
+              const { cx, cy } = viewBox as { cx: number; cy: number }
               return (
                 <g>
                   <text

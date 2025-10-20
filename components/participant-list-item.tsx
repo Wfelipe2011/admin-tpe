@@ -22,7 +22,7 @@ import type { Participant } from "@/types/group-participants"
 import { ChangeGroupDialog } from "@/components/change-group-dialog"
 
 // Add this function before the ParticipantListItem component
-function getTrainingStatus(lastTrainingDate: Date | null): "valid" | "expired" | "none" {
+function getTrainingStatus(lastTrainingDate: string | null): "valid" | "expired" | "none" {
   if (!lastTrainingDate) {
     return "none"
   }
@@ -97,22 +97,23 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
 
   return (
     <>
-      <div className="flex items-start justify-between rounded-lg border bg-white p-4">
+      <div className="flex items-start justify-between rounded-lg border-gray-200 bg-white p-6 hover:bg-[#F8F8F8] transition-colors">
         <div className="flex items-start gap-4">
-          <Avatar className="h-16 w-16">
+          <Avatar className="h-16 w-16 ring-2 ring-gray-100">
             <AvatarImage src={participant.profilePhoto || undefined} alt={participant.name} />
-            <AvatarFallback>{participant.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-[#374192]/10 text-[#374192] font-semibold">
+              {participant.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
-          <div className="space-y-1">
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="font-medium flex items-center gap-2">{participant.name}</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="font-semibold text-[#333333] flex items-center gap-2">{participant.name}</span>
               <Badge
-                variant="secondary"
-                className={`text-xs ${participant.sex === "MALE"
-                    ? "bg-blue-50 text-blue-700"
+                className={`text-xs font-medium px-2 py-1 ${participant.sex === "MALE"
+                    ? "bg-[#374192]/10 text-[#374192] border-[#374192]/20"
                     : participant.sex === "FEMALE"
-                      ? "bg-pink-50 text-pink-700"
-                      : "bg-gray-50 text-gray-700"
+                      ? "bg-[#929BD2]/10 text-[#929BD2] border-[#929BD2]/20"
+                      : "bg-gray-100 text-gray-700 border-gray-200"
                   }`}
               >
                 {participant.profile === "COORDINATOR"
@@ -128,62 +129,90 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
 
                 if (trainingStatus === "valid") {
                   return (
-                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                    <Badge className="text-xs font-medium px-2 py-1 bg-[#2ECC71]/10 text-[#2ECC71] border-[#2ECC71]/20">
                       Treinamento Válido
                     </Badge>
                   )
                 } else if (trainingStatus === "expired") {
                   return (
-                    <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                    <Badge className="text-xs font-medium px-2 py-1 bg-[#F1C40F]/10 text-[#F1C40F] border-[#F1C40F]/20">
                       Treinamento Expirado
                     </Badge>
                   )
                 } else {
                   return (
-                    <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
+                    <Badge className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-600 border-gray-200">
                       Sem Treinamento
                     </Badge>
                   )
                 }
               })()}
             </div>
-            <p className="text-sm text-muted-foreground">
-              <strong>Congregação:</strong> {participant.congregation?.name || "Não informada"}
+            <p className="text-sm text-[#666666]">
+              <strong className="text-[#333333]">Congregação:</strong> {participant.congregation?.name || "Não informada"}
             </p>
-            <p className="text-sm text-muted-foreground">
-              <strong>Atribuições:</strong>{" "}
+            <p className="text-sm text-[#666666]">
+              <strong className="text-[#333333]">Atribuições:</strong>{" "}
               {participant.attributions.length > 0 ? participant.attributions.join(", ") : "Nenhuma"}
             </p>
-            <p className="text-sm text-muted-foreground">
-              <strong>Tel:</strong> {participant.phone || "Não informado"}
+            <p className="text-sm text-[#666666]">
+              <strong className="text-[#333333]">Tel:</strong> {participant.phone || "Não informado"}
             </p>
           </div>
         </div>
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild disabled={isLoading}>
-            <Button variant="ghost" size="icon" className="-m-2" ref={dropdownTriggerRef}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 text-[#666666] hover:text-[#374192] hover:bg-[#374192]/10 transition-colors" 
+              ref={dropdownTriggerRef}
+            >
               <MoreHorizontal className="h-4 w-4" />
               <span className="sr-only">Abrir menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200 shadow-lg">
             {participant.sex === "MALE" && (
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Função</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger className="text-[#333333] focus:bg-[#374192]/10">
+                  Função
+                </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem onClick={() => handleChangeProfile("CAPTAIN")}>Capitão</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}>
+                  <DropdownMenuSubContent className="bg-white border-gray-200 shadow-lg">
+                    <DropdownMenuItem 
+                      onClick={() => handleChangeProfile("CAPTAIN")}
+                      className="text-[#333333] focus:bg-[#374192]/10"
+                    >
+                      Capitão
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleChangeProfile("ASSISTANT_CAPTAIN")}
+                      className="text-[#333333] focus:bg-[#374192]/10"
+                    >
                       Capitão Assistente
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChangeProfile("PARTICIPANT")}>Participante</DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleChangeProfile("PARTICIPANT")}
+                      className="text-[#333333] focus:bg-[#374192]/10"
+                    >
+                      Participante
+                    </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             )}
-            <DropdownMenuItem onSelect={() => setIsChangeGroupDialogOpen(true)}>Trocar de grupo</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={handleRemoveParticipant}>
+            <DropdownMenuItem 
+              onSelect={() => setIsChangeGroupDialogOpen(true)}
+              className="text-[#333333] focus:bg-[#374192]/10"
+            >
+              Trocar de grupo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-gray-200" />
+            <DropdownMenuItem 
+              className="text-[#E74C3C] focus:text-[#E74C3C] focus:bg-[#E74C3C]/10" 
+              onSelect={handleRemoveParticipant}
+            >
               Remover do grupo
             </DropdownMenuItem>
           </DropdownMenuContent>

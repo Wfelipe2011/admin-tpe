@@ -142,11 +142,11 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
       {/* Seleção de Grupo */}
       {(!collapsed || isMobile) && (
         <div className="p-4 border-b border-white/10">
-          <div className="mb-2">
+          {/* <div className="mb-2">
             <p className="text-xs font-medium text-white/70 uppercase tracking-wide">
               Grupo Selecionado
             </p>
-          </div>
+          </div> */}
           <GroupSelector />
         </div>
       )}

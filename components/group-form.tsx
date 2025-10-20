@@ -250,41 +250,43 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
   const RequiredIndicator = () => <span className="ml-1 text-[#E74C3C]">*</span>
 
   return (
-    <div className="p-8">
+    <div className="p-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Form Information */}
-          <div className="bg-[#F8F8F8] rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
-              <h2 className="text-lg font-semibold text-[#333333]">Informações do Grupo</h2>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-[#374192]/10 to-[#929BD2]/10 rounded-xl p-6 border border-[#374192]/20">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-3 h-3 bg-[#374192] rounded-full"></div>
+              <h2 className="text-xl font-semibold text-[#333333]">
+                {isEditing ? "Editar Grupo" : "Novo Grupo"}
+              </h2>
             </div>
-            <p className="text-sm text-[#666666]">
-              Todos os campos com <span className="text-[#E74C3C] font-medium">*</span> são obrigatórios
+            <p className="text-sm text-[#666666] leading-relaxed">
+              Preencha as informações do grupo. Campos marcados com <span className="text-[#E74C3C] font-semibold">*</span> são obrigatórios.
             </p>
           </div>
 
           {/* Form Fields */}
-          <Card className="border-gray-200 shadow-sm">
-            <CardContent className="p-8">
-              <div className="grid gap-8 md:grid-cols-2">
+          <Card className="border-gray-200 shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="grid gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Nome do Grupo
                         <RequiredIndicator />
                       </FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="Digite o nome do grupo" 
-                          className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
                           {...field} 
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -294,23 +296,29 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Tipo
                         <RequiredIndicator />
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg">
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors">
                             <SelectValue placeholder="Selecione o tipo" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="MAIN">{translateType("MAIN")}</SelectItem>
-                          <SelectItem value="ADDITIONAL">{translateType("ADDITIONAL")}</SelectItem>
-                          <SelectItem value="SPECIAL">{translateType("SPECIAL")}</SelectItem>
+                        <SelectContent className="border-gray-200 bg-white shadow-lg">
+                          <SelectItem value="MAIN" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateType("MAIN")}
+                          </SelectItem>
+                          <SelectItem value="ADDITIONAL" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateType("ADDITIONAL")}
+                          </SelectItem>
+                          <SelectItem value="SPECIAL" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateType("SPECIAL")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -320,27 +328,41 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="configWeekday"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Dia da Semana
                         <RequiredIndicator />
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg">
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors">
                             <SelectValue placeholder="Selecione o dia" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="MONDAY">{translateWeekday("MONDAY")}</SelectItem>
-                          <SelectItem value="TUESDAY">{translateWeekday("TUESDAY")}</SelectItem>
-                          <SelectItem value="WEDNESDAY">{translateWeekday("WEDNESDAY")}</SelectItem>
-                          <SelectItem value="THURSDAY">{translateWeekday("THURSDAY")}</SelectItem>
-                          <SelectItem value="FRIDAY">{translateWeekday("FRIDAY")}</SelectItem>
-                          <SelectItem value="SATURDAY">{translateWeekday("SATURDAY")}</SelectItem>
-                          <SelectItem value="SUNDAY">{translateWeekday("SUNDAY")}</SelectItem>
+                        <SelectContent className="border-gray-200 bg-white shadow-lg">
+                          <SelectItem value="MONDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("MONDAY")}
+                          </SelectItem>
+                          <SelectItem value="TUESDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("TUESDAY")}
+                          </SelectItem>
+                          <SelectItem value="WEDNESDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("WEDNESDAY")}
+                          </SelectItem>
+                          <SelectItem value="THURSDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("THURSDAY")}
+                          </SelectItem>
+                          <SelectItem value="FRIDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("FRIDAY")}
+                          </SelectItem>
+                          <SelectItem value="SATURDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("SATURDAY")}
+                          </SelectItem>
+                          <SelectItem value="SUNDAY" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateWeekday("SUNDAY")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -350,22 +372,26 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Status
                         <RequiredIndicator />
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg">
+                          <SelectTrigger className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors">
                             <SelectValue placeholder="Selecione o status" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="OPEN">{translateStatus("OPEN")}</SelectItem>
-                          <SelectItem value="CLOSED">{translateStatus("CLOSED")}</SelectItem>
+                        <SelectContent className="border-gray-200 bg-white shadow-lg">
+                          <SelectItem value="OPEN" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateStatus("OPEN")}
+                          </SelectItem>
+                          <SelectItem value="CLOSED" className="hover:bg-[#374192]/10 focus:bg-[#374192]/10">
+                            {translateStatus("CLOSED")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -375,18 +401,18 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="configStartHour"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Horário de Início
                         <RequiredIndicator />
                       </FormLabel>
                       <FormControl>
                         <Input 
                           type="time" 
-                          className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
                           {...field} 
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -396,18 +422,18 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="configEndHour"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Horário de Término
                         <RequiredIndicator />
                       </FormLabel>
                       <FormControl>
                         <Input 
                           type="time" 
-                          className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
                           {...field} 
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -417,7 +443,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="configMin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Mínimo de Participantes
                         <RequiredIndicator />
                       </FormLabel>
@@ -425,12 +451,13 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         <Input
                           type="number"
                           min={1}
-                          className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+                          placeholder="Ex: 5"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
                           {...field}
                           onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -440,7 +467,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                   name="configMax"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#333333] font-medium">
+                      <FormLabel className="text-[#333333] font-semibold text-sm">
                         Máximo de Participantes
                         <RequiredIndicator />
                       </FormLabel>
@@ -448,12 +475,13 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         <Input
                           type="number"
                           min={1}
-                          className="h-12 border-gray-200 focus:border-[#374192] focus:ring-[#374192] rounded-lg"
+                          placeholder="Ex: 15"
+                          className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
                           {...field}
                           onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}
                 />
@@ -477,7 +505,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                     }
                     return (
                       <FormItem className="flex flex-col">
-                        <FormLabel className="text-[#333333] font-medium">
+                        <FormLabel className="text-[#333333] font-semibold text-sm">
                           Coordenador
                           <RequiredIndicator />
                         </FormLabel>
@@ -496,7 +524,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                           value={coordinator?.name || ""}
                           options={options}
                         />
-                        <FormMessage />
+                        <FormMessage className="text-[#E74C3C] text-xs" />
                       </FormItem>
                     )
                   }}
@@ -506,20 +534,20 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => router.push("/grupos")} 
               disabled={isSubmitting}
-              className="h-12 px-8 border-gray-300 text-[#666666] hover:bg-gray-50 rounded-lg font-medium"
+              className="h-11 px-6 border-gray-300 text-[#666666] hover:bg-gray-50 rounded-lg font-medium transition-colors"
             >
               Cancelar
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="h-12 px-8 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors"
+              className="h-11 px-6 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors shadow-sm disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEditing ? "Salvar Alterações" : "Criar Grupo"}

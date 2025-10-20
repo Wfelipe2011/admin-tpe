@@ -207,7 +207,7 @@ export function PetitionList() {
           </div>
           <div className="md:col-span-3 lg:col-span-3">
             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as Status)} disabled={isLoading}>
-              <SelectTrigger className="bg-white border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 w-full h-12">
+              <SelectTrigger className="bg-white border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 w-full h-10">
                 <SelectValue placeholder="Filtrar por status" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg">
@@ -254,7 +254,7 @@ export function PetitionList() {
           <div className="md:col-span-2 lg:col-span-2 flex justify-start md:justify-end">
             {!isAdminAnalyst && (
               <Link href="/peticoes/upload-peticao" className="w-full md:w-auto">
-                <Button size="default" className="flex items-center gap-2 w-full md:w-auto bg-[#374192] hover:bg-[#46607F] text-white h-12">
+                <Button size="default" className="flex items-center gap-2 w-full md:w-auto bg-[#374192] hover:bg-[#46607F] text-white h-10">
                   <Upload className="h-4 w-4" />
                   <span>Upload Petição</span>
                 </Button>
@@ -332,7 +332,8 @@ export function PetitionList() {
                       <>
                         <Button
                           variant="default"
-                          className="flex-1 bg-[#374192] hover:bg-[#46607F] text-white"
+                          size="sm"
+                          className="flex-1 min-w-[100px] h-9 bg-[#374192] hover:bg-[#46607F] text-white font-medium"
                           onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                         >
                           Editar
@@ -340,7 +341,7 @@ export function PetitionList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
+                          className="min-w-[44px] h-9 border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
                           onClick={() => handleExcludePetition(petition.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -350,7 +351,8 @@ export function PetitionList() {
                       <>
                         <Button
                           variant="default"
-                          className="flex-1 bg-[#374192] hover:bg-[#46607F] text-white"
+                          size="sm"
+                          className="flex-1 min-w-[100px] h-9 bg-[#374192] hover:bg-[#46607F] text-white font-medium"
                           onClick={() => router.push(`/peticoes/visualizar/${petition.id}`)}
                         >
                           Visualizar
@@ -358,7 +360,7 @@ export function PetitionList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
+                          className="min-w-[44px] h-9 border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
                           onClick={() => handleExcludePetition(petition.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -367,7 +369,8 @@ export function PetitionList() {
                     ) : petition.status === "EXCLUDED" ? (
                       <Button
                         variant="outline"
-                        className="w-full border-[#2ECC71] text-[#2ECC71] hover:bg-[#2ECC71]/10"
+                        size="sm"
+                        className="w-full min-w-[100px] h-9 border-[#2ECC71] text-[#2ECC71] hover:bg-[#2ECC71]/10 font-medium"
                         onClick={() => handleActivatePetition(petition.id)}
                       >
                         <RotateCcw className="h-4 w-4 mr-2" />
@@ -377,7 +380,8 @@ export function PetitionList() {
                       <>
                         <Button
                           variant="default"
-                          className="flex-1 bg-[#374192] hover:bg-[#46607F] text-white"
+                          size="sm"
+                          className="flex-1 min-w-[100px] h-9 bg-[#374192] hover:bg-[#46607F] text-white font-medium"
                           onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                         >
                           Completar
@@ -385,7 +389,7 @@ export function PetitionList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
+                          className="min-w-[44px] h-9 border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
                           onClick={() => handleExcludePetition(petition.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -418,7 +422,7 @@ export function PetitionList() {
                         <Button
                           variant="default"
                           size="sm"
-                          className="bg-[#374192] hover:bg-[#46607F] text-white"
+                          className="min-w-[100px] h-8 bg-[#374192] hover:bg-[#46607F] text-white font-medium"
                           onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                         >
                           Editar
@@ -426,7 +430,7 @@ export function PetitionList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
+                          className="min-w-[44px] h-8 border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
                           onClick={() => handleExcludePetition(petition.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -437,7 +441,7 @@ export function PetitionList() {
                         <Button
                           variant="default"
                           size="sm"
-                          className="bg-[#374192] hover:bg-[#46607F] text-white"
+                          className="min-w-[100px] h-8 bg-[#374192] hover:bg-[#46607F] text-white font-medium"
                           onClick={() => router.push(`/peticoes/visualizar/${petition.id}`)}
                         >
                           Visualizar
@@ -445,7 +449,7 @@ export function PetitionList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
+                          className="min-w-[44px] h-8 border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
                           onClick={() => handleExcludePetition(petition.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -455,7 +459,7 @@ export function PetitionList() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-[#2ECC71] text-[#2ECC71] hover:bg-[#2ECC71]/10"
+                        className="min-w-[100px] h-8 border-[#2ECC71] text-[#2ECC71] hover:bg-[#2ECC71]/10 font-medium"
                         onClick={() => handleActivatePetition(petition.id)}
                       >
                         <RotateCcw className="h-4 w-4 mr-2" />
@@ -466,7 +470,7 @@ export function PetitionList() {
                         <Button
                           variant="default"
                           size="sm"
-                          className="bg-[#374192] hover:bg-[#46607F] text-white"
+                          className="min-w-[100px] h-8 bg-[#374192] hover:bg-[#46607F] text-white font-medium"
                           onClick={() => window.open(`/peticoes/completar/${petition.id}`, '_blank')}
                         >
                           Completar
@@ -474,7 +478,7 @@ export function PetitionList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
+                          className="min-w-[44px] h-8 border-[#E74C3C] text-[#E74C3C] hover:bg-[#E74C3C]/10"
                           onClick={() => handleExcludePetition(petition.id)}
                         >
                           <Trash2 className="h-4 w-4" />
