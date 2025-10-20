@@ -69,18 +69,22 @@ export default function DesignationListPage() {
         <DesignationHeader />
 
         {/* Content */}
-        <div className="flex-1 px-4 pt-4 pb-6">
-          <div className="text-center mb-4">
-            <h2 className="text-xl font-bold mb-2">Designações da Semana</h2>
+        <div className="flex-1 px-6 pt-6 pb-8 bg-gray-50">
+          {/* Header Section */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-semibold text-[#333333] mb-3">
+              Designações da Semana
+            </h2>
             {designations.length > 0 && (
-              <div>
-                <strong>{designations[0].event}</strong>
+              <div className="bg-[#374192]/10 px-4 py-2 rounded-xl inline-block">
+                <span className="text-[#374192] font-medium">{designations[0].event}</span>
               </div>
             )}
           </div>
 
-          <Card className="w-full max-w-md mx-auto">
-            <CardContent className="p-4 pb-16">
+          {/* Designations Card */}
+          <Card className="w-full max-w-md mx-auto bg-white border border-gray-200 shadow-sm">
+            <CardContent className="p-6">
               {designations.map((designation, index) => (
                 <DesignationItem
                   key={index}
