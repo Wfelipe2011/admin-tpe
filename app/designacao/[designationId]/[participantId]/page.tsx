@@ -93,11 +93,11 @@ export default function ParticipantDesignationPage() {
 
   return (
     <MobileOnlyWrapper>
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         <DesignationHeader />
 
         {/* Content */}
-        <div className="flex-1 px-6 pt-6 pb-8 bg-gray-50">
+        <div className="px-6 pt-6 pb-8">
           {/* Header Section */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-semibold text-[#333333] mb-3">
