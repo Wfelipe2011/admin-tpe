@@ -100,16 +100,16 @@ export default function DashboardPage() {
 
   return (
     <ProtectedLayout title="Dashboard" breadcrumbs={[{ label: "Dashboard" }]}>
-      <div className="space-y-8">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-8 text-white">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/20 rounded-lg">
-              <BarChart3 className="w-6 h-6" />
+      <div className="space-y-4 sm:space-y-8">
+        {/* Header Section - Mobile optimized */}
+        <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-4 sm:p-8 text-white">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3 bg-white/20 rounded-lg">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold mb-2">Dashboard</h1>
-              <p className="text-blue-100 text-sm">
+              <h1 className="text-lg sm:text-2xl font-semibold mb-1 sm:mb-2">Dashboard</h1>
+              <p className="text-blue-100 text-xs sm:text-sm">
                 Visão geral dos dados e métricas importantes da congregação
               </p>
             </div>
@@ -118,23 +118,23 @@ export default function DashboardPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
             <p className="text-sm text-red-700 font-medium">{error}</p>
           </div>
         )}
 
-        {/* Content Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Content Section - Mobile optimized */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Dados Gerais */}
           <Card className="bg-white border border-gray-100 shadow-sm">
-            <CardHeader className="p-6 pb-4">
+            <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
-                <CardTitle className="text-lg font-semibold text-[#333333]">Dados Gerais</CardTitle>
+                <CardTitle className="text-base sm:text-lg font-semibold text-[#333333]">Dados Gerais</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CardContent className="p-3 sm:p-6 pt-0">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 <MetricCard
                   value={isLoading ? "..." : dashboardData?.groups || 0}
                   label="Grupos"
@@ -169,14 +169,14 @@ export default function DashboardPage() {
 
           {/* Gráficos */}
           <Card className="bg-white border border-gray-100 shadow-sm">
-            <CardHeader className="p-6 pb-4">
+            <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-[#929BD2] rounded-full"></div>
-                <CardTitle className="text-lg font-semibold text-[#333333]">Gráficos</CardTitle>
+                <CardTitle className="text-base sm:text-lg font-semibold text-[#333333]">Gráficos</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="space-y-8">
+            <CardContent className="p-3 sm:p-6 pt-0">
+              <div className="space-y-4 sm:space-y-8">
                 {isLoading ? (
                   <div className="flex justify-center items-center h-64" role="status" aria-live="polite">
                     <div className="text-center space-y-4">
@@ -201,21 +201,21 @@ export default function DashboardPage() {
 
           {/* Lista de Atenção */}
           <Card className="bg-white border border-gray-100 shadow-sm">
-            <CardHeader className="p-6 pb-4 flex flex-row justify-between items-center">
+            <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4 flex flex-row justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-[#E74C3C] rounded-full"></div>
-                <CardTitle className="text-lg font-semibold text-[#333333]">Lista de Atenção</CardTitle>
+                <CardTitle className="text-base sm:text-lg font-semibold text-[#333333]">Lista de Atenção</CardTitle>
               </div>
               <button
                 onClick={toggleNamesVisibility}
-                className="p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors"
                 aria-label={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
                 title={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
               >
                 {namesVisible ? (
-                  <EyeOff className="h-5 w-5 text-[#666666]" />
+                  <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
                 ) : (
-                  <Eye className="h-5 w-5 text-[#666666]" />
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
                 )}
               </button>
             </CardHeader>
@@ -244,12 +244,12 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-8 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F8F8F8]">
-                    <ClipboardList className="h-8 w-8 text-[#929BD2]" aria-hidden="true" />
+                <div className="p-4 sm:p-8 text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#F8F8F8]">
+                    <ClipboardList className="h-6 w-6 sm:h-8 sm:w-8 text-[#929BD2]" aria-hidden="true" />
                   </div>
-                  <p className="mt-4 text-[#333333] font-medium">Nenhum incidente encontrado</p>
-                  <p className="text-sm text-[#666666] mt-1">Não há itens de atenção no momento</p>
+                  <p className="mt-3 sm:mt-4 text-sm sm:text-base text-[#333333] font-medium">Nenhum incidente encontrado</p>
+                  <p className="text-xs sm:text-sm text-[#666666] mt-1">Não há itens de atenção no momento</p>
                 </div>
               )}
             </CardContent>
@@ -271,29 +271,31 @@ interface MetricCardProps {
 function MetricCard({ value, label, icon, isLoading = false, selectedGroupId }: MetricCardProps) {
   return (
     <Card className="bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-[#374192] to-[#929BD2] rounded-lg text-white flex-shrink-0">
-            {icon}
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-[#374192] to-[#929BD2] rounded-lg text-white flex-shrink-0">
+            <div className="w-4 h-4 sm:w-6 sm:h-6">
+              {icon}
+            </div>
           </div>
           <div className="min-w-0 flex-1">
             {isLoading ? (
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 <div
-                  className="h-6 bg-gray-200 rounded animate-pulse"
+                  className="h-5 sm:h-6 bg-gray-200 rounded animate-pulse"
                   aria-hidden="true"
                 ></div>
                 <div
-                  className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"
+                  className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 animate-pulse"
                   aria-hidden="true"
                 ></div>
               </div>
             ) : (
               <>
-                <p className="text-2xl font-bold text-[#333333] leading-none">
+                <p className="text-lg sm:text-2xl font-bold text-[#333333] leading-none">
                   {formatMetricValue(value)}
                 </p>
-                <p className="text-sm text-[#666666] mt-1 font-medium">
+                <p className="text-xs sm:text-sm text-[#666666] mt-0.5 sm:mt-1 font-medium">
                   {label === "Grupos" && selectedGroupId !== "todos" ? "Voluntários" : label}
                 </p>
               </>
@@ -327,12 +329,12 @@ function ChartCard({ title, percentage }: ChartCardProps) {
   }
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div className="bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col items-center">
-        <div className="w-32 h-32 mb-4">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 mb-2 sm:mb-4">
           <DonutChart percentage={percentage} centerText={centerText} centerSubtext={centerSubtext} />
         </div>
-        <h3 className="text-base font-semibold text-[#333333] text-center">{title}</h3>
+        <h3 className="text-sm sm:text-base font-semibold text-[#333333] text-center">{title}</h3>
       </div>
     </div>
   )
@@ -347,20 +349,20 @@ interface PersonItemProps {
 
 function PersonItem({ name, count, image, blurred = false }: PersonItemProps) {
   return (
-    <div className="flex items-center justify-between p-6 hover:bg-gray-50/80 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0">
-      <div className="flex items-center gap-3">
-        <Avatar className={`w-10 h-10 ${blurred ? "blur-sm select-none" : ""}`}>
+    <div className="flex items-center justify-between p-3 sm:p-6 hover:bg-gray-50/80 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Avatar className={`w-8 h-8 sm:w-10 sm:h-10 ${blurred ? "blur-sm select-none" : ""}`}>
           <AvatarImage src={image || "/placeholder.svg"} alt={name} />
-          <AvatarFallback className="bg-gradient-to-br from-[#374192] to-[#929BD2] text-white font-medium">
+          <AvatarFallback className="bg-gradient-to-br from-[#374192] to-[#929BD2] text-white font-medium text-xs sm:text-sm">
             {name.charAt(0)}
           </AvatarFallback>
         </Avatar>
-        <span className={`font-medium text-[#333333] ${blurred ? "blur-sm select-none" : ""}`}>
+        <span className={`font-medium text-sm sm:text-base text-[#333333] ${blurred ? "blur-sm select-none" : ""}`}>
           {name}
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold bg-red-50 text-red-700 px-3 py-1.5 rounded-full border border-red-200">
+        <span className="text-xs sm:text-sm font-semibold bg-red-50 text-red-700 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-red-200">
           {count}
         </span>
       </div>

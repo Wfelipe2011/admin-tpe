@@ -112,7 +112,7 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
       )}
 
       {/* Header - Logo + Nome do Sistema */}
-      <div className="p-4 border-b border-white/10">
+      <div className="p-3 sm:p-4 border-b border-white/10">
         {collapsed && !isMobile ? (
           <div className="flex justify-center">
             <Image
@@ -125,23 +125,23 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
             />
           </div>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Image
               src="/images/design-mode/logo_branco.png"
               alt="TPE Digital"
               width={200}
               height={200}
-              className="w-auto h-10"
+              className="w-auto h-8 sm:h-10"
               priority
             />
-            <span className="text-lg font-semibold tracking-wide">TPE DIGITAL</span>
+            <span className="text-base sm:text-lg font-semibold tracking-wide">TPE DIGITAL</span>
           </div>
         )}
       </div>
 
       {/* Seleção de Grupo */}
       {(!collapsed || isMobile) && (
-        <div className="p-4 border-b border-white/10">
+        <div className="p-3 sm:p-4 border-b border-white/10">
           {/* <div className="mb-2">
             <p className="text-xs font-medium text-white/70 uppercase tracking-wide">
               Grupo Selecionado
@@ -152,13 +152,13 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
       )}
 
       {/* Menu Items */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <ul className="space-y-2">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+        <ul className="space-y-1 sm:space-y-2">
           {menuItemsWithIcons.map((item) => (
             <li key={item.name}>
               <Link
                 href={item.path}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-all duration-200 ${pathname === item.path
+                className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 sm:py-3 rounded-lg text-xs sm:text-sm transition-all duration-200 ${pathname === item.path
                   ? "bg-white/20 text-white font-semibold shadow-sm border border-white/30"
                   : "hover:bg-white/10 text-white/90 hover:text-white font-medium"
                   } ${collapsed && !isMobile ? "justify-center" : ""}`}
@@ -166,7 +166,9 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
                 onClick={() => isMobile && setOpen(false)}
               >
                 <div className={`flex-shrink-0 ${pathname === item.path ? "text-white" : "text-white/80"}`}>
-                  {item.icon}
+                  <div className="w-4 h-4 sm:w-5 sm:h-5">
+                    {item.icon}
+                  </div>
                 </div>
                 {(!collapsed || isMobile) && (
                   <span className="truncate">{item.name}</span>
@@ -179,13 +181,13 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
 
       {/* User Menu - Fixed at bottom */}
       {user && (!collapsed || isMobile) && (
-        <div className="p-4 border-t border-white/10">
+        <div className="p-3 sm:p-4 border-t border-white/10">
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-white/10 focus:outline-none text-white transition-colors"
+              className="flex items-center gap-2 sm:gap-3 w-full p-2 sm:p-3 rounded-lg hover:bg-white/10 focus:outline-none text-white transition-colors"
             >
-              <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border border-white/30 flex-shrink-0">
+              <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border border-white/30 flex-shrink-0">
                 {user.profile_photo ? (
                   <img
                     src={user.profile_photo || "/placeholder.svg"}
@@ -197,7 +199,7 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
                 )}
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium text-white truncate">{user.name}</p>
+                <p className="text-xs sm:text-sm font-medium text-white truncate">{user.name}</p>
                 <p className="text-xs text-white/70 truncate">{translateProfile(user.profile)}</p>
               </div>
               <ChevronDown className={`h-4 w-4 text-white/70 transition-transform flex-shrink-0 ${userMenuOpen ? 'rotate-180' : ''}`} />

@@ -189,9 +189,9 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
       </div>
 
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Mobile header with menu toggle */}
+        {/* Mobile header with menu toggle - Optimized */}
         <div className="md:hidden bg-gradient-to-r from-[#181C43] to-[#374192] text-white shadow-sm border-b border-[#374192]/20">
-          <div className="flex h-16 items-center justify-between px-6">
+          <div className="flex h-14 items-center justify-between px-3">
             <button
               onClick={toggleSidebar}
               className="text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
@@ -199,14 +199,14 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h1 className="text-lg font-semibold text-white">{title}</h1>
+            <h1 className="text-base font-semibold text-white truncate px-2">{title}</h1>
             <div className="w-9"></div> {/* Spacer for centering */}
           </div>
         </div>
 
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-0 flex-1 relative">
-            <div className="flex justify-between items-center mb-6">
+        <main className="flex-1 overflow-y-auto p-2 sm:p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-6 min-h-0 flex-1 relative">
+            <div className="flex justify-between items-center mb-3 sm:mb-6">
               {breadcrumbs.length > 0 ? <BreadcrumbNav items={breadcrumbs} /> : <div></div>}
             </div>
             {children}

@@ -99,41 +99,41 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
   return (
     <Card className="group overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg hover:border-[#374192] transition-all duration-200 bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#374192] to-[#46607F] p-4">
-        <div className="font-semibold text-white text-sm truncate pr-2">{group.name}</div>
+      <div className="flex items-center justify-between bg-gradient-to-r from-[#374192] to-[#46607F] p-3 sm:p-4">
+        <div className="font-semibold text-white text-xs sm:text-sm truncate pr-2">{group.name}</div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <Link href={`/grupos/editar/${group.id}`} passHref>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/20 transition-colors"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </Link>
           {group.participants === 0 && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-white/80 hover:text-white hover:bg-red-500/20 transition-colors"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-red-500/20 transition-colors"
               onClick={() => setIsDeleteDialogOpen(true)}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           )}
         </div>
       </div>
 
       {/* Content */}
-      <CardContent className="p-6 space-y-4">
-        <div className="space-y-3">
+      <CardContent className="p-3 sm:p-6 space-y-3 sm:space-y-4">
+        <div className="space-y-2 sm:space-y-3">
           {/* Day and Time */}
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-[#374192] rounded-full flex-shrink-0"></div>
-            <span className="text-sm font-medium text-[#333333]">{weekday}</span>
+            <span className="text-xs sm:text-sm font-medium text-[#333333]">{weekday}</span>
           </div>
 
-          <div className="space-y-2 text-sm text-[#666666]">
+          <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-[#666666]">
             <div className="flex justify-between">
               <span>Horário:</span>
               <span className="font-medium text-[#333333]">{startTime} - {endTime}</span>
@@ -148,7 +148,7 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
 
             <div className="flex justify-between items-start">
               <span>Responsável:</span>
-              <span className="font-medium text-[#333333] text-right max-w-[120px] truncate">
+              <span className="font-medium text-[#333333] text-right max-w-[100px] sm:max-w-[120px] truncate">
                 {isLoadingCoordinator ? (
                   <span className="text-[#929BD2]">Carregando...</span>
                 ) : coordinator ? (
@@ -163,11 +163,11 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-3 sm:p-4 pt-0">
         <Link href={`/grupos/${group.id}`} passHref className="w-full">
           <Button
             variant="outline"
-            className="w-full border-[#374192] text-[#374192] hover:bg-[#374192] hover:text-white transition-colors font-medium"
+            className="w-full border-[#374192] text-[#374192] hover:bg-[#374192] hover:text-white transition-colors font-medium text-xs sm:text-sm h-8 sm:h-10"
           >
             Ver Participantes
           </Button>

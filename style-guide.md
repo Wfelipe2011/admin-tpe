@@ -45,8 +45,17 @@ Quando for gerar interfaces, siga essas instruções:
 - Unidade base: múltiplos de **4px** ou **8px**
 - Paddings & Margins: `8px, 16px, 24px, 32px`
 - Gutter entre colunas: `24px`
-- Breakpoints:
 
+#### **Mobile First (Responsivo)**
+
+- **Mobile (< 640px):** Use espaçamentos mínimos para aproveitar máximo do espaço
+  - Padding lateral: `8px` (mínimo necessário)
+  - Padding vertical: `12px`
+  - Margens entre elementos: `8px, 12px`
+  - Sem gutters desnecessários
+- **Tablet/Desktop (≥ 640px):** Espaçamentos padrão aplicados
+
+- Breakpoints:
   - sm: 640px
   - md: 768px
   - lg: 1024px
@@ -88,6 +97,47 @@ Quando for gerar interfaces, siga essas instruções:
 
 ---
 
+### 📱 **Diretrizes Mobile**
+
+Para telas menores que 640px, aplique as seguintes otimizações:
+
+- **Aproveitamento máximo do espaço:**
+
+  - Use apenas `padding: 8px` nas laterais (mínimo necessário)
+  - Evite margens excessivas entre elementos
+  - Reduza espaçamentos verticais para `12px` quando apropriado
+
+- **Componentes otimizados:**
+
+  - Cards: padding interno reduzido para `12px`
+  - Botões: largura total (`w-full`) quando fizer sentido
+  - Inputs: aproveitar largura disponível
+  - Modais: margin mínima das bordas (`8px`)
+
+- **Layout responsivo:**
+
+  - Elementos em coluna única
+  - Navegação colapsada por padrão
+  - Textos e botões com tamanhos adequados ao toque
+
+- **Classes Tailwind mobile:**
+
+  ```css
+  /* Aplicar apenas em mobile */
+  .mobile-optimized {
+    @apply px-2 py-3 space-y-2;
+  }
+
+  /* Responsive breakpoint */
+  @media (max-width: 639px) {
+    .container {
+      @apply px-2;
+    }
+  }
+  ```
+
+---
+
 ### 🌗 **Tema**
 
 - Apenas **modo claro** definido no momento.
@@ -123,16 +173,39 @@ Quando for gerar interfaces, siga essas instruções:
   --font-size-body: 14px;
   --font-size-caption: 12px;
 
-  /* 📏 Espaçamentos */
+  /* 📏 Espaçamentos padrão (desktop) */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 
-  /* 🔲 Bordas e sombras */
+  /* � Espaçamentos mobile (otimizados) */
+  --spacing-mobile-xs: 4px;
+  --spacing-mobile-sm: 8px;
+  --spacing-mobile-md: 12px;
+  --spacing-mobile-lg: 16px;
+  --spacing-mobile-xl: 20px;
+
+  /* 📱 Paddings específicos mobile */
+  --padding-mobile-lateral: 8px; /* Mínimo necessário nas laterais */
+  --padding-mobile-vertical: 12px; /* Vertical otimizado */
+  --margin-mobile-elementos: 8px; /* Entre elementos */
+
+  /* �🔲 Bordas e sombras */
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 📱 Media query para mobile */
+@media (max-width: 639px) {
+  :root {
+    --spacing-xs: var(--spacing-mobile-xs);
+    --spacing-sm: var(--spacing-mobile-sm);
+    --spacing-md: var(--spacing-mobile-md);
+    --spacing-lg: var(--spacing-mobile-lg);
+    --spacing-xl: var(--spacing-mobile-xl);
+  }
 }
 ```

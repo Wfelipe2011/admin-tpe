@@ -14,14 +14,14 @@ export const StatusHeader: React.FC<StatusHeaderProps> = ({ designationData, isS
   return (
     <div
       className={cn(
-        "duration-200 flex items-center justify-between gap-2 rounded-md bg-background p-2 text-sm transition-all",
+        "duration-200 flex items-center justify-between gap-1 sm:gap-2 rounded-md bg-background p-1.5 sm:p-2 text-xs sm:text-sm transition-all",
         "bg-background/95 backdrop-blur-sm border-b",
       )}
     >
       <div>
         {designationData?.group?.name && (
-          <span className="font-medium">
-            {designationData.group.name} - {designationData.group.configWeekday}
+          <span className="font-medium truncate">
+            {designationData.group.name} - {designationData.group.config.weekday}
           </span>
         )}
       </div>

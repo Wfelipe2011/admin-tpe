@@ -106,17 +106,17 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       </div>
 
       {/* Right side with content */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-16 bg-white">
-        <div className="md:hidden mb-8 flex flex-col items-center space-y-6">
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-3 sm:p-6 md:p-16 bg-white">
+        <div className="md:hidden mb-6 sm:mb-8 flex flex-col items-center space-y-4 sm:space-y-6">
           <Image
             src="/images/design-mode/logo.png"
             alt="TPE Digital Logo"
             width={250}
             height={250}
-            className="w-48 h-48"
+            className="w-32 h-32 sm:w-48 sm:h-48"
           />
           {subtitle && (
-            <p className="text-[#666666] text-center text-base leading-relaxed">{subtitle}</p>
+            <p className="text-[#666666] text-center text-sm sm:text-base leading-relaxed px-2">{subtitle}</p>
           )}
         </div>
 
@@ -130,7 +130,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           )}
         </div>
 
-        <div className="w-full max-w-md space-y-8">{children}</div>
+        <div className="w-full max-w-md space-y-6 sm:space-y-8 px-2 sm:px-0">{children}</div>
       </div>
     </div>
   )

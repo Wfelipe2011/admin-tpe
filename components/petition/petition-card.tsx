@@ -59,25 +59,25 @@ export function PetitionCard({ petition }: PetitionCardProps) {
 
   return (
     <Card className="overflow-hidden w-full">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <CardTitle className="text-lg">{petition.name}</CardTitle>
+          <CardTitle className="text-base sm:text-lg">{petition.name}</CardTitle>
           <Badge className={getStatusColor(petition.status)}>
             <span className="flex items-center gap-1">
               {statusIcon[petition.status]}
-              {status[petition.status]}
+              <span className="text-xs sm:text-sm">{status[petition.status]}</span>
             </span>
           </Badge>
         </div>
-        <div className="text-sm text-muted-foreground flex items-center gap-1">
-          <FileText className="h-4 w-4" />
+        <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+          <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>Protocolo: {petition.protocol}</span>
         </div>
       </CardHeader>
-      <CardContent className="pb-3">
+      <CardContent className="pb-2 sm:pb-3 p-3 sm:p-6 pt-0">
         <div className="space-y-2">
-          <div className="flex items-center gap-1 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1 text-xs sm:text-sm">
+            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             <span>Criado em: {formatDate(petition.createdAt)}</span>
           </div>
 
@@ -86,10 +86,10 @@ export function PetitionCard({ petition }: PetitionCardProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full"
+                className="w-full h-8 sm:h-9 text-xs sm:text-sm"
                 onClick={() => window.open(petition.publicUrl, "_blank")}
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
+                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Ver Documento
               </Button>
             )}

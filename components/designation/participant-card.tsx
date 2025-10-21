@@ -41,15 +41,15 @@ export function ParticipantCard({ participant, designationId, onStatusChange }: 
 
   return (
     <>
-      <Card className="overflow-hidden relative p-3">
-        {/* Colored bookmark - smaller size */}
+      <Card className="overflow-hidden relative p-2 sm:p-3">
+        {/* Colored bookmark - mobile optimized */}
         <div
-          className={`absolute top-0 right-0 w-3 h-6 ${isAbsent ? "bg-red-500" : "bg-green-600"}`}
+          className={`absolute top-0 right-0 w-2.5 h-5 sm:w-3 sm:h-6 ${isAbsent ? "bg-red-500" : "bg-green-600"}`}
           style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)" }}
         />
 
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
             {participant.profile_photo ? (
               <Image
                 src={participant.profile_photo || "/placeholder.svg"}
@@ -59,26 +59,26 @@ export function ParticipantCard({ participant, designationId, onStatusChange }: 
                 className="object-cover w-full h-full"
               />
             ) : (
-              <span className="text-primary text-sm font-medium">{participant.name.charAt(0)}</span>
+              <span className="text-primary text-xs sm:text-sm font-medium">{participant.name.charAt(0)}</span>
             )}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-[#333333]">{participant.name}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="font-medium text-[#333333] text-sm sm:text-base truncate">{participant.name}</span>
               {participant.profile === "CAPTAIN" && (
-                <span className="text-xs text-[#666666]">(Capitão)</span>
+                <span className="text-xs text-[#666666] flex-shrink-0">(Capitão)</span>
               )}
             </div>
-            <div className="text-sm text-[#666666]">{participant.phone}</div>
+            <div className="text-xs sm:text-sm text-[#666666] truncate">{participant.phone}</div>
           </div>
 
           {isAbsent && (
             <button
-              className="p-1.5 rounded-full hover:bg-gray-100"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-gray-100 flex-shrink-0"
               aria-label="Ver motivo da ausência"
               onClick={() => setIsReasonModalOpen(true)}
             >
-              <Eye className="h-4 w-4 text-muted-foreground" />
+              <Eye className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </button>
           )}
         </div>

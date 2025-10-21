@@ -61,22 +61,22 @@ export const ParticipantsTab = ({
   return (
     <>
 
-      <CardHeader className="space-y-3 sm:space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <CardTitle className="text-lg sm:text-xl">Chamada de Voluntários</CardTitle>
+      <CardHeader className="space-y-2 sm:space-y-4 pb-3 sm:pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+          <CardTitle className="text-base sm:text-xl">Chamada de Voluntários</CardTitle>
 
-          {/* Statistics */}
-          <div className="flex gap-2 text-xs sm:text-sm">
-            <div className="px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-200">
+          {/* Statistics - Mobile optimized */}
+          <div className="flex gap-1 sm:gap-2 text-xs">
+            <div className="px-2 sm:px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-200">
               Presentes: <span className="font-semibold">{presentCount}</span>
             </div>
-            <div className="px-3 py-1 bg-red-50 text-red-700 rounded-full border border-red-200">
+            <div className="px-2 sm:px-3 py-1 bg-red-50 text-red-700 rounded-full border border-red-200">
               Ausentes: <span className="font-semibold">{absentCount}</span>
             </div>
           </div>
         </div>
 
-        {/* Search bar */}
+        {/* Search bar - Mobile optimized */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -84,14 +84,14 @@ export const ParticipantsTab = ({
             placeholder="Buscar voluntário..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 h-10"
+            className="pl-9 h-9 sm:h-10"
           />
         </div>
       </CardHeader>
 
-      <CardContent className="">
+      <CardContent className="pt-0">
         {isLoading ? (
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-8 sm:py-12">
             <div className="animate-pulse flex flex-col items-center gap-3">
               <div className="h-12 w-12 rounded-full bg-primary/20"></div>
               <div className="h-4 w-48 bg-primary/20 rounded"></div>
@@ -99,18 +99,18 @@ export const ParticipantsTab = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             {sortedParticipants.length > 0 ? (
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-1 sm:gap-2">
                 {sortedParticipants.map((participant) => (
                   <div
                     key={participant.id}
-                    className={`flex flex-row items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 transition-all hover:shadow-sm ${propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "bg-white"
+                    className={`flex flex-row items-center justify-between p-3 border rounded-lg gap-3 transition-all hover:shadow-sm ${propsIsAbsent(participant) ? "bg-red-50 border-red-200" : "bg-white"
                       } ${hasIncidentHistory(participant) ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div
-                        className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full ${propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
+                        className={`h-8 w-8 sm:h-12 sm:w-12 rounded-full ${propsIsAbsent(participant) ? "bg-red-100" : "bg-primary/10"
                           } flex items-center justify-center flex-shrink-0`}
                       >
                         {participant.profile_photo ? (
@@ -122,20 +122,20 @@ export const ParticipantsTab = ({
                         ) : (
                           <span
                             className={`${propsIsAbsent(participant) ? "text-red-600" : "text-primary"
-                              } text-base sm:text-lg font-semibold`}
+                              } text-sm sm:text-lg font-semibold`}
                           >
                             {participant.name?.charAt(0)?.toUpperCase() || "?"}
                           </span>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-sm sm:text-base flex items-center gap-2 truncate">
+                        <div className="font-medium text-sm flex items-center gap-2 truncate">
                           {participant.name}
                           {propsIsAbsent(participant) && (
                             <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
                           )}
                         </div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           {participant.profile === "CAPTAIN"
                             ? "Capitão"
                             : participant.profile === "COORDINATOR"
@@ -152,7 +152,7 @@ export const ParticipantsTab = ({
                           groupId ? hookRegisterAbsence(participant.id) : propsOnRegisterAbsence(participant.id)
                         }
                         disabled={isLoading || propsIsAbsent(participant)}
-                        className="flex-shrink-0 h-8 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm"
+                        className="flex-shrink-0 h-8 px-3 text-xs"
                       >
                         {propsIsAbsent(participant) ? "Ausente" : "Ausentar"}
                       </Button>
@@ -161,8 +161,8 @@ export const ParticipantsTab = ({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 sm:py-12">
-                <div className="text-muted-foreground text-sm sm:text-base">
+              <div className="text-center py-6 sm:py-12">
+                <div className="text-muted-foreground text-sm">
                   {searchTerm ? "Nenhum voluntário encontrado" : "Não há voluntários disponíveis"}
                 </div>
               </div>
