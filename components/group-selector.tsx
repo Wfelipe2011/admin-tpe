@@ -108,7 +108,7 @@ export function GroupSelector({ className = "", isMobileView = false }: GroupSel
 
     // If user is CAPTAIN, disable the select
     if (user?.profile === "CAPTAIN") {
-      setIsSelectDisabled(true)
+      // setIsSelectDisabled(true)
     }
   }, [])
 
