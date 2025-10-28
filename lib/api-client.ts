@@ -65,7 +65,9 @@ export class ApiClient {
     const errorInterceptor = (error: any) => {
       if (error.response && error.response.status === 401) {
         if (typeof window !== "undefined") {
-          window.location.href = "/login?error=expired"
+          setTimeout(() => {
+            window.location.href = "/login?error=expired"
+          }, 5000)
         }
       }
       return Promise.reject(error)
@@ -125,7 +127,7 @@ export class ApiClient {
     }
 
     try {
-      const response = method === "PUT" 
+      const response = method === "PUT"
         ? await axiosInstance.put(url, formData, { headers: uploadHeaders })
         : await axiosInstance.post(url, formData, { headers: uploadHeaders })
       return response.data
