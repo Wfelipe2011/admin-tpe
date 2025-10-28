@@ -34,7 +34,6 @@ export function DesignationList({ designationId }: { designationId?: string } = 
 
   // Get user token and extract groupId
   const fetchData = useCallback(async () => {
-    const loadingToast = toast.loading("Carregando designações...")
     try {
       setLoading(true)
       const user = getUserFromToken()
@@ -49,7 +48,6 @@ export function DesignationList({ designationId }: { designationId?: string } = 
       const groupId = selectedGroupId || user.groupId
 
       if (!groupId || groupId === "todos") {
-        toast.dismiss(loadingToast)
         toast("Selecione um grupo para visualizar as designações.", {
           icon: "⚠️",
         })
@@ -64,10 +62,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
       // Fetch participants
       const participantsData = await apiClient.get<IParticipants[]>(`/participants?groupId=${groupId}`)
       setParticipants(participantsData)
-      toast.dismiss(loadingToast)
-      toast.success("Designações carregadas com sucesso!")
     } catch (error) {
-      toast.dismiss(loadingToast)
       toast.error("Erro ao carregar designações. Tente novamente.")
       console.error("Error fetching data:", error)
     } finally {

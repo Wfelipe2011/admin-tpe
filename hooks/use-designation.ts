@@ -99,17 +99,6 @@ export function useDesignation() {
   useEffect(() => {
     // Primeira chamada imediata
     fetchDesignationData()
-
-    // Configurar intervalo para atualizações subsequentes
-    const intervalId = setInterval(() => {
-      console.log("Auto-updating designation data...")
-      fetchDesignationData(false)
-    }, 30000) // 30 segundos
-
-    // Limpar intervalo quando o componente for desmontado
-    return () => {
-      clearInterval(intervalId)
-    }
   }, [selectedGroupId]) // Adiciona selectedGroupId como dependência
 
   // Fetch filtered data when search term changes

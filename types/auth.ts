@@ -3,6 +3,7 @@ export enum ParticipantProfile {
   CAPTAIN = "CAPTAIN",
   PARTICIPANT = "PARTICIPANT",
   ADMIN_ANALYST = "ADMIN_ANALYST",
+  ASSISTANT_CAPTAIN = "ASSISTANT_CAPTAIN",
 }
 
 export interface IToken {

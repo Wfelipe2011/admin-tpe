@@ -2,14 +2,14 @@ import { ParticipantProfile } from "@/types/auth"
 
 // Define route access by profile
 export const routeAccess: Record<string, ParticipantProfile[]> = {
-  "/dashboard": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
+  "/dashboard": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
   "/consultar/historico": [
     ParticipantProfile.COORDINATOR,
-    ParticipantProfile.CAPTAIN,
+    ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN,
     ParticipantProfile.ADMIN_ANALYST,
   ],
-  "/lista-designacao": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN],
-  "/lista-designacao/designar": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN],
+  "/lista-designacao": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN],
+  "/lista-designacao/designar": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN],
   "/peticoes": [ParticipantProfile.COORDINATOR, ParticipantProfile.ADMIN_ANALYST],
   "/peticoes/upload-peticao": [ParticipantProfile.COORDINATOR, ParticipantProfile.ADMIN_ANALYST],
   "/peticoes/visualizar": [ParticipantProfile.COORDINATOR, ParticipantProfile.ADMIN_ANALYST],
@@ -55,19 +55,19 @@ export function getAuthorizedMenuItems(userProfile: ParticipantProfile) {
       name: "Dashboard",
       path: "/dashboard",
       icon: "LayoutDashboard",
-      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
+      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
     },
     {
       name: "Consultar",
       path: "/consultar/historico",
       icon: "Search",
-      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
+      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
     },
     {
       name: "Lista para Designação",
       path: "/lista-designacao",
       icon: "List",
-      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN],
+      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN],
     },
     {
       name: "Petições",
