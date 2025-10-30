@@ -39,6 +39,7 @@ export function useDesignation() {
   const [filteredAssignments, setFilteredAssignments] = useState<Assignment[]>([])
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showRecreateModal, setShowRecreateModal] = useState(false)
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
   const isUpdatingRef = useRef(false)
   const { selectedGroupId } = useGroupStore()
@@ -420,6 +421,59 @@ export function useDesignation() {
     setShowCancelModal(true)
   }
 
+  const handleRecreateClick = () => {
+    setShowRecreateModal(true)
+  }
+
+  const recreateDesignation = async () => {
+    if (!designationData?.id) {
+      toast.error("ID da designação não encontrado.")
+      return
+    }
+
+    const loadingToast = toast.loading("Recriando designação...")
+    setLoading(true)
+
+    try {
+      const user = getUserFromToken()
+      if (!user) {
+        console.error("User not found in token")
+        toast.error("Usuário não autenticado.")
+        setLoading(false)
+        toast.dismiss(loadingToast)
+        return
+      }
+
+      const groupId = selectedGroupId || user.groupId
+
+      // Step 1: Delete designation (usando new API)
+      await apiClient.delete(`/designations/${designationData.id}`, { endpoint: "new" })
+
+      // Step 2: Create new designation (usando legacy API)
+      await apiClient.post(`/designations?groupId=${groupId}`, {}, { endpoint: "legacy" })
+
+      // Step 3: Fetch designation data (buscar designação da semana)
+      const response = await apiClient.get<IDesignationParticipants>(
+        `/groups/${groupId}/designations/week?groupId=${groupId}`,
+      )
+
+      // Atualiza o estado completo com a resposta da API
+      setDesignationData(response)
+      setAssignments(response.assignments || [])
+      setParticipants(response.participants || [])
+      setLastUpdateTime(new Date())
+
+      toast.success("Designação recriada com sucesso!")
+      setShowRecreateModal(false)
+    } catch (error) {
+      console.error("Error recreating designation:", error)
+      toast.error("Erro ao recriar designação. Tente novamente.")
+    } finally {
+      setLoading(false)
+      toast.dismiss(loadingToast)
+    }
+  }
+
   const isAbsent = (participant: Incident) =>
     participant.incident_history?.status === "OPEN" || participant.incident_history?.status === "ACTIVE"
 
@@ -466,18 +520,22 @@ export function useDesignation() {
     filteredAssignments,
     showConfirmModal,
     showCancelModal,
+    showRecreateModal,
     lastUpdateTime: formattedLastUpdateTime,
     groupId: selectedGroupId,
     designationId: designationData?.id,
     setShowConfirmModal,
     setShowCancelModal,
+    setShowRecreateModal,
     handleSearch,
     handleAutoAssignClick,
     handleCancelClick,
+    handleRecreateClick,
     copyToClipboard,
     autoAssign,
     sendDesignation,
     cancelDesignation,
+    recreateDesignation,
     handleUpdatePoint,
     moveParticipant,
     isAbsent,

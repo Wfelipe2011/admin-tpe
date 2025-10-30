@@ -3,6 +3,7 @@ import { ProtectedLayout } from "@/app/layout-protected"
 import { useDesignation } from "@/hooks/use-designation"
 import { CancellationModal } from "@/components/designation/cancellation-modal"
 import { ConfirmationModal } from "@/components/designation/confirmation-modal"
+import { RecreateModal } from "@/components/designation/recreate-modal"
 import { SearchBar } from "@/components/designation/search-bar"
 import { ActionButtons } from "@/components/designation/action-buttons"
 import { AssignmentCard } from "@/components/designation/assignment-card"
@@ -22,15 +23,19 @@ export default function DesignarPage() {
     filteredAssignments,
     showConfirmModal,
     showCancelModal,
+    showRecreateModal,
     setShowConfirmModal,
     setShowCancelModal,
+    setShowRecreateModal,
     handleSearch,
     handleAutoAssignClick,
     handleCancelClick,
+    handleRecreateClick,
     copyToClipboard,
     autoAssign,
     sendDesignation,
     cancelDesignation,
+    recreateDesignation,
     handleUpdatePoint,
     moveParticipant,
     isAbsent,
@@ -88,10 +93,12 @@ export default function DesignarPage() {
                 searchTerm={searchTerm}
                 onSearch={handleSearch}
                 onAutoAssign={handleAutoAssignClick}
+                onRecreate={handleRecreateClick}
                 presentParticipants={participants.filter((p) => !isAbsent(p))}
                 absentParticipants={participants.filter(isAbsent)}
                 incidents={designationData?.incidents || []}
                 isDisabled={designationData?.status !== "OPEN"}
+                designationStatus={designationData?.status}
               />
 
               {/* Filtered results */}
@@ -171,6 +178,7 @@ export default function DesignarPage() {
       {/* Modals */}
       <ConfirmationModal open={showConfirmModal} onOpenChange={setShowConfirmModal} onConfirm={autoAssign} />
       <CancellationModal open={showCancelModal} onOpenChange={setShowCancelModal} onConfirm={cancelDesignation} />
+      <RecreateModal open={showRecreateModal} onOpenChange={setShowRecreateModal} onConfirm={recreateDesignation} />
     </ProtectedLayout>
   )
 }
