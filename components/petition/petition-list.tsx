@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Search, FileText, Calendar, Trash2, RotateCcw } from "lucide-react"
 import type { IPetitions, Status } from "@/types/petitions"
 import { InfoIcon, CheckIcon, BanIcon, XIcon, ClockIcon } from "lucide-react"
@@ -13,6 +14,7 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Upload } from "lucide-react"
 import { petitionApi, apiClient } from "@/lib/api-client"
 import toast from "react-hot-toast"
@@ -184,6 +186,35 @@ export function PetitionList() {
     return format(new Date(date), "dd/MM/yyyy", { locale: ptBR })
   }
 
+  const formatPhone = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, "")
+    if (cleaned.length === 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`
+    }
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`
+    }
+    return phone
+  }
+
+  const formatWeekday = (weekday: string) => {
+    const weekdayMap: Record<string, string> = {
+      SUNDAY: "Dom",
+      MONDAY: "Seg",
+      TUESDAY: "Ter",
+      WEDNESDAY: "Qua",
+      THURSDAY: "Qui",
+      FRIDAY: "Sex",
+      SATURDAY: "Sáb",
+    }
+    return weekdayMap[weekday] || weekday
+  }
+
+  const formatTime = (time: string) => {
+    // Remove segundos se existir (HH:MM:SS -> HH:MM)
+    return time.substring(0, 5)
+  }
+
   return (
     <div className="space-y-6">
       {/* Seção de Filtros */}
@@ -276,8 +307,8 @@ export function PetitionList() {
         {/* Cabeçalho da tabela - visível apenas em telas médias e maiores */}
         <div className="hidden md:grid grid-cols-12 gap-4 p-3 sm:p-4 font-semibold text-[#333333] bg-[#F8F8F8] border-b border-gray-200 text-sm">
           <div className="col-span-3 text-center">Voluntário</div>
-          <div className="col-span-3 text-center">Protocolo</div>
-          <div className="col-span-2 text-center">Status</div>
+          <div className="col-span-4 text-center">Grupos</div>
+          <div className="col-span-1 text-center">Status</div>
           <div className="col-span-2 text-center">Data</div>
           <div className="col-span-2 text-center">Ações</div>
         </div>
@@ -300,16 +331,55 @@ export function PetitionList() {
                 {/* Layout para dispositivos móveis */}
                 <div className="flex flex-col md:hidden space-y-4">
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`flex-shrink-0 w-12 h-10 flex items-center justify-center ${statusBgColor[petition.status]} rounded-lg`}
-                    >
-                      <FileText className={`w-5 h-5 ${statusColor[petition.status]}`} />
-                    </div>
+                    {petition.participants[0]?.profilePhoto ? (
+                      <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border border-gray-200">
+                        <Image
+                          src={petition.participants[0].profilePhoto}
+                          alt={petition.participants[0]?.name || petition.name}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className={`flex-shrink-0 w-12 h-12 flex items-center justify-center ${statusBgColor[petition.status]} rounded-lg`}
+                      >
+                        <FileText className={`w-5 h-5 ${statusColor[petition.status]}`} />
+                      </div>
+                    )}
                     <div className="flex-1">
-                      <div className="font-semibold text-[#333333]">{petition.name}</div>
-                      <div className="text-sm text-[#666666] font-mono">{petition.protocol}</div>
+                      <div
+                        className="font-semibold text-[#333333] truncate"
+                        title={petition.participants[0]?.name || petition.name}
+                      >
+                        {petition.participants[0]?.name || petition.name}
+                      </div>
+                      {petition.participants[0]?.phone && (
+                        <div className="text-sm text-[#666666] mt-1">{formatPhone(petition.participants[0].phone)}</div>
+                      )}
                     </div>
                   </div>
+
+                  {petition.participants[0]?.participantsGroup && petition.participants[0].participantsGroup.length > 0 && (
+                    <div>
+                      <div className="text-xs font-medium text-[#666666] mb-2">Grupos:</div>
+                      <div className="flex flex-col gap-1.5">
+                        {petition.participants[0].participantsGroup.map((pg) => (
+                          <Badge
+                            key={pg.id}
+                            variant="secondary"
+                            className="text-xs bg-[#374192]/10 text-[#374192] hover:bg-[#374192]/20 truncate w-fit"
+                            title={`${pg.group.name} - ${formatWeekday(pg.group.configWeekday)} ${formatTime(pg.group.configStartHour)}-${formatTime(pg.group.configEndHour)}`}
+                          >
+                            <span className="truncate">
+                              {pg.group.name} • {formatWeekday(pg.group.configWeekday)} {formatTime(pg.group.configStartHour)}-{formatTime(pg.group.configEndHour)}
+                            </span>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -401,20 +471,59 @@ export function PetitionList() {
 
                 {/* Layout para desktop */}
                 <div className="hidden md:flex md:col-span-3 gap-3 items-center">
-                  <div
-                    className={`flex-shrink-0 w-10 h-10 flex items-center justify-center ${statusBgColor[petition.status]} rounded-lg`}
-                  >
-                    <FileText className={`w-5 h-5 ${statusColor[petition.status]}`} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-[#333333] truncate">{petition.name}</div>
+                  {petition.participants[0]?.profilePhoto ? (
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border border-gray-200">
+                      <Image
+                        src={petition.participants[0].profilePhoto}
+                        alt={petition.participants[0]?.name || petition.name}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className={`flex-shrink-0 w-10 h-10 flex items-center justify-center ${statusBgColor[petition.status]} rounded-lg`}
+                    >
+                      <FileText className={`w-5 h-5 ${statusColor[petition.status]}`} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div
+                      className="font-semibold text-[#333333] truncate"
+                      title={petition.participants[0]?.name || petition.name}
+                    >
+                      {petition.participants[0]?.name || petition.name}
+                    </div>
+                    {petition.participants[0]?.phone && (
+                      <div className="text-xs text-[#666666] truncate">{formatPhone(petition.participants[0].phone)}</div>
+                    )}
                   </div>
                 </div>
-                <div className="hidden md:block md:col-span-3 font-mono text-sm text-center text-[#666666]">{petition.protocol}</div>
-                <div className={`hidden md:flex md:col-span-2 justify-center items-center gap-1 ${statusColor[petition.status]} font-medium`}>
-                  <span className="text-center">{status[petition.status] || "- - -"}</span>
+                <div className="hidden md:flex md:col-span-4 justify-start items-center px-2">
+                  {petition.participants[0]?.participantsGroup && petition.participants[0].participantsGroup.length > 0 ? (
+                    <div className="flex flex-col gap-1 w-full">
+                      {petition.participants[0].participantsGroup.map((pg) => (
+                        <Badge
+                          key={pg.id}
+                          variant="secondary"
+                          className="text-xs bg-[#374192]/10 text-[#374192] hover:bg-[#374192]/20 truncate w-fit max-w-full"
+                          title={`${pg.group.name} - ${formatWeekday(pg.group.configWeekday)} ${formatTime(pg.group.configStartHour)}-${formatTime(pg.group.configEndHour)}`}
+                        >
+                          <span className="truncate">
+                            {pg.group.name} • {formatWeekday(pg.group.configWeekday)} {formatTime(pg.group.configStartHour)}-{formatTime(pg.group.configEndHour)}
+                          </span>
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-[#999999]">-</span>
+                  )}
                 </div>
-                <div className="hidden md:block md:col-span-2 text-center text-[#666666]">{formatDate(petition.createdAt)}</div>
+                <div className={`hidden md:flex md:col-span-1 justify-center items-center gap-1 ${statusColor[petition.status]} font-medium`}>
+                  <span className="text-center text-xs">{status[petition.status] || "- - -"}</span>
+                </div>
+                <div className="hidden md:block md:col-span-2 text-center text-[#666666] text-sm">{formatDate(petition.createdAt)}</div>
                 <div className="hidden md:block md:col-span-2 text-center">
                   <div className="flex gap-2 justify-center">
                     {petition.status === "WAITING" ? (
