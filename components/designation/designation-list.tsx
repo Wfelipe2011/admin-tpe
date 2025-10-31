@@ -118,7 +118,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
         return "text-yellow-600 font-semibold"
       case "IN_PROGRESS":
         return "text-purple-600 font-semibold"
-      case "COMPLETED":
+      case "CLOSED":
         return "text-green-600 font-semibold"
       case "ARCHIVED":
         return "text-blue-600 font-semibold"
