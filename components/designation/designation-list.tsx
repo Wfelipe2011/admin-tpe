@@ -100,7 +100,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
         return "Em aberto"
       case "IN_PROGRESS":
         return "Em progresso"
-      case "COMPLETED":
+      case "CLOSED":
         return "Concluído"
       case "ARCHIVED":
         return "Arquivado"
