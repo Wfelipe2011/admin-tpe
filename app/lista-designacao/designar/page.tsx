@@ -42,6 +42,41 @@ export default function DesignarPage() {
     setIsOptional,
   } = useDesignation()
 
+  // Functions to handle status display
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "OPEN":
+        return "Em aberto"
+      case "IN_PROGRESS":
+        return "Em progresso"
+      case "CLOSED":
+        return "Concluído"
+      case "ARCHIVED":
+        return "Arquivado"
+      case "CANCELLED":
+        return "Cancelado"
+      default:
+        return "Desconhecido"
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "OPEN":
+        return "text-yellow-600 font-semibold"
+      case "IN_PROGRESS":
+        return "text-purple-600 font-semibold"
+      case "CLOSED":
+        return "text-green-600 font-semibold"
+      case "ARCHIVED":
+        return "text-blue-600 font-semibold"
+      case "CANCELLED":
+        return "text-red-600 font-semibold"
+      default:
+        return "text-gray-600 font-semibold"
+    }
+  }
+
   return (
     <ProtectedLayout
       title="Designar Participantes"
@@ -86,6 +121,27 @@ export default function DesignarPage() {
                   <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
                   <h2 className="text-lg font-semibold text-[#333333]">Pontos de Designação</h2>
                 </div>
+
+                {/* Status da Designação */}
+                {designationData && (
+                  <div className="bg-[#F8F8F8] rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
+                      <span className="text-sm font-medium text-[#666666]">Status da Designação:</span>
+                      <span
+                        className={
+                          designationData?.status
+                            ? getStatusColor(designationData.status)
+                            : "text-[#666666] font-medium"
+                        }
+                      >
+                        {designationData?.status
+                          ? getStatusText(designationData.status)
+                          : "Carregando..."}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Search, auto-assign and participant overview */}
