@@ -13,6 +13,9 @@ import type { IToken } from "@/types/auth"
 // Import the ParticipantProfile and role utils
 import { ParticipantProfile } from "@/types/auth"
 import { hasRouteAccess } from "@/lib/role-utils"
+import '@n8n/chat/style.css';
+import '../styles/tpe-chat.css';
+import { TPEChat } from "@/components/tpe-chat"
 
 interface ProtectedLayoutProps {
   children: React.ReactNode
@@ -109,7 +112,6 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
 
   // Add this useEffect after the existing authentication useEffect
   useEffect(() => {
-    // Function to handle resize and set sidebar state based on screen width
     const handleResize = () => {
       const mobileView = window.innerWidth < 768
       setIsMobile(mobileView)
@@ -166,6 +168,14 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
   // If authenticated and not loading, render the layout with the sidebar
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F8F8]">
+      {/* TPE Chat Integration */}
+      <TPEChat
+        user={user}
+        currentPath={pathname}
+        mode="window"
+        debug={process.env.NODE_ENV === 'development'}
+      />
+
       <div className="hidden md:block transition-all duration-300">
         <AppSidebar
           collapsed={!sidebarOpen}
