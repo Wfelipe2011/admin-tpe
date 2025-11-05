@@ -1,0 +1,513 @@
+/* 
+ * TPE Chat - Personalização visual completa
+ * Baseado no Design System TPE Digital
+ */
+
+/* ============================================
+   🎨 VARIÁVEIS PERSONALIZADAS TPE
+   ============================================ */
+:root {
+  /* 🎨 Cores TPE no chat */
+  --chat--color--primary: #374192;
+  --chat--color--primary-shade-50: #46607F;
+  --chat--color--primary--shade-100: #2F3666;
+  --chat--color--secondary: #929BD2;
+  --chat--color-secondary-shade-50: #7A86C4;
+  
+  /* 🧱 Cores de fundo e texto */
+  --chat--color-white: #FFFFFF;
+  --chat--color-light: #F8F8F8;
+  --chat--color-light-shade-50: #EEEEEE;
+  --chat--color-light-shade-100: #E0E0E0;
+  --chat--color-medium: #666666;
+  --chat--color-dark: #333333;
+  --chat--color-disabled: #999999;
+  --chat--color-typing: #666666;
+  
+  /* ⚠️ Estados TPE */
+  --chat--color-error: #E74C3C;
+  --chat--color-success: #2ECC71;
+  --chat--color-warning: #F1C40F;
+  
+  /* 📏 Dimensões e espaçamentos TPE */
+  --chat--spacing: 1rem;
+  --chat--border-radius: 8px; /* Seguindo style guide TPE */
+  --chat--transition-duration: 0.15s;
+  
+  /* 🪟 Janela do chat */
+  --chat--window--width: 420px;
+  --chat--window--height: 650px;
+  
+  /* 🎯 Header personalizado TPE */
+  --chat--header-height: auto;
+  --chat--header--padding: 16px;
+  --chat--header--background: linear-gradient(90deg, #181C43 0%, #374192 100%);
+  --chat--header--color: #FFFFFF;
+  --chat--header--border-top: none;
+  --chat--header--border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  --chat--heading--font-size: 18px;
+  --chat--subtitle--font-size: 14px;
+  --chat--subtitle--line-height: 1.4;
+  
+  /* 💬 Mensagens */
+  --chat--message--font-size: 14px; /* Tamanho body do TPE */
+  --chat--message--padding: 12px 16px;
+  --chat--message--border-radius: 12px;
+  --chat--message-line-height: 1.5;
+  --chat--message--bot--background: #F8F8F8;
+  --chat--message--bot--color: #333333;
+  --chat--message--bot--border: 1px solid #EEEEEE;
+  --chat--message--user--background: #374192;
+  --chat--message--user--color: #FFFFFF;
+  --chat--message--user--border: none;
+  --chat--message--pre--background: rgba(55, 65, 146, 0.05);
+  
+  /* 📝 Textarea de input */
+  --chat--textarea--height: 50px;
+  --chat--input--border: 1px solid #E0E0E0;
+  --chat--input--border-focus: 2px solid #374192;
+  --chat--input--background: #FFFFFF;
+  --chat--input--color: #333333;
+  --chat--input--placeholder: #666666;
+  
+  /* 🔘 Toggle button */
+  --chat--toggle--background: #374192;
+  --chat--toggle--hover--background: #46607F;
+  --chat--toggle--active--background: #2F3666;
+  --chat--toggle--color: #FFFFFF;
+  --chat--toggle--size: 64px;
+  
+  /* 📱 Mobile específico */
+  --chat--mobile--toggle--size: 56px;
+  --chat--mobile--window--width: 100vw;
+  --chat--mobile--window--height: 100vh;
+  --chat--mobile--padding: 8px;
+}
+
+/* ============================================
+   🎨 PERSONALIZAÇÃO GERAL DO CHAT
+   ============================================ */
+
+/* Container principal do chat */
+#n8n-chat {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Janela do chat */
+.n8n-chat-window {
+  border: 1px solid rgba(55, 65, 146, 0.1) !important;
+  box-shadow: 
+    0px 2px 4px rgba(0, 0, 0, 0.1),
+    0px 8px 24px rgba(55, 65, 146, 0.15) !important;
+  border-radius: var(--chat--border-radius) !important;
+  overflow: hidden !important;
+}
+
+/* ============================================
+   🎯 HEADER PERSONALIZADO
+   ============================================ */
+
+.n8n-chat-header {
+  background: var(--chat--header--background) !important;
+  color: var(--chat--header--color) !important;
+  border-bottom: var(--chat--header--border-bottom) !important;
+  padding: var(--chat--header--padding) !important;
+}
+
+.n8n-chat-title {
+  font-size: var(--chat--heading--font-size) !important;
+  font-weight: 600 !important;
+  color: var(--chat--header--color) !important;
+  margin: 0 !important;
+}
+
+.n8n-chat-subtitle {
+  font-size: var(--chat--subtitle--font-size) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-top: 4px !important;
+  line-height: var(--chat--subtitle--line-height) !important;
+}
+
+/* ============================================
+   💬 MENSAGENS PERSONALIZADAS
+   ============================================ */
+
+.n8n-chat-message {
+  font-size: var(--chat--message--font-size) !important;
+  line-height: var(--chat--message-line-height) !important;
+  margin-bottom: 12px !important;
+}
+
+/* Mensagens do bot */
+.n8n-chat-message.bot {
+  background: var(--chat--message--bot--background) !important;
+  color: var(--chat--message--bot--color) !important;
+  border: var(--chat--message--bot--border) !important;
+  border-radius: var(--chat--message--border-radius) !important;
+  padding: var(--chat--message--padding) !important;
+}
+
+/* Mensagens do usuário */
+.n8n-chat-message.user {
+  background: var(--chat--message--user--background) !important;
+  color: var(--chat--message--user--color) !important;
+  border: var(--chat--message--user--border) !important;
+  border-radius: var(--chat--message--border-radius) !important;
+  padding: var(--chat--message--padding) !important;
+}
+
+/* ============================================
+   📝 INPUT PERSONALIZADO
+   ============================================ */
+
+.n8n-chat-input-container {
+  padding: 16px !important;
+  background: var(--chat--color-white) !important;
+  border-top: 1px solid #EEEEEE !important;
+}
+
+.n8n-chat-input {
+  border: var(--chat--input--border) !important;
+  border-radius: var(--chat--border-radius) !important;
+  background: var(--chat--input--background) !important;
+  color: var(--chat--input--color) !important;
+  font-size: var(--chat--message--font-size) !important;
+  font-family: 'Inter', sans-serif !important;
+  padding: 12px 16px !important;
+  transition: border-color var(--chat--transition-duration) ease !important;
+}
+
+.n8n-chat-input:focus {
+  outline: none !important;
+  border: var(--chat--input--border-focus) !important;
+  box-shadow: 0 0 0 3px rgba(55, 65, 146, 0.1) !important;
+}
+
+.n8n-chat-input::placeholder {
+  color: var(--chat--input--placeholder) !important;
+  font-style: normal !important;
+}
+
+/* Botão de envio */
+.n8n-chat-send-button {
+  background: var(--chat--color--primary) !important;
+  color: var(--chat--color-white) !important;
+  border-radius: var(--chat--border-radius) !important;
+  border: none !important;
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+  transition: all var(--chat--transition-duration) ease !important;
+}
+
+.n8n-chat-send-button:hover {
+  background: var(--chat--color--primary-shade-50) !important;
+  transform: translateY(-1px) !important;
+}
+
+.n8n-chat-send-button:active {
+  background: var(--chat--color--primary--shade-100) !important;
+  transform: translateY(0) !important;
+}
+
+/* ============================================
+   🔘 TOGGLE BUTTON PERSONALIZADO
+   ============================================ */
+
+.n8n-chat-toggle {
+  background: var(--chat--toggle--background) !important;
+  width: var(--chat--toggle--size) !important;
+  height: var(--chat--toggle--size) !important;
+  border-radius: 50% !important;
+  border: none !important;
+  box-shadow: 
+    0 4px 12px rgba(55, 65, 146, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transition: all var(--chat--transition-duration) ease !important;
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 1000 !important;
+}
+
+.n8n-chat-toggle:hover {
+  background: var(--chat--toggle--hover--background) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 
+    0 6px 16px rgba(55, 65, 146, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.n8n-chat-toggle:active {
+  background: var(--chat--toggle--active--background) !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+.n8n-chat-toggle svg {
+  color: var(--chat--toggle--color) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* ============================================
+   📱 RESPONSIVIDADE MOBILE
+   ============================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --chat--toggle--size: var(--chat--mobile--toggle--size);
+    --chat--window--width: var(--chat--mobile--window--width);
+    --chat--window--height: var(--chat--mobile--window--height);
+  }
+  
+  .n8n-chat-toggle {
+    bottom: 16px !important;
+    right: 16px !important;
+    width: var(--chat--mobile--toggle--size) !important;
+    height: var(--chat--mobile--toggle--size) !important;
+  }
+  
+  .n8n-chat-window {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+  
+  .n8n-chat-header {
+    padding: 16px var(--chat--mobile--padding) !important;
+  }
+  
+  .n8n-chat-input-container {
+    padding: var(--chat--mobile--padding) !important;
+  }
+  
+  .n8n-chat-message {
+    margin: 0 var(--chat--mobile--padding) 12px var(--chat--mobile--padding) !important;
+  }
+}
+
+/* ============================================
+   ✨ ANIMAÇÕES E EFEITOS
+   ============================================ */
+
+/* Animação de entrada do chat */
+.n8n-chat-window {
+  animation: tpe-chat-slide-up 0.3s ease-out !important;
+}
+
+@keyframes tpe-chat-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Indicador de digitação */
+.n8n-chat-typing {
+  color: var(--chat--color-typing) !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+}
+
+/* Estados de carregamento */
+.n8n-chat-loading {
+  background: var(--chat--color-light) !important;
+  border-radius: var(--chat--border-radius) !important;
+  padding: 12px !important;
+}
+
+/* ============================================
+   🎨 MELHORIAS ADICIONAIS
+   ============================================ */
+
+/* Scrollbar personalizada */
+.n8n-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.n8n-chat-messages::-webkit-scrollbar-track {
+  background: var(--chat--color-light);
+  border-radius: 3px;
+}
+
+.n8n-chat-messages::-webkit-scrollbar-thumb {
+  background: var(--chat--color-medium);
+  border-radius: 3px;
+}
+
+.n8n-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--chat--color--primary);
+}
+
+/* Links personalizados */
+.n8n-chat-message a {
+  color: var(--chat--color--primary) !important;
+  text-decoration: underline !important;
+}
+
+.n8n-chat-message a:hover {
+  color: var(--chat--color--primary-shade-50) !important;
+}
+
+/* Código inline */
+.n8n-chat-message code {
+  background: var(--chat--message--pre--background) !important;
+  color: var(--chat--color--primary) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-family: 'Monaco', 'Consolas', monospace !important;
+  font-size: 13px !important;
+}
+
+/* Blocos de código */
+.n8n-chat-message pre {
+  background: var(--chat--message--pre--background) !important;
+  border: 1px solid var(--chat--color-light-shade-100) !important;
+  border-radius: var(--chat--border-radius) !important;
+  padding: 12px !important;
+  overflow-x: auto !important;
+  font-family: 'Monaco', 'Consolas', monospace !important;
+  font-size: 13px !important;
+}
+
+/* ============================================
+   🔧 CORREÇÕES E OVERRIDES
+   ============================================ */
+
+/* Garante que os estilos TPE sejam aplicados */
+#n8n-chat * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Remove estilos conflitantes */
+.n8n-chat-window * {
+  box-sizing: border-box !important;
+}
+
+/* Garante z-index correto */
+.n8n-chat-window,
+.n8n-chat-toggle {
+  z-index: 9999 !important;
+}
+
+/* ============================================
+   🔄 ESTILOS PARA STREAMING
+   ============================================ */
+
+/* Indicador de streaming ativo */
+.n8n-chat-streaming-indicator {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: var(--chat--color--primary) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 4px 8px !important;
+  background: rgba(55, 65, 146, 0.05) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Animação de pontos para streaming */
+.n8n-chat-streaming-dots {
+  display: inline-flex !important;
+  gap: 2px !important;
+}
+
+.n8n-chat-streaming-dots span {
+  width: 4px !important;
+  height: 4px !important;
+  background: var(--chat--color--primary) !important;
+  border-radius: 50% !important;
+  animation: tpe-streaming-pulse 1.4s infinite ease-in-out !important;
+}
+
+.n8n-chat-streaming-dots span:nth-child(1) {
+  animation-delay: 0s !important;
+}
+
+.n8n-chat-streaming-dots span:nth-child(2) {
+  animation-delay: 0.2s !important;
+}
+
+.n8n-chat-streaming-dots span:nth-child(3) {
+  animation-delay: 0.4s !important;
+}
+
+@keyframes tpe-streaming-pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mensagem sendo digitada (streaming) */
+.n8n-chat-message.streaming {
+  background: var(--chat--color-light) !important;
+  border-left: 3px solid var(--chat--color--primary) !important;
+  animation: tpe-streaming-glow 2s infinite ease-in-out !important;
+}
+
+@keyframes tpe-streaming-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(55, 65, 146, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(55, 65, 146, 0.4);
+  }
+}
+
+/* Cursor de digitação */
+.n8n-chat-typing-cursor {
+  display: inline-block !important;
+  width: 2px !important;
+  height: 16px !important;
+  background: var(--chat--color--primary) !important;
+  margin-left: 2px !important;
+  animation: tpe-cursor-blink 1s infinite !important;
+}
+
+@keyframes tpe-cursor-blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Badge de "Respondendo..." */
+.n8n-chat-responding-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 12px !important;
+  background: linear-gradient(90deg, #181C43 0%, #374192 100%) !important;
+  color: white !important;
+  border-radius: 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  margin: 8px 0 !important;
+  animation: tpe-fade-in 0.3s ease-out !important;
+}
+
+@keyframes tpe-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
