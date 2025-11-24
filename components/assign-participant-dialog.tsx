@@ -52,7 +52,7 @@ export function AssignParticipantDialog({
   const handleAssignParticipant = async (participant: IParticipants) => {
     try {
       // Check if participant is already in a group of the same type
-      const sameTypeGroup = participant.groups?.find((g) => g.type === group.type)
+      const sameTypeGroup = getSameTypeGroup(participant)
 
       if (sameTypeGroup) {
         // If yes, remove from that group first
@@ -82,6 +82,9 @@ export function AssignParticipantDialog({
 
   // Helper function to get participant's current group of the same type as our target group
   const getSameTypeGroup = (participant: IParticipants): Group | undefined => {
+    // Allow multiple groups when the target group type is 'SPECIAL'
+    if (group.type === "SPECIAL") return undefined
+
     return participant.groups?.find((g) => g.type === group.type)
   }
 
