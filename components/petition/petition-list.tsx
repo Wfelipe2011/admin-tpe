@@ -120,8 +120,20 @@ export function PetitionList() {
         url += `?${params.toString()}`
       }
 
-      const data = await apiClient.get<IPetitions[]>(url, { endpoint: "new" })
-
+      const data = await apiClient.get<IPetitions[]>(url, { endpoint: "new" }).catch((error) => {
+        if (error.response.status === 404) {
+          return null
+        } else {
+          throw error
+        }
+      })
+      console.log("Fetched petitions:", data)
+      if (!data) {
+        setAllPetitions([])
+        setDisplayedPetitions([])
+        setHasMoreItems(false)
+        return
+      }
       // Ordenar por data de atualização (mais novo primeiro) - DESC
       const sortedData = data.sort((a: IPetitions, b: IPetitions) => {
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -175,12 +187,8 @@ export function PetitionList() {
   }, [loadMoreItems, hasMoreItems])
 
   useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      fetchPetitions()
-    }, 1000)
-
-    return () => clearTimeout(debounceTimer)
-  }, [searchTerm, statusFilter])
+    fetchPetitions()
+  }, [statusFilter])
 
   const formatDate = (date: Date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: ptBR })
@@ -223,20 +231,34 @@ export function PetitionList() {
           <div className="w-2 h-2 bg-[#374192] rounded-full"></div>
           Filtros e Busca
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-10 gap-3 sm:gap-4">
-          <div className="md:col-span-5 lg:col-span-5">
-            <div className="relative">
-              <Input
-                placeholder="Pesquisar por nome ou protocolo..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+        <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative flex-1 min-w-0">
+                <Input
+                  placeholder="Pesquisar por nome ou protocolo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      fetchPetitions()
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="pl-8 sm:pl-10 pr-4 py-2 sm:py-3 bg-white border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 w-full h-9 sm:h-10"
+                />
+                <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
+              </div>
+              <Button
+                onClick={fetchPetitions}
                 disabled={isLoading}
-                className="pl-8 sm:pl-10 pr-4 py-2 sm:py-3 bg-white border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 w-full h-9 sm:h-10"
-              />
-              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
+                className="w-full sm:w-auto bg-[#374192] hover:bg-[#46607F] text-white h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                Pesquisar
+              </Button>
             </div>
           </div>
-          <div className="md:col-span-3 lg:col-span-3">
+          <div className="w-full md:w-72">
             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as Status)} disabled={isLoading}>
               <SelectTrigger className="bg-white border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 w-full h-10">
                 <SelectValue placeholder="Filtrar por status" />
@@ -282,7 +304,7 @@ export function PetitionList() {
               </SelectContent>
             </Select>
           </div>
-          <div className="md:col-span-2 lg:col-span-2 flex justify-start md:justify-end">
+          <div className="flex justify-start md:justify-end w-full md:w-auto">
             {!isAdminAnalyst && (
               <Link href="/peticoes/upload-peticao" className="w-full md:w-auto">
                 <Button size="default" className="flex items-center gap-2 w-full md:w-auto bg-[#374192] hover:bg-[#46607F] text-white h-9 sm:h-10 text-xs sm:text-sm">
