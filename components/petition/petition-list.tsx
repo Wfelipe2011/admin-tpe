@@ -236,7 +236,7 @@ export function PetitionList() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative flex-1 min-w-0">
                 <Input
-                  placeholder="Pesquisar por nome ou protocolo..."
+                  placeholder="Pesquisar por nome, telefone ou congregação"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => {
@@ -380,6 +380,10 @@ export function PetitionList() {
                       {petition.participants[0]?.phone && (
                         <div className="text-sm text-[#666666] mt-1">{formatPhone(petition.participants[0].phone)}</div>
                       )}
+                      {/* adicionar nome congregação */}
+                      <div className="text-sm text-[#666666] mt-1">
+                        <span>Cong: </span>{petition.participants[0]?.congregation?.name || "- - -"}
+                      </div>
                     </div>
                   </div>
 
@@ -520,6 +524,9 @@ export function PetitionList() {
                     {petition.participants[0]?.phone && (
                       <div className="text-xs text-[#666666] truncate">{formatPhone(petition.participants[0].phone)}</div>
                     )}
+                    <div className="text-sm text-[#666666] mt-1">
+                      <span>Cong: </span>{petition.participants[0]?.congregation?.name || "- - -"}
+                    </div>
                   </div>
                 </div>
                 <div className="hidden md:flex md:col-span-4 justify-start items-center px-2">

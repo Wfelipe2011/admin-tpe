@@ -26,6 +26,10 @@ export interface Participant {
   phone: string
   profilePhoto?: string
   participantsGroup: ParticipantGroup[]
+  congregation?: {
+    id: string
+    name: string
+  }
 }
 
 export interface IPetitions {
