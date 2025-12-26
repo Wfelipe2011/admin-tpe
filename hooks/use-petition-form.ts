@@ -73,13 +73,13 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
       hasMinorChild: false,
       spouseParticipant: false,
       availability: {
-        Monday: { morning: false, afternoon: false, evening: false },
-        Tuesday: { morning: false, afternoon: false, evening: false },
-        Wednesday: { morning: false, afternoon: false, evening: false },
-        Thursday: { morning: false, afternoon: false, evening: false },
-        Friday: { morning: false, afternoon: false, evening: false },
-        Saturday: { morning: false, afternoon: false, evening: false },
-        Sunday: { morning: false, afternoon: false, evening: false },
+        Monday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+        Tuesday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+        Wednesday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+        Thursday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+        Friday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+        Saturday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+        Sunday: { morning: false, afternoon: false, evening: false, updatedAt: null },
       },
     },
   })
@@ -115,32 +115,37 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
             // Converter disponibilidade do formato da API para o formato do formulário, se necessário
             let formattedAvailability = form.getValues("availability")
             if (response.availability) {
-              // Lidar com diferentes formatos de disponibilidade
-              if (Array.isArray(response.availability)) {
+              // Lidar com diferentes formatos de disponibilidade (array direto ou objeto com items)
+              const availabilityItems = Array.isArray(response.availability)
+                ? response.availability
+                : response.availability.items
+
+              if (Array.isArray(availabilityItems)) {
                 // Converter formato de array para formato de objeto
                 const availabilityObj: any = {
-                  Monday: { morning: false, afternoon: false, evening: false },
-                  Tuesday: { morning: false, afternoon: false, evening: false },
-                  Wednesday: { morning: false, afternoon: false, evening: false },
-                  Thursday: { morning: false, afternoon: false, evening: false },
-                  Friday: { morning: false, afternoon: false, evening: false },
-                  Saturday: { morning: false, afternoon: false, evening: false },
-                  Sunday: { morning: false, afternoon: false, evening: false },
+                  Monday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+                  Tuesday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+                  Wednesday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+                  Thursday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+                  Friday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+                  Saturday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+                  Sunday: { morning: false, afternoon: false, evening: false, updatedAt: null },
                 }
 
                 const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
-                response.availability.forEach((item: any) => {
+                availabilityItems.forEach((item: any) => {
                   const day = weekDays[item.weekDay]
                   if (day) {
                     availabilityObj[day].morning = item.morning
                     availabilityObj[day].afternoon = item.afternoon
                     availabilityObj[day].evening = item.evening
+                    availabilityObj[day].updatedAt = item.updatedAt
                   }
                 })
 
                 formattedAvailability = availabilityObj
-              } else {
+              } else if (typeof response.availability === "object") {
                 formattedAvailability = response.availability
               }
             }
@@ -277,11 +282,19 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
 
       // Criar array de disponibilidade com os valores selecionados pelo usuário
       const availability = Object.entries(data.availability).map(([day, periods]) => {
+        // Verificar se este dia específico foi alterado
+        const dirtyAvailability = form.formState.dirtyFields.availability
+        const isDayDirty =
+          dirtyAvailability === true ||
+          (dirtyAvailability && typeof dirtyAvailability === "object" && (dirtyAvailability as any)[day])
+
         return {
           weekDay: weekDayMapping[day],
           morning: periods.morning,
           afternoon: periods.afternoon,
           evening: periods.evening,
+          // Se for novo registro ou se o dia foi alterado, atualiza a data
+          updatedAt: !isEditMode || isDayDirty ? new Date().toISOString() : periods.updatedAt,
         }
       })
 

@@ -12,6 +12,7 @@ export interface DayAvailability {
   morning: boolean
   afternoon: boolean
   evening: boolean
+  updatedAt?: string | null
 }
 
 export interface PetitionFormData {

@@ -6,6 +6,7 @@ const dayAvailabilitySchema = z.object({
   morning: z.boolean().default(false),
   afternoon: z.boolean().default(false),
   evening: z.boolean().default(false),
+  updatedAt: z.string().optional().nullable(),
 })
 
 // Esquema para disponibilidade semanal

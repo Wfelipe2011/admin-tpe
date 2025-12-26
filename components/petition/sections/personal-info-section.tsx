@@ -138,28 +138,33 @@ export function PersonalInfoSection({
       }
 
       // Handle availability if it exists
-      if (participant.availability && participant.availability.length > 0) {
+      const availabilityItems = Array.isArray(participant.availability)
+        ? participant.availability
+        : (participant.availability as any)?.items
+
+      if (Array.isArray(availabilityItems) && availabilityItems.length > 0) {
         const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         const availabilityObj: any = {
-          Monday: { morning: false, afternoon: false, evening: false },
-          Tuesday: { morning: false, afternoon: false, evening: false },
-          Wednesday: { morning: false, afternoon: false, evening: false },
-          Thursday: { morning: false, afternoon: false, evening: false },
-          Friday: { morning: false, afternoon: false, evening: false },
-          Saturday: { morning: false, afternoon: false, evening: false },
-          Sunday: { morning: false, afternoon: false, evening: false },
+          Monday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+          Tuesday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+          Wednesday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+          Thursday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+          Friday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+          Saturday: { morning: false, afternoon: false, evening: false, updatedAt: null },
+          Sunday: { morning: false, afternoon: false, evening: false, updatedAt: null },
         }
 
-        participant.availability.forEach((item) => {
+        availabilityItems.forEach((item: any) => {
           const day = weekDays[item.weekDay]
           if (day) {
             availabilityObj[day].morning = item.morning
             availabilityObj[day].afternoon = item.afternoon
             availabilityObj[day].evening = item.evening
+            availabilityObj[day].updatedAt = item.updatedAt
           }
         })
 
-        form.setValue("availability", availabilityObj, { shouldValidate: true })
+        form.setValue("availability", availabilityObj, { shouldValidate: true, shouldDirty: true })
       }
 
       toast.success("Dados do participante preenchidos com sucesso")

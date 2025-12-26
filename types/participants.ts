@@ -33,6 +33,7 @@ export interface Availability {
   morning: boolean
   weekDay: number
   afternoon: boolean
+  updatedAt: string | null
 }
 
 export interface Group {
