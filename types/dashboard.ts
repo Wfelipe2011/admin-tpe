@@ -1,5 +1,6 @@
 export interface IDashboard {
   waitingList: number
+  waiting?: WaitingPerson[]
   groups: number
   points: number
   averagePresence: number
@@ -7,6 +8,11 @@ export interface IDashboard {
   vacancies: number
   incidents: Incident[]
   trainings: Trainings
+}
+
+export interface WaitingPerson {
+  name: string
+  updatedAt: string
 }
 
 export interface Trainings {

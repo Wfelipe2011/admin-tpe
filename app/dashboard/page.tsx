@@ -10,6 +10,7 @@ import { DonutChart } from "@/components/dashboard/donut-chart"
 import type { IDashboard } from "@/types/dashboard"
 import { apiClient } from "@/lib/api-client"
 import { useGroupStore } from "@/lib/stores/use-group-store"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Remove the Cookies import since we're using Zustand now
 
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const [isLoadingDashboard, setIsLoadingDashboard] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [namesVisible, setNamesVisible] = useState<boolean>(false)
+  const [isWaitingListModalOpen, setIsWaitingListModalOpen] = useState<boolean>(false)
 
   const toggleNamesVisibility = () => {
     setNamesVisible(true)
@@ -162,6 +164,7 @@ export default function DashboardPage() {
                   icon={<ClipboardList className="h-6 w-6" />}
                   isLoading={isLoading}
                   selectedGroupId={selectedGroupId}
+                  onClick={() => setIsWaitingListModalOpen(true)}
                 />
               </div>
             </CardContent>
@@ -256,6 +259,44 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Waiting List Modal */}
+      <Dialog open={isWaitingListModalOpen} onOpenChange={setIsWaitingListModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ClipboardList className="h-5 w-5 text-[#374192]" />
+              Lista de Espera
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            {dashboardData?.waiting && dashboardData.waiting.length > 0 ? (
+              dashboardData.waiting.map((person, index) => (
+                <div
+                  key={`${person.name}-${index}`}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-[#374192] text-white text-xs">
+                        {person.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-[#333333]">{person.name}</span>
+                  </div>
+                  <span className="text-[10px] text-[#666666] bg-white px-2 py-1 rounded border border-gray-100">
+                    {person.updatedAt}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-[#666666]">Ninguém na lista de espera no momento.</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </ProtectedLayout>
   )
 }
@@ -266,11 +307,16 @@ interface MetricCardProps {
   icon?: React.ReactNode
   isLoading?: boolean
   selectedGroupId: string
+  onClick?: () => void
 }
 
-function MetricCard({ value, label, icon, isLoading = false, selectedGroupId }: MetricCardProps) {
+function MetricCard({ value, label, icon, isLoading = false, selectedGroupId, onClick }: MetricCardProps) {
   return (
-    <Card className="bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+    <Card
+      className={`bg-gradient-to-br from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all ${onClick ? "cursor-pointer active:scale-95" : ""
+        }`}
+      onClick={onClick}
+    >
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="p-1.5 sm:p-2 bg-gradient-to-br from-[#374192] to-[#929BD2] rounded-lg text-white flex-shrink-0">
