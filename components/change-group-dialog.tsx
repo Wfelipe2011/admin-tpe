@@ -16,7 +16,6 @@ interface ChangeGroupDialogProps {
   onOpenChange: (open: boolean) => void
   participant: Participant
   currentGroupId: string
-  groupType: string
   onGroupChanged: () => void
 }
 
@@ -25,7 +24,6 @@ export function ChangeGroupDialog({
   onOpenChange,
   participant,
   currentGroupId,
-  groupType,
   onGroupChanged,
 }: ChangeGroupDialogProps) {
   const [groups, setGroups] = useState<IGroups[]>([])
@@ -47,8 +45,10 @@ export function ChangeGroupDialog({
   const fetchGroups = async () => {
     try {
       const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
-      // Filtra apenas grupos do mesmo tipo
-      const filteredGroups = data.filter((group: IGroups) => group.type === groupType)
+      // Filtra grupos do tipo Principal ou Adicional
+      const filteredGroups = data.filter((group: IGroups) =>
+        group.type === "MAIN" || group.type === "ADDITIONAL"
+      )
       setGroups(filteredGroups)
       setIsLoading(false)
     } catch (error) {
@@ -120,7 +120,7 @@ export function ChangeGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white border-gray-200 shadow-lg">
+      <DialogContent className="sm:max-w-lg bg-white border-gray-200 shadow-lg">
         <DialogHeader className="pb-4 border-b border-gray-100">
           <DialogTitle className="text-lg font-semibold text-[#333333]">Trocar de grupo</DialogTitle>
         </DialogHeader>
@@ -177,12 +177,13 @@ export function ChangeGroupDialog({
               ) : (
                 filteredGroups.map((group) => {
                   const isCurrentGroup = group.id === currentGroupId
+                  const isAlreadyInGroup = participant.groups?.some(g => g.id === group.id)
                   const isFull = group.participants >= group.configMax
 
                   return (
                     <div
                       key={group.id}
-                      className={`rounded-lg border border-gray-200 p-4 bg-white transition-colors ${isCurrentGroup || isFull ? "opacity-60 bg-gray-50" : "hover:bg-[#F8F8F8]"
+                      className={`rounded-lg border border-gray-200 p-4 bg-white transition-colors ${isCurrentGroup || isAlreadyInGroup || isFull ? "opacity-60 bg-gray-50" : "hover:bg-[#F8F8F8]"
                         }`}
                     >
                       <div className="space-y-3">
@@ -212,7 +213,7 @@ export function ChangeGroupDialog({
                             </div>
                           </div>
                           <div className="ml-4">
-                            {isCurrentGroup ? (
+                            {isCurrentGroup || isAlreadyInGroup ? (
                               <Badge className="text-xs font-medium px-3 py-2 bg-[#2ECC71]/10 text-[#2ECC71] border-[#2ECC71]/20 rounded-lg">
                                 Já incluso
                               </Badge>
@@ -225,7 +226,7 @@ export function ChangeGroupDialog({
                                 onClick={() => handleChangeGroup(group)}
                                 className="h-9 px-4 bg-[#374192] hover:bg-[#46607F] text-white rounded-lg font-medium transition-colors"
                               >
-                                Substituir
+                                Trocar
                               </Button>
                             )}
                           </div>

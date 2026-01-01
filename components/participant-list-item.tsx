@@ -236,7 +236,6 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
           onOpenChange={setIsChangeGroupDialogOpen}
           participant={participant}
           currentGroupId={groupId}
-          groupType={groupType}
           onGroupChanged={onUpdate}
         />
       )}

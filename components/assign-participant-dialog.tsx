@@ -51,14 +51,6 @@ export function AssignParticipantDialog({
 
   const handleAssignParticipant = async (participant: IParticipants) => {
     try {
-      // Check if participant is already in a group of the same type
-      const sameTypeGroup = getSameTypeGroup(participant)
-
-      if (sameTypeGroup) {
-        // If yes, remove from that group first
-        await apiClient.delete(`/groups/${sameTypeGroup.id}/participants/${participant.id}`, { endpoint: "new" })
-      }
-
       // Assign to new group
       const result = await apiClient.patch(`/groups/${group.id}/participants/${participant.id}`, null, {
         endpoint: "new",
@@ -80,17 +72,14 @@ export function AssignParticipantDialog({
     }
   }
 
-  // Helper function to get participant's current group of the same type as our target group
-  const getSameTypeGroup = (participant: IParticipants): Group | undefined => {
-    // Allow multiple groups when the target group type is 'SPECIAL'
-    if (group.type === "SPECIAL") return undefined
-
-    return participant.groups?.find((g) => g.type === group.type)
+  // Helper function to get participant's current groups that are not 'SPECIAL'
+  const getNonSpecialGroups = (participant: IParticipants): Group[] => {
+    return participant.groups?.filter((g) => g.type !== "SPECIAL") || []
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white border-gray-200 shadow-lg">
+      <DialogContent className="sm:max-w-lg bg-white border-gray-200 shadow-lg">
         <DialogHeader className="pb-4 border-b border-gray-100">
           <DialogTitle className="text-lg font-semibold text-[#333333]">Atribuir participante</DialogTitle>
         </DialogHeader>
@@ -137,18 +126,23 @@ export function AssignParticipantDialog({
                     return true
                   })
                   .sort((a, b) => {
-                    const aSameTypeGroup = getSameTypeGroup(a)
-                    const bSameTypeGroup = getSameTypeGroup(b)
-                    if (!aSameTypeGroup && !bSameTypeGroup) return 0
-                    if (!aSameTypeGroup) return -1
-                    if (!bSameTypeGroup) return 1
-                    if (aSameTypeGroup.id === group.id && bSameTypeGroup.id !== group.id) return 1
-                    if (aSameTypeGroup.id !== group.id && bSameTypeGroup.id === group.id) return -1
+                    const aGroups = getNonSpecialGroups(a)
+                    const bGroups = getNonSpecialGroups(b)
+                    const aInCurrent = a.groups?.some(g => g.id === group.id)
+                    const bInCurrent = b.groups?.some(g => g.id === group.id)
+
+                    if (aInCurrent && !bInCurrent) return 1
+                    if (!aInCurrent && bInCurrent) return -1
+
+                    if (aGroups.length >= 2 && bGroups.length < 2) return 1
+                    if (aGroups.length < 2 && bGroups.length >= 2) return -1
+
                     return 0
                   })
                   .map((participant) => {
-                    const sameTypeGroup = getSameTypeGroup(participant)
-                    const isInSameGroup = sameTypeGroup?.id === group.id
+                    const nonSpecialGroups = getNonSpecialGroups(participant)
+                    const isInSameGroup = participant.groups?.some(g => g.id === group.id)
+                    const isLimitReached = nonSpecialGroups.length >= 2 && !isInSameGroup
 
                     return (
                       <div key={participant.id} className="flex items-start justify-between rounded-lg border border-gray-200 p-4 bg-white hover:bg-[#F8F8F8] transition-colors">
@@ -185,10 +179,10 @@ export function AssignParticipantDialog({
                             <p className="text-sm text-[#666666] mb-1">
                               <span className="font-medium text-[#333333]">Congregação:</span> {participant.congregation?.name || "Não informada"}
                             </p>
-                            {sameTypeGroup && (
-                              <p className="text-sm text-[#666666] mb-1">
-                                <span className="font-medium text-[#333333]">Grupo:</span> {sameTypeGroup.name}
-                              </p>
+                            {nonSpecialGroups.length > 0 && (
+                              <div className="text-sm text-[#666666] mb-1">
+                                <span className="font-medium text-[#333333]">Grupos:</span> {nonSpecialGroups.map(g => g.name).join(", ")}
+                              </div>
                             )}
                             <div className="mt-2 flex flex-wrap gap-1">
                               {participant.attributions?.map((attr, index) => (
@@ -204,14 +198,14 @@ export function AssignParticipantDialog({
                         </div>
                         <div className="ml-3">
                           <Button
-                            disabled={isInSameGroup}
+                            disabled={isInSameGroup || isLimitReached}
                             onClick={() => handleAssignParticipant(participant)}
-                            className={`h-9 px-4 rounded-lg font-medium transition-colors ${isInSameGroup
+                            className={`h-9 px-4 rounded-lg font-medium transition-colors ${isInSameGroup || isLimitReached
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                               : 'bg-[#374192] hover:bg-[#46607F] text-white'
                               }`}
                           >
-                            {sameTypeGroup ? "Substituir" : "Atribuir"}
+                            {isInSameGroup ? "Já atribuído" : isLimitReached ? "Limite atingido" : "Atribuir"}
                           </Button>
                         </div>
                       </div>
