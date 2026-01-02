@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import type React from "react"
+import Link from "next/link"
 import { ProtectedLayout } from "@/app/layout-protected"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff, BarChart3 } from "lucide-react"
+import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff, BarChart3, ExternalLink } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DonutChart } from "@/components/dashboard/donut-chart"
 import type { IDashboard } from "@/types/dashboard"
@@ -209,18 +210,28 @@ export default function DashboardPage() {
                 <div className="w-2 h-2 bg-[#E74C3C] rounded-full"></div>
                 <CardTitle className="text-base sm:text-lg font-semibold text-[#333333]">Lista de Atenção</CardTitle>
               </div>
-              <button
-                onClick={toggleNamesVisibility}
-                className="p-1.5 sm:p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors"
-                aria-label={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
-                title={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
-              >
-                {namesVisible ? (
-                  <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
-                ) : (
-                  <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
-                )}
-              </button>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Link
+                  href="/dashboard/lista-atencao"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors text-[#374192]"
+                  aria-label="Ver dashboard completo"
+                  title="Ver dashboard completo"
+                >
+                  <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Link>
+                <button
+                  onClick={toggleNamesVisibility}
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-[#F8F8F8] transition-colors"
+                  aria-label={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
+                  title={namesVisible ? "Ocultar nomes" : "Mostrar nomes"}
+                >
+                  {namesVisible ? (
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
+                  ) : (
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-[#666666]" />
+                  )}
+                </button>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               {isLoading ? (

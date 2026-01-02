@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, List, Users, FileText, LayoutDashboard, MapPinned, ChevronDown, LogOut, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, List, Users, FileText, LayoutDashboard, MapPinned, ChevronDown, LogOut, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
 import type { ParticipantProfile, IToken } from "@/types/auth"
@@ -87,6 +87,9 @@ export function AppSidebar({ collapsed = false, isOpen, onOpenChange, onToggleCo
         break
       case "MapPinned":
         icon = <MapPinned className="h-5 w-5" />
+        break
+      case "AlertCircle":
+        icon = <AlertCircle className="h-5 w-5" />
         break
       default:
         icon = <LayoutDashboard className="h-5 w-5" />

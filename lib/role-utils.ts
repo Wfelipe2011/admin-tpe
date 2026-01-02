@@ -3,6 +3,7 @@ import { ParticipantProfile } from "@/types/auth"
 // Define route access by profile
 export const routeAccess: Record<string, ParticipantProfile[]> = {
   "/dashboard": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
+  "/dashboard/lista-atencao": [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
   "/consultar/historico": [
     ParticipantProfile.COORDINATOR,
     ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN,
@@ -55,6 +56,12 @@ export function getAuthorizedMenuItems(userProfile: ParticipantProfile) {
       name: "Dashboard",
       path: "/dashboard",
       icon: "LayoutDashboard",
+      allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
+    },
+    {
+      name: "Lista de Atenção",
+      path: "/dashboard/lista-atencao",
+      icon: "AlertCircle",
       allowedProfiles: [ParticipantProfile.COORDINATOR, ParticipantProfile.CAPTAIN, ParticipantProfile.ASSISTANT_CAPTAIN, ParticipantProfile.ADMIN_ANALYST],
     },
     {
