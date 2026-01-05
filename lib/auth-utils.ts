@@ -15,7 +15,7 @@ export function setAuthToken(token: string): void {
   try {
     // 1. Set using nookies (which uses js-cookie internally)
     setCookie(null, "auth_token", token, {
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 1 * 24 * 60 * 60, // 1 day
       path: "/",
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
@@ -23,9 +23,8 @@ export function setAuthToken(token: string): void {
 
     // 2. Set directly using document.cookie as backup
     if (typeof document !== "undefined") {
-      document.cookie = `auth_token=${token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax${
-        process.env.NODE_ENV === "production" ? "; Secure" : ""
-      }`
+      document.cookie = `auth_token=${token}; path=/; max-age=${1 * 24 * 60 * 60}; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""
+        }`
     }
 
     // 3. Also store in localStorage as another fallback

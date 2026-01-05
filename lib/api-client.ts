@@ -42,7 +42,7 @@ export class ApiClient {
     this.legacyAxios.interceptors.request.use(
       (config) => {
         const token = getAuthToken()
-        if (token) {
+        if (token && !config.headers.Authorization) {
           config.headers.Authorization = `Bearer ${token}`
         }
         return config
@@ -53,7 +53,7 @@ export class ApiClient {
     this.newAxios.interceptors.request.use(
       (config) => {
         const token = getAuthToken()
-        if (token) {
+        if (token && !config.headers.Authorization) {
           config.headers.Authorization = `Bearer ${token}`
         }
         return config

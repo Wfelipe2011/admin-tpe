@@ -6,6 +6,8 @@ import { VerifyCodeForm } from "@/components/forgot-password/verify-code-form"
 import { ResetPasswordForm } from "@/components/forgot-password/reset-password-form"
 import { SuccessMessage } from "@/components/forgot-password/success-message"
 import { AuthLayout } from "@/components/auth-layout"
+import { useEffect } from "react"
+import { removeAuthToken } from "@/lib/auth-utils"
 
 type RecoveryStep = "request" | "verify" | "reset" | "success"
 
@@ -13,6 +15,11 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState<RecoveryStep>("request")
   const [phone, setPhone] = useState("")
   const [tempToken, setTempToken] = useState("")
+
+  // Clear any existing token when starting password recovery
+  useEffect(() => {
+    removeAuthToken()
+  }, [])
 
   // Define title and subtitle based on current step
   const getStepContent = () => {

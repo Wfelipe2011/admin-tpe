@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
-import { setAuthToken } from "@/lib/auth-utils"
+import { setAuthToken, removeAuthToken } from "@/lib/auth-utils"
 import axios from "axios"
 
 interface ResetPasswordFormProps {
@@ -59,22 +59,26 @@ export function ResetPasswordForm({ phone, token, onSuccess, onBack }: ResetPass
 
       // After successful password reset, login with the new credentials
       try {
+        // Clear any old token before logging in with new credentials
+        removeAuthToken()
+
         const loginResponse = await apiClient.post("/auth/login", {
           phone,
           password,
         }) as { token?: string }
 
         if (loginResponse.token) {
-          // Store the token
+          console.log("Setting new token after reset")
+          // Store the new token
           setAuthToken(loginResponse.token)
 
           // Call onSuccess to show success message
           onSuccess()
 
-          // Redirect to dashboard after a short delay
+          // Force a full refresh to ensure all states are reset
           setTimeout(() => {
             window.location.href = "/dashboard"
-          }, 2000)
+          }, 1500)
         }
       } catch (loginErr) {
         console.error("Auto login error:", loginErr)
