@@ -69,7 +69,7 @@ export default function DesignationListPage() {
         <DesignationHeader />
 
         {/* Content */}
-        <div className="px-6 pt-6 pb-8">
+        <div className="pt-2 pb-8">
           {/* Header Section */}
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold text-[#333333] mb-3">
@@ -84,7 +84,7 @@ export default function DesignationListPage() {
 
           {/* Designations Card */}
           <Card className="w-full max-w-md mx-auto bg-white border border-gray-200 shadow-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               {designations.map((designation, index) => (
                 <DesignationItem
                   key={index}

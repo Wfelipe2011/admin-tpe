@@ -35,7 +35,7 @@ export function DesignationItem({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       {/* Status Badge */}
       <div className="flex justify-end mb-3">
         {participantId && (
@@ -50,13 +50,13 @@ export function DesignationItem({
       </div>
 
       {/* Point and Cart Info */}
-      <div className="flex flex-col gap-1 mb-4">
-        <h3 className="text-lg font-semibold text-[#333333] leading-tight">
+      <div className="flex flex-col gap-1 mb-4 relative">
+        <h3 className="text-center text-lg font-semibold text-[#333333] leading-tight mb-4">
           {designation.point}
         </h3>
         {designation.publication_carts?.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-[#374192]">
+          <div className="flex gap-2  justify-end">
+            <span className="absolute mt-4 top-2 text-sm font-medium text-[#374192] bg-[#374192]/10 px-2 py-0 rounded-lg ">
               {designation.publication_carts.join(", ")}
             </span>
           </div>
