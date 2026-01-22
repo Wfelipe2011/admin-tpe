@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ShoppingCart } from "lucide-react"
 import Image from "next/image"
 import { type WeekDesignation, DesignationStatusMap } from "@/types/week-designation"
 
@@ -51,13 +50,12 @@ export function DesignationItem({
       </div>
 
       {/* Point and Cart Info */}
-      <div className="flex justify-between items-start gap-3 mb-4">
-        <h3 className="text-lg font-semibold text-[#333333] flex-1 leading-tight">
+      <div className="flex flex-col gap-1 mb-4">
+        <h3 className="text-lg font-semibold text-[#333333] leading-tight">
           {designation.point}
         </h3>
         {designation.publication_carts?.length > 0 && (
-          <div className="flex items-center gap-2 bg-[#374192]/10 px-3 py-1 rounded-lg">
-            <ShoppingCart className="h-4 w-4 text-[#374192]" />
+          <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-[#374192]">
               {designation.publication_carts.join(", ")}
             </span>
@@ -100,8 +98,8 @@ export function DesignationItem({
         <div className="flex justify-end">
           <Button
             className={`${designation?.incident_history?.status === "OPEN"
-                ? "bg-[#374192] hover:bg-[#46607F] text-white"
-                : "bg-[#E74C3C] hover:bg-[#C0392B] text-white"
+              ? "bg-[#374192] hover:bg-[#46607F] text-white"
+              : "bg-[#E74C3C] hover:bg-[#C0392B] text-white"
               } px-6 py-2 rounded-lg font-medium shadow-sm`}
             onClick={onRefuse}
             disabled={designation?.incident_history?.status === "OPEN"}

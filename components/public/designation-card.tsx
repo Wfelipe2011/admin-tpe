@@ -21,10 +21,17 @@ export function DesignationCard({ designation, onRefuse }: DesignationCardProps)
         <ul className="space-y-3 sm:space-y-4">
           <li className="flex items-start">
             <span className="mr-2">•</span>
-            <span className="font-bold text-sm sm:text-base">Ponto:</span>
-            <span className="ml-1 text-sm sm:text-base">
-              {designation?.point || "Não especificado"} /Carrinhos: {totalCarts}
-            </span>
+            <div className="flex flex-col">
+              <div>
+                <span className="font-bold text-sm sm:text-base">Ponto:</span>
+                <span className="ml-1 text-sm sm:text-base">
+                  {designation?.point || "Não especificado"}
+                </span>
+              </div>
+              <div className="mt-1 text-sm sm:text-base text-muted-foreground">
+                <span className="font-bold">Carrinhos:</span> {totalCarts}
+              </div>
+            </div>
           </li>
 
           <li className="flex flex-col">
