@@ -5,16 +5,19 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Copy, Check, X } from "lucide-react"
 import type { Assignment } from "@/types/designation-participants"
+import { ParticipantProfile } from "@/types/auth"
 
 interface ActionButtonsProps {
   status: string
   onCancel: () => void
   onCopyLink: () => void
   onSend: () => void
+  onReopen?: () => void
   copyStatus: "able" | "copied" | "error"
   isOptional: boolean
   setIsOptional: (value: boolean) => void
   assignments: Assignment[]
+  userProfile?: ParticipantProfile | string
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -22,16 +25,20 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onCancel,
   onCopyLink,
   onSend,
+  onReopen,
   copyStatus,
   isOptional,
   setIsOptional,
   assignments,
+  userProfile,
 }) => {
   const CopyStatusIcon = {
     able: <Copy className="h-4 w-4" />,
     copied: <Check className="h-4 w-4 text-green-500" />,
     error: <X className="h-4 w-4 text-red-500" />,
   }
+
+  const isAdmin = userProfile === ParticipantProfile.COORDINATOR || userProfile === ParticipantProfile.ADMIN_ANALYST
 
   return (
     <div className="flex flex-col xs:flex-row sm:flex-row justify-between items-center gap-2 sm:gap-4 pt-2 sm:pt-4">
@@ -42,6 +49,16 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           onClick={onCancel}
         >
           Cancelar Designação
+        </Button>
+      )}
+
+      {status === "CANCELLED" && isAdmin && onReopen && (
+        <Button
+          variant="outline"
+          className="text-green-600 border-green-600 hover:bg-green-50 w-full xs:w-auto sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
+          onClick={onReopen}
+        >
+          Reverter para Aberto
         </Button>
       )}
 

@@ -298,6 +298,27 @@ export function useDesignation() {
     }
   }
 
+  const reopenDesignation = async () => {
+    if (!designationData?.id) return
+    const loadingToast = toast.loading("Reabrindo designação...")
+    setLoading(true)
+    try {
+      const response = await apiClient.request<IDesignationParticipants>(`/designations/${designationData.id}/reopen`, {
+        method: "PATCH",
+      })
+
+      // Atualiza o estado completo com a resposta da API
+      await fetchDesignationData()
+      toast.success("Designação reaberta com sucesso!")
+    } catch (error) {
+      console.error("Error reopening designation:", error)
+      toast.error("Erro ao reabrir designação. Tente novamente.")
+    } finally {
+      setLoading(false)
+      toast.dismiss(loadingToast)
+    }
+  }
+
   const handleUpdatePoint = async (pointId: string, status: boolean) => {
     if (!designationData?.id) return
     const loadingToast = toast.loading("Atualizando ponto...")
@@ -535,6 +556,7 @@ export function useDesignation() {
     autoAssign,
     sendDesignation,
     cancelDesignation,
+    reopenDesignation,
     recreateDesignation,
     handleUpdatePoint,
     moveParticipant,

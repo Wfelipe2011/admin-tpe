@@ -10,6 +10,8 @@ import { AssignmentCard } from "@/components/designation/assignment-card"
 import { Button } from "@/components/ui/button"
 import { Users, UserCheck } from "lucide-react"
 import Link from "next/link"
+import { getUserFromToken } from "@/lib/auth-utils"
+import type { ParticipantProfile } from "@/types/auth"
 
 export default function DesignarPage() {
   const {
@@ -35,12 +37,17 @@ export default function DesignarPage() {
     autoAssign,
     sendDesignation,
     cancelDesignation,
+    reopenDesignation,
     recreateDesignation,
     handleUpdatePoint,
     moveParticipant,
     isAbsent,
     setIsOptional,
   } = useDesignation()
+
+  // Get user profile for role-based access control
+  const user = getUserFromToken()
+  const userProfile = user?.profile as ParticipantProfile | undefined
 
   // Functions to handle status display
   const getStatusText = (status: string) => {
@@ -221,10 +228,12 @@ export default function DesignarPage() {
                 onCancel={handleCancelClick}
                 onCopyLink={copyToClipboard}
                 onSend={sendDesignation}
+                onReopen={reopenDesignation}
                 copyStatus={copyStatus}
                 isOptional={isOptional}
                 setIsOptional={setIsOptional}
                 assignments={assignments}
+                userProfile={userProfile}
               />
             </div>
           </div>
