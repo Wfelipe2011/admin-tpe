@@ -74,8 +74,8 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         </Button>
       )}
 
-      {status === "OPEN" && (
-        <div className="flex flex-col xs:items-end sm:items-end gap-2 w-full xs:w-auto sm:w-auto">
+      <div className="flex flex-col xs:items-end sm:items-end gap-2 w-full xs:w-auto sm:w-auto">
+        {status === "OPEN" && (
           <Button
             onClick={onSend}
             disabled={assignments.some((a) => Boolean(a.error))}
@@ -83,23 +83,23 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           >
             Disparar Designação
           </Button>
+        )}
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="optional-presence"
-              checked={isOptional}
-              onCheckedChange={(checked) => setIsOptional(!!checked)}
-              className="h-3.5 w-3.5 sm:h-4 sm:w-4"
-            />
-            <label
-              htmlFor="optional-presence"
-              className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Presença Opcional
-            </label>
-          </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="optional-presence"
+            checked={isOptional}
+            onCheckedChange={(checked) => setIsOptional(!!checked)}
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+          />
+          <label
+            htmlFor="optional-presence"
+            className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Presença Opcional
+          </label>
         </div>
-      )}
+      </div>
     </div>
   )
 }

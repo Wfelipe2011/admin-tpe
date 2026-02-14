@@ -86,6 +86,7 @@ export function useDesignation() {
       setDesignationData(response)
       setAssignments(response.assignments || [])
       setParticipants(response.participants || [])
+      setIsOptional(!response.mandatoryPresence)
       setLastUpdateTime(new Date())
     } catch (error) {
       console.error("Error fetching designation data:", error)
@@ -521,6 +522,28 @@ export function useDesignation() {
     }
   }
 
+  const handleToggleOptional = async (optional: boolean) => {
+    if (!designationData?.id) return
+
+    // Optimistic update
+    const previousValue = isOptional
+    setIsOptional(optional)
+
+    const loadingToast = toast.loading("Atualizando status de presença...")
+    try {
+      await apiClient.patch(`/designations/${designationData.id}/optional`, {
+        optional,
+      })
+      toast.success(`Presença ${optional ? "opcional" : "obrigatória"} salva!`)
+    } catch (error) {
+      console.error("Error updating optional status:", error)
+      toast.error("Erro ao atualizar status de presença.")
+      setIsOptional(previousValue) // Rollback on error
+    } finally {
+      toast.dismiss(loadingToast)
+    }
+  }
+
   // Formatar a hora da última atualização
   const formattedLastUpdateTime = lastUpdateTime.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
@@ -561,7 +584,7 @@ export function useDesignation() {
     handleUpdatePoint,
     moveParticipant,
     isAbsent,
-    setIsOptional,
+    setIsOptional: handleToggleOptional,
     registerAbsence,
     fetchDesignationData,
   }
