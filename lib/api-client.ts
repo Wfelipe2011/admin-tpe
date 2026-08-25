@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import { getAuthToken } from "@/lib/auth-utils"
+import { legacyApiBaseUrl, newApiBaseUrl } from "@/lib/api-config"
 
 type ApiEndpoint = "legacy" | "new"
 
@@ -11,8 +12,8 @@ interface RequestOptions {
 }
 
 export class ApiClient {
-  private legacyBaseUrl = "https://api.tpedigital.com.br/dev"
-  private newBaseUrl = "https://server.tpedigital.com.br"
+  private legacyBaseUrl = legacyApiBaseUrl
+  private newBaseUrl = newApiBaseUrl
   private legacyAxios: AxiosInstance
   private newAxios: AxiosInstance
 
