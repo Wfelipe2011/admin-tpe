@@ -3,10 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { AlertCircle, Users, ChevronLeft, ChevronRight, X, TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
+import { format } from "date-fns"
+import { ptBR } from "date-fns/locale"
 import { apiClient } from "@/lib/api-client"
 import { getUserFromToken } from "@/lib/auth-utils"
 import { ParticipantProfile } from "@/types/auth"
 import { useGroupStore } from "@/lib/stores/use-group-store"
+import { DatePicker } from "@/components/ui/date-picker"
+
+const fmtDate = (d?: Date) => (d ? format(d, "yyyy-MM-dd") : "")
 
 interface IncidentRow {
   id: string
@@ -70,9 +75,9 @@ export function IncidentsPanel() {
 
   const [tab, setTab] = useState<"resumo" | "grupos">("resumo")
 
-  // Grupo/dia vem do seletor global do menu lateral (mesmo store do GroupSelector).
-  // Capitão de 2 dias troca ali e o painel acompanha.
-  const { selectedGroupId } = useGroupStore()
+  // Grupo/dia sincroniza com o seletor global do menu lateral (mesmo store do
+  // GroupSelector). O <select> de grupo no painel escreve nesse mesmo store.
+  const { selectedGroupId, setSelectedGroupId } = useGroupStore()
   const groupParam = selectedGroupId && selectedGroupId !== "todos" ? selectedGroupId : ""
   // mostra a coluna "Grupo" na lista de faltas quando não há um dia específico selecionado
   const showGroupCol = groupParam === ""
@@ -80,6 +85,9 @@ export function IncidentsPanel() {
   // filtros locais
   const [nameInput, setNameInput] = useState("")
   const [nameFilter, setNameFilter] = useState("")
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined)
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined)
+  const [groups, setGroups] = useState<{ id: string; name: string }[]>([])
   // participante selecionado no ranking (drill-down do painel de faltas)
   const [selected, setSelected] = useState<{ id: string; name: string; count: number } | null>(null)
 
@@ -103,20 +111,31 @@ export function IncidentsPanel() {
     return () => clearTimeout(t)
   }, [nameInput])
 
-  // trocar o grupo/dia no seletor do menu reseta paginação e a seleção do ranking
+  // trocar grupo/dia ou o intervalo de data reseta paginação e a seleção do ranking
   useEffect(() => {
     setSelected(null)
     setPage(1)
     setRankingPage(1)
-  }, [selectedGroupId])
+  }, [selectedGroupId, dateFrom, dateTo])
 
-  // parâmetros comuns (grupo do menu + nome) — NÃO inclui a seleção do ranking
+  // lista de grupos pro <select> do coordenador (mesma fonte do GroupSelector)
+  useEffect(() => {
+    if (!canSeeAllGroups) return
+    apiClient
+      .get<{ id: string; name: string }[]>("/groups", { endpoint: "new" })
+      .then((data) => setGroups(Array.isArray(data) ? data.map((g) => ({ id: g.id, name: g.name })) : []))
+      .catch(() => setGroups([]))
+  }, [canSeeAllGroups])
+
+  // parâmetros comuns (grupo do menu + nome + intervalo de data) — NÃO inclui a seleção do ranking
   const baseQuery = useCallback(() => {
     const p = new URLSearchParams()
     if (nameFilter) p.set("participantName", nameFilter)
     if (groupParam) p.set("groupId", groupParam)
+    if (dateFrom) p.set("dateFrom", fmtDate(dateFrom))
+    if (dateTo) p.set("dateTo", fmtDate(dateTo))
     return p
-  }, [nameFilter, groupParam])
+  }, [nameFilter, groupParam, dateFrom, dateTo])
 
   // summary (contador geral + ranking + por grupo) — reage a grupo + nome
   useEffect(() => {
@@ -129,15 +148,17 @@ export function IncidentsPanel() {
       .finally(() => setLoading(false))
   }, [baseQuery])
 
-  // saúde (média por grupo vs. média geral) — reage só ao grupo (não ao nome)
+  // saúde (média por grupo vs. média geral) — reage a grupo + intervalo de data (não ao nome)
   useEffect(() => {
     const p = new URLSearchParams()
     if (groupParam) p.set("groupId", groupParam)
+    if (dateFrom) p.set("dateFrom", fmtDate(dateFrom))
+    if (dateTo) p.set("dateTo", fmtDate(dateTo))
     apiClient
       .get<IncidentsHealth>(`/incidents/health?${p.toString()}`, { endpoint: "new" })
       .then((data) => setHealth(data))
       .catch(() => setHealth(null))
-  }, [groupParam])
+  }, [groupParam, dateFrom, dateTo])
 
   // lista paginada de faltas — reage a grupo + nome + participante selecionado
   useEffect(() => {
@@ -154,12 +175,16 @@ export function IncidentsPanel() {
   const clearFilters = () => {
     setNameInput("")
     setNameFilter("")
+    setDateFrom(undefined)
+    setDateTo(undefined)
+    if (canSeeAllGroups) setSelectedGroupId("todos")
     setSelected(null)
     setPage(1)
     setRankingPage(1)
   }
 
-  const hasFilters = nameFilter !== "" || selected !== null
+  const hasFilters =
+    nameFilter !== "" || selected !== null || !!dateFrom || !!dateTo || groupParam !== ""
 
   const toggleSelected = (r: { participantId: string; name: string; count: number }) => {
     setSelected((cur) =>
@@ -244,12 +269,49 @@ export function IncidentsPanel() {
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
             placeholder="Filtrar por nome..."
-            className="h-9 w-[220px] rounded-md border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#374192]/30"
+            className="h-9 w-[200px] rounded-md border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#374192]/30"
           />
         </div>
-        <p className="text-xs text-[#929BD2] self-center">
-          O grupo/dia segue o seletor do menu lateral.
-        </p>
+
+        {canSeeAllGroups && (
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-[#666666]">Grupo</label>
+            <select
+              value={selectedGroupId || "todos"}
+              onChange={(e) => setSelectedGroupId(e.target.value)}
+              className="h-9 w-[200px] rounded-md border border-gray-200 px-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#374192]/30"
+            >
+              <option value="todos">Todos os grupos</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-[#666666]">Data inicial</label>
+          <DatePicker
+            selected={dateFrom}
+            onSelect={setDateFrom}
+            locale={ptBR}
+            placeholder="Início"
+            className="h-9 w-[170px]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-[#666666]">Data final</label>
+          <DatePicker
+            selected={dateTo}
+            onSelect={setDateTo}
+            locale={ptBR}
+            placeholder="Fim"
+            className="h-9 w-[170px]"
+          />
+        </div>
+
         {hasFilters && (
           <button
             onClick={clearFilters}
