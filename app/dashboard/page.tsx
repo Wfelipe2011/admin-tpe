@@ -266,6 +266,13 @@ export default function DashboardPage() {
                   <p className="text-xs sm:text-sm text-[#666666] mt-1">Não há itens de atenção no momento</p>
                 </div>
               )}
+              <Link
+                href="/dashboard/lista-atencao"
+                className="flex items-center justify-center gap-1.5 border-t border-gray-100 p-3 text-sm font-medium text-[#374192] hover:bg-[#F8F8F8] transition-colors"
+              >
+                Abrir painel completo
+                <ExternalLink className="h-4 w-4" />
+              </Link>
             </CardContent>
           </Card>
         </div>
