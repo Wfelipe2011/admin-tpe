@@ -298,7 +298,7 @@ export function IncidentsPanel() {
             onSelect={setDateFrom}
             locale={ptBR}
             placeholder="Início"
-            className="h-9 w-[170px]"
+            className="h-9 w-[210px]"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -308,7 +308,7 @@ export function IncidentsPanel() {
             onSelect={setDateTo}
             locale={ptBR}
             placeholder="Fim"
-            className="h-9 w-[170px]"
+            className="h-9 w-[210px]"
           />
         </div>
 
