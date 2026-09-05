@@ -3,6 +3,7 @@
 import axios from "axios"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { legacyApiBaseUrl } from "@/lib/api-config"
 
 interface LoginCredentials {
   phone: string
@@ -32,7 +33,7 @@ export async function loginAction(formData: FormData): Promise<LoginResponse> {
 
   try {
     const response = await axios.post(
-      "https://api.tpedigital.com.br/dev/auth/login",
+      `${legacyApiBaseUrl}/auth/login`,
       { phone, password },
       {
         headers: {

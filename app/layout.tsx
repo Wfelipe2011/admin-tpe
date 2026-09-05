@@ -47,6 +47,13 @@ export const metadata: Metadata = {
   },
 }
 
+// DEV ONLY: injeta um token de homologação no navegador antes do React hidratar,
+// pra não precisar logar no ambiente local. Só é renderizado quando
+// NODE_ENV=development E existe NEXT_PUBLIC_DEV_TOKEN (definido no .env.local,
+// que é gitignored). Em build de produção/homologação isto nem aparece no HTML.
+const devAutoLoginToken =
+  process.env.NODE_ENV === "development" ? process.env.NEXT_PUBLIC_DEV_TOKEN : undefined
+
 export default function RootLayout({
   children,
 }: {
@@ -54,6 +61,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={inter.className}>
+      <head>
+        {devAutoLoginToken ? (
+          <script
+            dangerouslySetInnerHTML={{
+              // Sempre sincroniza o token com o .env.local (sobrescreve). Assim, trocar o
+              // NEXT_PUBLIC_DEV_TOKEN (ex.: pra testar como capitão) + reiniciar já vale,
+              // sem precisar limpar o storage na mão. Se o token mudou, zera também o
+              // group-storage (seleção de grupo do menu) pra não ficar preso num grupo.
+              __html: `(function(){try{var t=${JSON.stringify(
+                devAutoLoginToken,
+              )};try{if(localStorage.getItem("auth_token")!==t){localStorage.removeItem("group-storage");}localStorage.setItem("auth_token",t);localStorage.setItem("auth_token_ts",Date.now().toString());}catch(e){}document.cookie="auth_token="+t+"; path=/; max-age=604800; SameSite=Lax";}catch(e){}})();`,
+            }}
+          />
+        ) : null}
+      </head>
       <body className={inter.className}>
         {children}
         <Toaster
