@@ -3,8 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { AlertCircle, User } from "lucide-react"
+import { AlertCircle, Clock, User } from "lucide-react"
 import type { Assignment, Incident } from "@/types/designation-participants"
+import type { AssignmentInsights } from "@/types/designation-insights"
 import { NewCombobox } from "../ui/new-combobox"
 
 interface AssignmentCardProps {
@@ -15,6 +16,12 @@ interface AssignmentCardProps {
   isOpen: boolean
   isAbsent: (participant: Incident) => boolean
   assignments: Assignment[]
+  /** Hints de histórico (dupla/ponto) pra esse ponto — não bloqueia nada, só informa. */
+  insights?: AssignmentInsights
+}
+
+function formatHintDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
 }
 
 export function AssignmentCard({
@@ -25,6 +32,7 @@ export function AssignmentCard({
   isOpen,
   isAbsent,
   assignments,
+  insights,
 }: AssignmentCardProps) {
   const remainingSlots = assignment.config.max - assignment.participants.length
   const comboboxOptions = availableParticipants
@@ -160,6 +168,33 @@ export function AssignmentCard({
               </div>
             ))}
           </div>
+
+          {/* Hints de histórico — não bloqueia nada, só informa (dupla/ponto repetidos) */}
+          {((insights?.pairs?.length ?? 0) > 0 || (insights?.participants?.length ?? 0) > 0) && (
+            <div className="space-y-1 mb-3 sm:mb-4 border-t pt-2">
+              {insights!.pairs.map((pair) => (
+                <div
+                  key={pair.participantIds.join("-")}
+                  className="flex items-start gap-1.5 text-[11px] sm:text-xs text-muted-foreground"
+                >
+                  <Clock className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span>
+                    {pair.names[0]} e {pair.names[1]}: já trabalharam juntos {pair.countLast12m}x no último ano
+                    (última vez {formatHintDate(pair.lastAt)})
+                  </span>
+                </div>
+              ))}
+              {insights!.participants.map((p) => (
+                <div key={p.id} className="flex items-start gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span>
+                    {p.name}: já trabalhou aqui {p.pointCountLast12m}x no último ano (última vez{" "}
+                    {formatHintDate(p.pointLastAt)})
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Participants selection */}
           {assignment.point.status && remainingSlots > 0 && isOpen && (
