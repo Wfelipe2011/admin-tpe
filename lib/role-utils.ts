@@ -19,6 +19,7 @@ export const routeAccess: Record<string, ParticipantProfile[]> = {
   "/grupos/novo": [ParticipantProfile.COORDINATOR, ParticipantProfile.ADMIN_ANALYST],
   "/grupos/editar": [ParticipantProfile.COORDINATOR, ParticipantProfile.ADMIN_ANALYST],
   "/pontos": [ParticipantProfile.COORDINATOR],
+  "/lista-espera": [ParticipantProfile.COORDINATOR],
 }
 
 // Check if a user has access to a specific route
@@ -92,6 +93,12 @@ export function getAuthorizedMenuItems(userProfile: ParticipantProfile) {
       name: "Pontos",
       path: "/pontos",
       icon: "MapPinned",
+      allowedProfiles: [ParticipantProfile.COORDINATOR],
+    },
+    {
+      name: "Lista de Espera",
+      path: "/lista-espera",
+      icon: "UserCheck",
       allowedProfiles: [ParticipantProfile.COORDINATOR],
     },
   ]

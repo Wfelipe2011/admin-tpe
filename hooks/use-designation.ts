@@ -7,6 +7,7 @@ import { getUserFromToken } from "@/lib/auth-utils"
 import { apiClient } from "@/lib/api-client"
 import { useGroupStore } from "@/lib/stores/use-group-store"
 import type { IDesignationParticipants, Assignment, Incident } from "@/types/designation-participants"
+import type { DesignationInsights, SuggestAssignmentResponse } from "@/types/designation-insights"
 import toast from "react-hot-toast"
 
 // Hook para debounce de valores
@@ -40,6 +41,7 @@ export function useDesignation() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [showRecreateModal, setShowRecreateModal] = useState(false)
+  const [insights, setInsights] = useState<DesignationInsights | null>(null)
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
   const isUpdatingRef = useRef(false)
   const { selectedGroupId } = useGroupStore()
@@ -96,6 +98,32 @@ export function useDesignation() {
       isUpdatingRef.current = false
     }
   }
+
+  // Hints de histórico (dupla/ponto) — não-bloqueante, só informativo.
+  // Refaz sempre que a composição dos pontos muda (manual ou automático).
+  const fetchInsights = async (designationId: string) => {
+    try {
+      const response = await apiClient.get<DesignationInsights>(`/designations/${designationId}/insights`, { endpoint: "new" })
+      setInsights(response)
+    } catch (error) {
+      console.error("Error fetching designation insights:", error)
+      // Não bloqueia a tela por causa disso — só some o hint.
+      setInsights(null)
+    }
+  }
+
+  const assignmentsSignature = assignments
+    .map((a) => `${a.point.id}:${a.participants.map((p) => p.id).sort().join(",")}`)
+    .join("|")
+
+  useEffect(() => {
+    if (!designationData?.id) {
+      setInsights(null)
+      return
+    }
+    fetchInsights(designationData.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [designationData?.id, assignmentsSignature])
 
   // Configurar atualização automática a cada 30 segundos e quando o grupo mudar
   useEffect(() => {
@@ -211,6 +239,9 @@ export function useDesignation() {
     }
   }
 
+  const legacyRandomAssign = async (groupId: string) =>
+    apiClient.get<IDesignationParticipants>(`/groups/${groupId}/designations/week?groupId=${groupId}&random=true`)
+
   const autoAssign = async () => {
     if (!designationData?.id) return
     const loadingToast = toast.loading("Realizando designação automática...")
@@ -226,17 +257,53 @@ export function useDesignation() {
       // Use o groupId do Zustand store
       const groupId = selectedGroupId || user.groupId
 
-      const response = await apiClient.get<IDesignationParticipants>(
-        `/groups/${groupId}/designations/week?groupId=${groupId}&random=true`,
-      )
+      // Pool completo (quem já está num ponto + quem ainda está disponível) — o
+      // mesmo conjunto que a legacy usaria. O back-end novo decide quem pode ser
+      // escalado (ignora capitão/coordenador), o front só repassa o que já tem.
+      const allCandidates = [
+        ...participants.map((p) => ({ id: p.id, profile: p.profile, sex: p.sex })),
+        ...assignments.flatMap((a) => a.participants.map((p) => ({ id: p.id, profile: p.profile, sex: p.sex }))),
+      ]
+
+      let response: IDesignationParticipants
+      try {
+        const suggestion = await apiClient.post<SuggestAssignmentResponse>(
+          `/designations/${designationData.id}/suggest-assignment`,
+          { participants: allCandidates },
+          { endpoint: "new" },
+        )
+
+        // Aplica a sugestão ponto a ponto pelo mesmo endpoint que o drag-and-drop já usa.
+        for (const item of suggestion.assignments) {
+          await apiClient.put(`/designations/${designationData.id}/points/${item.pointId}/participants`, {
+            participants: item.participantIds,
+          })
+        }
+
+        response = await apiClient.get<IDesignationParticipants>(
+          `/groups/${groupId}/designations/week?groupId=${groupId}`,
+        )
+
+        if (suggestion.warnings.length > 0) {
+          toast(
+            `Designação automática concluída, mas o grupo é pequeno: ${suggestion.warnings.length} repetição(ões) de dupla/ponto não deu pra evitar. Confira os avisos nos pontos.`,
+            { icon: "⚠️", duration: 6000 },
+          )
+        } else {
+          toast.success("Designação automática realizada com sucesso (sem repetir dupla/ponto recente)!")
+        }
+      } catch (smartError) {
+        // Nunca bloqueia: se a sugestão inteligente falhar, cai pro sorteio simples de sempre.
+        console.error("Error on smart auto-assign, falling back to legacy random:", smartError)
+        response = await legacyRandomAssign(groupId)
+        toast.success("Designação automática realizada com sucesso!")
+      }
 
       // Atualiza o estado completo com a resposta da API
       setDesignationData(response)
       setAssignments(response.assignments || [])
       setParticipants(response.participants || [])
       setLastUpdateTime(new Date())
-
-      toast.success("Designação automática realizada com sucesso!")
     } catch (error) {
       console.error("Error auto assigning:", error)
       toast.error("Erro ao realizar designação automática. Tente novamente.")
@@ -565,6 +632,7 @@ export function useDesignation() {
     showConfirmModal,
     showCancelModal,
     showRecreateModal,
+    insights,
     lastUpdateTime: formattedLastUpdateTime,
     groupId: selectedGroupId,
     designationId: designationData?.id,

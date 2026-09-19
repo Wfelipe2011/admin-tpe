@@ -22,6 +22,7 @@ export default function DesignarPage() {
     designationData,
     assignments,
     participants,
+    insights,
     filteredAssignments,
     showConfirmModal,
     showCancelModal,
@@ -182,6 +183,7 @@ export default function DesignarPage() {
                         isOpen={designationData?.status === "OPEN" || designationData?.status === "IN_PROGRESS"}
                         isAbsent={isAbsent}
                         assignments={assignments}
+                        insights={insights?.assignments.find((i) => i.pointId === assignment.point.id)}
                       />
                     ))}
                   </div>
@@ -207,6 +209,7 @@ export default function DesignarPage() {
                       isOpen={designationData?.status === "OPEN" || designationData?.status === "IN_PROGRESS"}
                       isAbsent={isAbsent}
                       assignments={assignments}
+                      insights={insights?.assignments.find((i) => i.pointId === assignment.point.id)}
                     />
                   ))}
                 </div>
