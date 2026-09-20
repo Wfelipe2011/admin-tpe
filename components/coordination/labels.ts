@@ -4,13 +4,14 @@ export const PROFILE_LABEL: Record<string, string> = {
   COORDINATOR: "Coordenador",
   ASSISTANT_COORDINATOR: "Assistente de coordenação",
   ADMIN_ANALYST: "Analista",
-  PARTICIPANT: "Participante",
+  PARTICIPANT: "Participante (sem acesso)",
   CAPTAIN: "Capitão (perfil antigo)",
   ASSISTANT_CAPTAIN: "Assistente (perfil antigo)",
 }
 
-// perfis que o coordenador pode atribuir (o cargo de capitão vive no grupo)
-export const ASSIGNABLE_PROFILES = ["COORDINATOR", "ASSISTANT_COORDINATOR", "ADMIN_ANALYST", "PARTICIPANT"] as const
+// perfis que o coordenador pode atribuir. Capitão e assistente NÃO são perfil global: vêm do cargo
+// no grupo. O login só entende Coordenador e Analista (Participante não entra no sistema).
+export const ASSIGNABLE_PROFILES = ["COORDINATOR", "ADMIN_ANALYST", "PARTICIPANT"] as const
 
 export const GROUP_ROLE_LABEL: Record<string, string> = {
   CAPTAIN: "Capitão",
@@ -49,3 +50,26 @@ export function formatDateOnly(value: string | null | undefined): string {
   const [y, m, d] = value.slice(0, 10).split("-")
   return `${d}/${m}/${y}`
 }
+
+// Telas do menu e quem pode ser liberado/escondido pelo coordenador (Aba "Menu por perfil").
+// lock: "always" = sempre visível (página inicial); "coordinator" = só coordenador (a API dessa tela exige COORDINATOR).
+export const MENU_ROWS: { path: string; label: string; lock?: "always" | "coordinator"; note?: string }[] = [
+  { path: "/dashboard", label: "Dashboard", lock: "always", note: "Página inicial: sempre liberada" },
+  { path: "/dashboard/lista-atencao", label: "Lista de Atenção" },
+  { path: "/consultar/historico", label: "Consultar" },
+  { path: "/lista-designacao", label: "Lista para Designação" },
+  { path: "/peticoes", label: "Petições" },
+  { path: "/grupos", label: "Grupos" },
+  { path: "/pontos", label: "Pontos" },
+  { path: "/lista-espera", label: "Lista de Espera", lock: "coordinator" },
+  { path: "/coordenacao", label: "Coordenação", lock: "coordinator" },
+]
+
+// Só existem no token estes perfis: o login da legacy emite Coordenador, Analista e Capitão/Assistente (pelo cargo no grupo).
+export const MENU_PROFILE_COLUMNS: { profile: "ADMIN_ANALYST" | "CAPTAIN" | "ASSISTANT_CAPTAIN"; label: string }[] = [
+  { profile: "ADMIN_ANALYST", label: "Analista" },
+  { profile: "CAPTAIN", label: "Capitão" },
+  { profile: "ASSISTANT_CAPTAIN", label: "Assistente de capitão" },
+]
+
+export const MENU_LABEL: Record<string, string> = Object.fromEntries(MENU_ROWS.map((r) => [r.path, r.label]))

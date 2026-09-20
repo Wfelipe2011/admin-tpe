@@ -6,7 +6,7 @@ import { apiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { AuditItem, AuditResponse } from "@/types/coordination"
-import { AUDIT_ACTION_LABEL, PROFILE_LABEL, GROUP_ROLE_LABEL, formatDateOnly, inputClass } from "@/components/coordination/labels"
+import { AUDIT_ACTION_LABEL, MENU_LABEL, PROFILE_LABEL, GROUP_ROLE_LABEL, formatDateOnly, inputClass } from "@/components/coordination/labels"
 
 const PAGE_SIZE = 30
 
@@ -25,6 +25,12 @@ function describe(item: AuditItem): string {
       return `${formatDateOnly(m.from)} → ${formatDateOnly(m.to)}`
     case "SETTING_CHANGE":
       return m.label ?? m.key ?? ""
+    case "PERMISSIONS_CHANGE": {
+      const profiles: Record<string, string> = { ADMIN_ANALYST: "Analista", CAPTAIN: "Capitão", ASSISTANT_CAPTAIN: "Assistente de capitão" }
+      return Object.entries((m.changes ?? {}) as Record<string, { added: string[]; removed: string[] }>)
+        .map(([p, c]) => `${profiles[p] ?? p}: ${[...c.added.map((x) => `+${MENU_LABEL[x] ?? x}`), ...c.removed.map((x) => `−${MENU_LABEL[x] ?? x}`)].join(", ")}`)
+        .join(" · ")
+    }
     default:
       return ""
   }

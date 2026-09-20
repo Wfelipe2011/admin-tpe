@@ -34,7 +34,6 @@ export interface CoordinationOverview {
   }
   roles: {
     coordinators: number
-    assistantCoordinators: number
     adminAnalysts: number
     captains: number
     assistantCaptains: number

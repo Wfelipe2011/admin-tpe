@@ -253,7 +253,6 @@ export function OverviewTab() {
         {/* Cargos */}
         <Section title="Cargos" subtitle="Capitães e assistentes contam pelo cargo no grupo.">
           <Row label="Coordenadores" value={roles.coordinators} />
-          <Row label="Assistentes de coordenação" value={roles.assistantCoordinators} />
           <Row label="Analistas" value={roles.adminAnalysts} />
           <Row label="Capitães" value={roles.captains} />
           <Row label="Assistentes de capitão" value={roles.assistantCaptains} />

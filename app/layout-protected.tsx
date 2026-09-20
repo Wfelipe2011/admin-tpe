@@ -13,6 +13,7 @@ import type { IToken } from "@/types/auth"
 // Import the ParticipantProfile and role utils
 import { ParticipantProfile } from "@/types/auth"
 import { hasRouteAccess } from "@/lib/role-utils"
+import { loadMenuPermissions } from "@/lib/menu-permissions"
 
 interface ProtectedLayoutProps {
   children: React.ReactNode
@@ -29,10 +30,37 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  // o menu por perfil (definido pelo coordenador) precisa estar carregado antes de decidir o acesso à rota
+  const [permsReady, setPermsReady] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+    const load = () => loadMenuPermissions().finally(() => isMounted && setPermsReady(true))
+
+    if (isAuthenticated()) {
+      load()
+      return () => {
+        isMounted = false
+      }
+    }
+
+    // sem login não há o que buscar (um 401 aqui redirecionaria pro login errado). Espera a mesma
+    // "segunda tentativa" do check de autenticação abaixo, pro caso do token demorar a aparecer.
+    const timeoutId = setTimeout(() => {
+      if (isAuthenticated()) load()
+      else if (isMounted) setPermsReady(true)
+    }, 150)
+    return () => {
+      isMounted = false
+      clearTimeout(timeoutId)
+    }
+  }, [])
 
   // Update the useEffect that checks authentication to also check role-based access
   useEffect(() => {
+    if (!permsReady) return
     let isMounted = true
+    let accessDenied = false
 
     // Function to check authentication
     const checkAuth = () => {
@@ -61,6 +89,7 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
 
             if (!hasRouteAccess(userInfo.profile as ParticipantProfile, pathname)) {
               console.log("[ProtectedLayout] User does not have access to this route, redirecting to dashboard")
+              accessDenied = true
               router.replace("/dashboard")
               return false
             }
@@ -89,7 +118,8 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
           setLoading(false) // Stop loading regardless of result
 
           // If still not authenticated after second check, redirect
-          if (!secondAuthResult) {
+          // acesso negado a esta tela já mandou pro dashboard: não é falta de login, não redireciona pro login
+          if (!secondAuthResult && !accessDenied) {
             console.log("[ProtectedLayout] Not authenticated after second check, redirecting to login")
             router.replace("/login?error=missing")
           }
@@ -105,7 +135,7 @@ export function ProtectedLayout({ children, title, breadcrumbs = [] }: Protected
     return () => {
       isMounted = false
     }
-  }, [router, pathname])
+  }, [router, pathname, permsReady])
 
   // Add this useEffect after the existing authentication useEffect
   useEffect(() => {
