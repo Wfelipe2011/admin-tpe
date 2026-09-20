@@ -56,3 +56,53 @@ export interface CoordinationOverview {
   incidents: { total: number; last30Days: number }
   alerts: OverviewAlert[]
 }
+
+export type SystemProfile = "COORDINATOR" | "ASSISTANT_COORDINATOR" | "ADMIN_ANALYST" | "PARTICIPANT" | "CAPTAIN" | "ASSISTANT_CAPTAIN"
+export type GroupRole = "CAPTAIN" | "ASSISTANT_CAPTAIN" | "PARTICIPANT"
+
+export interface PersonGroup {
+  groupId: string
+  name: string
+  type: "MAIN" | "ADDITIONAL" | "SPECIAL"
+  role: GroupRole
+}
+
+export interface Person {
+  id: string
+  name: string
+  phone: string
+  email: string
+  sex: "MALE" | "FEMALE"
+  profile: SystemProfile | null
+  profilePhoto: string | null
+  lastTrainingDate: string | null
+  congregation: { id: number; name: string } | null
+  petitions: { id: string; status: string } | null
+  groups: PersonGroup[]
+}
+
+export interface PeopleResponse {
+  total: number
+  page: number
+  pageSize: number
+  items: Person[]
+}
+
+export interface AuditItem {
+  id: string
+  createdAt: string
+  actorId: string | null
+  actorName: string | null
+  action: string
+  entity: string
+  entityId: string | null
+  entityName: string | null
+  metadata: Record<string, any> | null
+}
+
+export interface AuditResponse {
+  total: number
+  page: number
+  pageSize: number
+  items: AuditItem[]
+}
