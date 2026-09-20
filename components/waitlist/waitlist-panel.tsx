@@ -101,10 +101,14 @@ const PERIODS: { key: "morning" | "afternoon" | "evening"; label: string }[] = [
   { key: "evening", label: "Noite" },
 ]
 
-function waMessage(name: string, weekday: string, period: string) {
+// Modelo padrão (o coordenador pode trocar em Coordenação > Configurações; este é só o reserva)
+const DEFAULT_WA_TEMPLATE =
+  "Olá {nome}, tudo bem? Sou do TPE. Abriu uma vaga no grupo de {dia} {periodo} e vi que você está disponível. Podemos conversar?"
+
+function waMessage(template: string, name: string, weekday: string, period: string) {
   const dia = WEEKDAY_PT[weekday] || weekday
   const per = PERIOD_PT[period] || ""
-  return `Olá ${name}, tudo bem? Sou do TPE. Abriu uma vaga no grupo de ${dia} ${per} e vi que você está disponível. Podemos conversar?`
+  return template.replace(/\{nome\}/g, name).replace(/\{dia\}/g, dia).replace(/\{periodo\}/g, per)
 }
 function waLink(phone: string, msg: string) {
   const digits = (phone || "").replace(/\D/g, "")
@@ -144,6 +148,15 @@ export function WaitlistPanel() {
   const [addingId, setAddingId] = useState<string | null>(null)
   const [mainOpen, setMainOpen] = useState(true)
   const [additionalOpen, setAdditionalOpen] = useState(true)
+  const [waTemplate, setWaTemplate] = useState(DEFAULT_WA_TEMPLATE)
+
+  // modelo da mensagem definido pelo coordenador; se falhar, fica o padrão
+  useEffect(() => {
+    apiClient
+      .get<{ message: string }>("/settings/waitlist-whatsapp", { endpoint: "new" })
+      .then((res) => res?.message && setWaTemplate(res.message))
+      .catch(() => {})
+  }, [])
 
   // debounce do nome
   useEffect(() => {
@@ -307,7 +320,7 @@ export function WaitlistPanel() {
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-1.5">
                   <a
-                    href={waLink(c.phone, waMessage(c.name, g.weekday, g.period))}
+                    href={waLink(c.phone, waMessage(waTemplate, c.name, g.weekday, g.period))}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-white bg-[#25D366] hover:bg-[#1EBE57] rounded-lg px-2 py-1.5 transition-colors"

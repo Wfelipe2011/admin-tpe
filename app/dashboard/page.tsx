@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import Link from "next/link"
 import { ProtectedLayout } from "@/app/layout-protected"
+import { AnnouncementBanner } from "@/components/announcement-banner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff, BarChart3, ExternalLink } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -104,6 +105,7 @@ export default function DashboardPage() {
   return (
     <ProtectedLayout title="Dashboard" breadcrumbs={[{ label: "Dashboard" }]}>
       <div className="space-y-4 sm:space-y-8">
+        <AnnouncementBanner />
         {/* Header Section - Mobile optimized */}
         <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-4 sm:p-8 text-white">
           <div className="flex items-center gap-3 sm:gap-4">

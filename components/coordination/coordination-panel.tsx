@@ -1,16 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { History, LayoutDashboard, ShieldCheck, Users } from "lucide-react"
+import { History, LayoutDashboard, Settings2, ShieldCheck, Users } from "lucide-react"
 import { OverviewTab } from "@/components/coordination/overview-tab"
 import { PeopleTab } from "@/components/coordination/people-tab"
 import { AuditTab } from "@/components/coordination/audit-tab"
+import { SettingsTab } from "@/components/coordination/settings-tab"
 
-type TabId = "overview" | "people" | "audit"
+type TabId = "overview" | "people" | "settings" | "audit"
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Visão geral", icon: <LayoutDashboard className="h-4 w-4" /> },
   { id: "people", label: "Pessoas e perfis", icon: <Users className="h-4 w-4" /> },
+  { id: "settings", label: "Configurações", icon: <Settings2 className="h-4 w-4" /> },
   { id: "audit", label: "Histórico de ações", icon: <History className="h-4 w-4" /> },
 ]
 
@@ -48,6 +50,7 @@ export function CoordinationPanel() {
 
       {tab === "overview" && <OverviewTab />}
       {tab === "people" && <PeopleTab />}
+      {tab === "settings" && <SettingsTab />}
       {tab === "audit" && <AuditTab />}
     </div>
   )
