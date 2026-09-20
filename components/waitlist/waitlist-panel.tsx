@@ -59,6 +59,7 @@ interface WaitlistGroup {
   configMin: number
   configMax: number
   currentMembers: number
+  vacancies: number
   needsHelp: boolean
   candidates: WaitlistCandidate[]
 }
@@ -133,7 +134,7 @@ export function WaitlistPanel() {
   const [congOptions, setCongOptions] = useState<Congregation[]>([])
   const [congOpen, setCongOpen] = useState(false)
   const [groupId, setGroupId] = useState("")
-  const [trainingValid, setTrainingValid] = useState(false)
+  const [hasTraining, setHasTraining] = useState(false)
 
   const [data, setData] = useState<WaitlistResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -168,9 +169,9 @@ export function WaitlistPanel() {
     if (sex) p.set("sex", sex)
     if (congregationId !== "") p.set("congregationId", String(congregationId))
     if (groupId) p.set("groupId", groupId)
-    if (trainingValid) p.set("trainingValid", "true")
+    if (hasTraining) p.set("hasTraining", "true")
     return p
-  }, [nameFilter, sex, congregationId, groupId, trainingValid])
+  }, [nameFilter, sex, congregationId, groupId, hasTraining])
 
   const fetchData = useCallback(() => {
     setLoading(true)
@@ -193,22 +194,17 @@ export function WaitlistPanel() {
     setCongregationId("")
     setCongInput("")
     setGroupId("")
-    setTrainingValid(false)
+    setHasTraining(false)
   }
-  const hasFilters = nameFilter !== "" || sex !== "" || congregationId !== "" || groupId !== "" || trainingValid
+  const hasFilters = nameFilter !== "" || sex !== "" || congregationId !== "" || groupId !== "" || hasTraining
 
   const allGroupsForSelect = useMemo(() => data?.groups ?? [], [data])
   const summary = data?.summary ?? { groupsNeedingHelp: 0, waitlistTotal: 0, bySex: { MALE: 0, FEMALE: 0 } }
 
-  // Quem precisa mais de gente vem primeiro (maior déficit em relação ao mínimo);
-  // entre os que não precisam, mantém a ordem original (dia da semana / horário).
+  // O que vale é o máximo do grupo: abaixo dele = tem vagas. Quem tem mais vagas vem
+  // primeiro; os lotados mantêm a ordem original (dia da semana / horário).
   const sortByNeed = (list: WaitlistGroup[]) =>
-    [...list].sort((a, b) => {
-      const deficitA = a.needsHelp ? a.configMin - a.currentMembers : -1
-      const deficitB = b.needsHelp ? b.configMin - b.currentMembers : -1
-      if (deficitA !== deficitB) return deficitB - deficitA
-      return 0
-    })
+    [...list].sort((a, b) => b.vacancies - a.vacancies)
   const mainGroups = useMemo(() => sortByNeed((data?.groups ?? []).filter((g) => g.type === "MAIN")), [data])
   const additionalGroups = useMemo(() => sortByNeed((data?.groups ?? []).filter((g) => g.type !== "MAIN")), [data])
 
@@ -264,12 +260,12 @@ export function WaitlistPanel() {
           <div className="mt-2">
             <div className="flex items-center justify-between text-[11px] text-[#666666] mb-1">
               <span>
-                {g.currentMembers}/{g.configMax} membros (mín. {g.configMin})
+                {g.currentMembers}/{g.configMax} membros
               </span>
               {g.needsHelp && (
                 <span className="text-[#B91C1C] font-semibold flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />
-                  abaixo do mínimo
+                  {g.vacancies} {g.vacancies === 1 ? "vaga" : "vagas"}
                 </span>
               )}
             </div>
@@ -361,7 +357,7 @@ export function WaitlistPanel() {
           </div>
           <div>
             <p className="text-2xl font-bold text-[#333333]">{loading && !data ? "…" : summary.groupsNeedingHelp}</p>
-            <p className="text-xs text-[#666666]">grupos abaixo do mínimo</p>
+            <p className="text-xs text-[#666666]">grupos com vagas</p>
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3 border-l-4 border-l-[#374192]">
@@ -472,8 +468,8 @@ export function WaitlistPanel() {
           </select>
         </div>
         <label className="flex items-center gap-2 h-9 text-sm text-[#333333]">
-          <Checkbox checked={trainingValid} onCheckedChange={(v) => setTrainingValid(!!v)} />
-          Treinamento válido
+          <Checkbox checked={hasTraining} onCheckedChange={(v) => setHasTraining(!!v)} />
+          Com treinamento
         </label>
         <Button
           variant="outline"

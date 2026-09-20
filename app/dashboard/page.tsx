@@ -89,14 +89,14 @@ export default function DashboardPage() {
     return Math.round((dashboardData.vacancies / totalCapacity) * 100)
   }
 
-  // Add this function to calculate the percentage of valid trainings
+  // Percentual de voluntários com treinamento registrado (treinamento não tem validade)
   const calculateTrainingsPercentage = () => {
     if (!dashboardData?.trainings) return 0
 
-    const total = dashboardData.trainings.valid + dashboardData.trainings.expired
+    const total = dashboardData.trainings.withTraining + dashboardData.trainings.withoutTraining
     if (total === 0) return 0
 
-    return Math.round((dashboardData.trainings.valid / total) * 100)
+    return Math.round((dashboardData.trainings.withTraining / total) * 100)
   }
 
   const isLoading = isLoadingDashboard
@@ -389,7 +389,7 @@ function ChartCard({ title, percentage }: ChartCardProps) {
     centerSubtext = "Disponíveis"
   } else if (title === "Treinamentos") {
     centerText = `${percentage}%`
-    centerSubtext = "Válidos"
+    centerSubtext = "Com treinamento"
   }
 
   return (

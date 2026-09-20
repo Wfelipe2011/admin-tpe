@@ -21,22 +21,6 @@ import { apiClient } from "@/lib/api-client"
 import type { Participant } from "@/types/group-participants"
 import { ChangeGroupDialog } from "@/components/change-group-dialog"
 
-// Add this function before the ParticipantListItem component
-function getTrainingStatus(lastTrainingDate: string | null): "valid" | "expired" | "none" {
-  if (!lastTrainingDate) {
-    return "none"
-  }
-
-  const trainingDate = new Date(lastTrainingDate)
-  const currentDate = new Date()
-
-  // Calculate the difference in years
-  const oneYearAgo = new Date()
-  oneYearAgo.setFullYear(currentDate.getFullYear() - 1)
-
-  return trainingDate >= oneYearAgo ? "valid" : "expired"
-}
-
 interface ParticipantListItemProps {
   participant: Participant
   groupId: string
@@ -136,29 +120,16 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
                       ? "Capitão Assistente"
                       : "Participante"}
               </Badge>
-              {(() => {
-                const trainingStatus = getTrainingStatus(participant.lastTrainingDate)
-
-                if (trainingStatus === "valid") {
-                  return (
-                    <Badge className="text-xs font-medium px-2 py-1 bg-[#2ECC71]/10 text-[#2ECC71] border-[#2ECC71]/20">
-                      Treinamento Válido
-                    </Badge>
-                  )
-                } else if (trainingStatus === "expired") {
-                  return (
-                    <Badge className="text-xs font-medium px-2 py-1 bg-[#F1C40F]/10 text-[#F1C40F] border-[#F1C40F]/20">
-                      Treinamento Expirado
-                    </Badge>
-                  )
-                } else {
-                  return (
-                    <Badge className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-600 border-gray-200">
-                      Sem Treinamento
-                    </Badge>
-                  )
-                }
-              })()}
+              {/* Treinamento não tem validade: só avisa quando não há nenhum registrado */}
+              {participant.lastTrainingDate ? (
+                <Badge className="text-xs font-medium px-2 py-1 bg-[#2ECC71]/10 text-[#2ECC71] border-[#2ECC71]/20">
+                  Com Treinamento
+                </Badge>
+              ) : (
+                <Badge className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-600 border-gray-200">
+                  Sem Treinamento
+                </Badge>
+              )}
             </div>
             <p className="text-sm text-[#666666]">
               <strong className="text-[#333333]">Congregação:</strong> {participant.congregation?.name || "Não informada"}
