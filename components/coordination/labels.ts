@@ -39,6 +39,10 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   TRAINING_CHANGE: "Alterou o treinamento",
   SETTING_CHANGE: "Alterou uma configuração",
   PERMISSIONS_CHANGE: "Alterou permissões",
+  GROUP_TRANSFER: "Trocou de grupo",
+  GROUP_CHANGE_REQUESTED: "Pediu troca de grupo",
+  GROUP_CHANGE_CANCELLED: "Cancelou pedido de troca",
+  GROUP_CHANGE_RESOLVED: "Pedido de troca encerrado",
 }
 
 export const inputClass =

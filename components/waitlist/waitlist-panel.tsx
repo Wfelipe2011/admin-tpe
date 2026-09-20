@@ -15,6 +15,7 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  ArrowLeftRight,
 } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import {
@@ -28,6 +29,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { CHANGE_REASON_LABEL, slotsLabel, type ChangeRequestSummary } from "@/lib/group-change"
 
 interface AvailabilityItem {
   weekDay: number
@@ -46,6 +48,11 @@ interface WaitlistCandidate {
   congregation: { id: number; name: string; city: string | null } | null
   availability: AvailabilityItem[]
   waitingSince: string
+  // pedido de troca de grupo: a pessoa continua nos grupos atuais e diz em que dia/horário quer ir
+  changeRequest: (ChangeRequestSummary & { currentGroups: { groupId: string; name: string; type: string }[] }) | null
+  canAdd: boolean // pode entrar sem sair de nenhum grupo
+  swapFrom: { groupId: string; name: string; type: string }[] // grupos de que pode sair pra entrar neste
+  viaSwapOnly: boolean // aparece aqui só por causa do pedido de troca
 }
 
 interface WaitlistGroup {
@@ -65,7 +72,7 @@ interface WaitlistGroup {
 }
 
 interface WaitlistResponse {
-  summary: { groupsNeedingHelp: number; waitlistTotal: number; bySex: { MALE: number; FEMALE: number } }
+  summary: { groupsNeedingHelp: number; waitlistTotal: number; bySex: { MALE: number; FEMALE: number }; wantingChange?: number }
   groups: WaitlistGroup[]
 }
 
@@ -146,6 +153,10 @@ export function WaitlistPanel() {
   const [selected, setSelected] = useState<WaitlistCandidate | null>(null)
   const [addTarget, setAddTarget] = useState<{ candidate: WaitlistCandidate; group: WaitlistGroup } | null>(null)
   const [addingId, setAddingId] = useState<string | null>(null)
+  // troca de grupo (sai de um, entra neste): qual grupo a pessoa deixa
+  const [swapTarget, setSwapTarget] = useState<{ candidate: WaitlistCandidate; group: WaitlistGroup } | null>(null)
+  const [leaveGroupId, setLeaveGroupId] = useState("")
+  const [swapping, setSwapping] = useState(false)
   const [mainOpen, setMainOpen] = useState(true)
   const [additionalOpen, setAdditionalOpen] = useState(true)
   const [waTemplate, setWaTemplate] = useState(DEFAULT_WA_TEMPLATE)
@@ -240,6 +251,31 @@ export function WaitlistPanel() {
     }
   }
 
+  const openSwap = (candidate: WaitlistCandidate, group: WaitlistGroup) => {
+    setSwapTarget({ candidate, group })
+    setLeaveGroupId(candidate.swapFrom[0]?.groupId ?? "")
+  }
+
+  const confirmSwap = async () => {
+    if (!swapTarget || !leaveGroupId) return
+    setSwapping(true)
+    try {
+      // uma operação só no servidor (tudo ou nada): se não puder entrar, a pessoa continua onde está
+      await apiClient.post(
+        `/groups/${swapTarget.group.groupId}/participants/${swapTarget.candidate.participantId}/transfer`,
+        { fromGroupId: leaveGroupId },
+        { endpoint: "new" },
+      )
+      toast.success(`${swapTarget.candidate.name} trocado(a) para o grupo ${swapTarget.group.name}`)
+      setSwapTarget(null)
+      fetchData()
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Não foi possível trocar de grupo")
+    } finally {
+      setSwapping(false)
+    }
+  }
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-lg border border-gray-100">
@@ -318,6 +354,21 @@ export function WaitlistPanel() {
                     <p className="text-xs text-[#666666] truncate">{availableDaysLabel(c.availability)}</p>
                   </div>
                 </div>
+                {c.changeRequest && (
+                  <div className="mt-2 rounded-md border border-amber-300 bg-amber-50 px-2 py-1.5 text-[11px] text-amber-900">
+                    <p className="flex items-start gap-1.5">
+                      <ArrowLeftRight className="h-3 w-3 mt-0.5 flex-shrink-0 text-amber-600" />
+                      <span>
+                        <strong>Quer trocar</strong> · {slotsLabel(c.changeRequest.desiredSlots)} ·{" "}
+                        {CHANGE_REASON_LABEL[c.changeRequest.reason] ?? c.changeRequest.reason}
+                      </span>
+                    </p>
+                    <p className="mt-0.5 ml-[18px] text-amber-800/80">
+                      Está em {c.changeRequest.currentGroups.map((x) => x.name).join(" e ") || "—"}
+                      {c.changeRequest.note ? ` · “${c.changeRequest.note}”` : ""}
+                    </p>
+                  </div>
+                )}
                 <div className="mt-2 grid grid-cols-2 gap-1.5">
                   <a
                     href={waLink(c.phone, waMessage(waTemplate, c.name, g.weekday, g.period))}
@@ -328,16 +379,39 @@ export function WaitlistPanel() {
                     <MessageCircle className="h-3.5 w-3.5" />
                     WhatsApp
                   </a>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-auto py-1.5 px-2 text-xs"
-                    disabled={addingId === c.participantId}
-                    onClick={() => setAddTarget({ candidate: c, group: g })}
-                  >
-                    <UserPlus className="h-3.5 w-3.5" />
-                    Adicionar
-                  </Button>
+                  {c.canAdd ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-auto py-1.5 px-2 text-xs"
+                      disabled={addingId === c.participantId}
+                      onClick={() => setAddTarget({ candidate: c, group: g })}
+                    >
+                      <UserPlus className="h-3.5 w-3.5" />
+                      Adicionar
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      className="h-auto py-1.5 px-2 text-xs bg-[#374192] hover:bg-[#46607F]"
+                      disabled={c.swapFrom.length === 0}
+                      onClick={() => openSwap(c, g)}
+                    >
+                      <ArrowLeftRight className="h-3.5 w-3.5" />
+                      Trocar
+                    </Button>
+                  )}
+                  {c.canAdd && c.changeRequest && c.swapFrom.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="col-span-2 h-auto py-1.5 px-2 text-xs border-[#374192] text-[#374192]"
+                      onClick={() => openSwap(c, g)}
+                    >
+                      <ArrowLeftRight className="h-3.5 w-3.5" />
+                      Trocar (sair de um grupo)
+                    </Button>
+                  )}
                 </div>
               </div>
             ))
@@ -379,7 +453,10 @@ export function WaitlistPanel() {
           </div>
           <div>
             <p className="text-2xl font-bold text-[#333333]">{loading && !data ? "…" : summary.waitlistTotal}</p>
-            <p className="text-xs text-[#666666]">na lista de espera</p>
+            <p className="text-xs text-[#666666]">
+              na lista de espera
+              {summary.wantingChange ? <span className="text-amber-700"> · +{summary.wantingChange} querendo trocar de grupo</span> : null}
+            </p>
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-6 border-l-4 border-l-[#929BD2]">
@@ -559,6 +636,49 @@ export function WaitlistPanel() {
             </Button>
             <Button onClick={confirmAdd} disabled={!!addingId} className="bg-[#374192] hover:bg-[#46607F]">
               {addingId ? "Adicionando..." : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Trocar de grupo: sai de um e entra neste, numa operação só */}
+      <Dialog open={!!swapTarget} onOpenChange={(open) => !open && !swapping && setSwapTarget(null)}>
+        <DialogContent className="rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[#333333] font-semibold">Trocar de grupo</DialogTitle>
+            <DialogDescription className="text-[#666666]">
+              <strong className="text-[#333333]">{swapTarget?.candidate.name}</strong> vai para{" "}
+              <strong className="text-[#333333]">{swapTarget?.group.name}</strong>
+              {swapTarget && (
+                <>
+                  {" "}
+                  ({WEEKDAY_PT[swapTarget.group.weekday]} · {swapTarget.group.configStartHour}–{swapTarget.group.configEndHour})
+                </>
+              )}
+              . Escolha de qual grupo a pessoa sai. É tudo ou nada: se o grupo novo não puder receber, ela continua onde está.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {swapTarget?.candidate.swapFrom.map((from) => (
+              <label
+                key={from.groupId}
+                className={`flex items-center gap-2 rounded-lg border p-2.5 text-sm cursor-pointer ${
+                  leaveGroupId === from.groupId ? "border-[#374192] bg-[#374192]/5" : "border-gray-200"
+                }`}
+              >
+                <input type="radio" name="leave-group" checked={leaveGroupId === from.groupId} onChange={() => setLeaveGroupId(from.groupId)} />
+                <span>
+                  Sair de <strong>{from.name}</strong>
+                </span>
+              </label>
+            ))}
+          </div>
+          <DialogFooter className="gap-3 sm:gap-0">
+            <Button variant="outline" onClick={() => setSwapTarget(null)} disabled={swapping}>
+              Cancelar
+            </Button>
+            <Button onClick={confirmSwap} disabled={swapping || !leaveGroupId} className="bg-[#374192] hover:bg-[#46607F]">
+              {swapping ? "Trocando..." : "Confirmar troca"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { AuditItem, AuditResponse } from "@/types/coordination"
+import { CHANGE_REASON_LABEL, slotsLabel } from "@/lib/group-change"
 import { AUDIT_ACTION_LABEL, MENU_LABEL, PROFILE_LABEL, GROUP_ROLE_LABEL, formatDateOnly, inputClass } from "@/components/coordination/labels"
 
 const PAGE_SIZE = 30
@@ -23,6 +24,16 @@ function describe(item: AuditItem): string {
       return `${m.groupName ?? ""}: ${GROUP_ROLE_LABEL[m.from] ?? m.from} → ${GROUP_ROLE_LABEL[m.to] ?? m.to}`
     case "TRAINING_CHANGE":
       return `${formatDateOnly(m.from)} → ${formatDateOnly(m.to)}`
+    case "GROUP_TRANSFER":
+      return `${m.fromGroupName ?? "?"} → ${m.toGroupName ?? "?"}`
+    case "GROUP_CHANGE_REQUESTED":
+      return `quer ir: ${slotsLabel(m.slots ?? [])} · ${CHANGE_REASON_LABEL[m.reason] ?? m.reason ?? ""}${m.note ? ` · ${m.note}` : ""}`
+    case "GROUP_CHANGE_CANCELLED":
+      return ""
+    case "GROUP_CHANGE_RESOLVED": {
+      const how: Record<string, string> = { MOVED: "trocou de grupo", ADDED: "entrou no dia e horário que queria", LEFT: "saiu de todos os grupos" }
+      return `${how[m.resolution] ?? m.resolution ?? ""}${m.groupName ? ` (${m.groupName})` : ""}`
+    }
     case "SETTING_CHANGE":
       return m.label ?? m.key ?? ""
     case "PERMISSIONS_CHANGE": {

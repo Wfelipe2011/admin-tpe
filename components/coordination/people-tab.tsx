@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { PeopleResponse, Person } from "@/types/coordination"
+import type { ChangeRequestSummary } from "@/lib/group-change"
+import { ChangeRequestControl } from "@/components/group-change/change-request-control"
 import {
   ASSIGNABLE_PROFILES,
   GROUP_ROLE_LABEL,
@@ -45,11 +47,13 @@ function Avatar({ person }: { person: Person }) {
 function PersonDialog({
   person,
   groupOptions,
+  changeRequest,
   onClose,
   onChanged,
 }: {
   person: Person
   groupOptions: GroupOption[]
+  changeRequest: ChangeRequestSummary | null
   onClose: () => void
   onChanged: () => void
 }) {
@@ -287,6 +291,14 @@ function PersonDialog({
             <p className="text-[11px] text-[#666666]">As regras de composição continuam valendo (máximo de 2 grupos, nunca 2 do Centro, limite de vagas do grupo).</p>
           </section>
 
+          {/* Pedido de troca de grupo: a pessoa continua nos grupos atuais; registra o dia/horário que quer e o motivo */}
+          {person.groups.length > 0 && (
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-[#333333]">Troca de grupo</h3>
+              <ChangeRequestControl participantId={person.id} participantName={person.name} request={changeRequest} onChanged={onChanged} />
+            </section>
+          )}
+
           {person.petitions && (
             <section className="flex items-center justify-between rounded-lg bg-gray-50 p-3 text-sm">
               <span className="text-[#666666]">
@@ -316,6 +328,8 @@ export function PeopleTab() {
   const [groupOptions, setGroupOptions] = useState<GroupOption[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [lastSelected, setLastSelected] = useState<Person | null>(null)
+  // pedidos de troca em aberto, por id do voluntário
+  const [requests, setRequests] = useState<Record<string, ChangeRequestSummary>>({})
 
   useEffect(() => {
     const t = setTimeout(() => setQDebounced(q.trim()), 400)
@@ -351,6 +365,17 @@ export function PeopleTab() {
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  const loadRequests = useCallback(() => {
+    apiClient
+      .get<(ChangeRequestSummary & { participantId: string })[]>("/group-change-requests", { endpoint: "new" })
+      .then((rows) => setRequests(Object.fromEntries(rows.map((r) => [r.participantId, r]))))
+      .catch(() => setRequests({}))
+  }, [])
+
+  useEffect(() => {
+    loadRequests()
+  }, [loadRequests])
 
   // a ficha aberta acompanha os dados recarregados; se a pessoa saiu da página (filtro), usa a última cópia
   const selected = useMemo(() => {
@@ -442,6 +467,7 @@ export function PeopleTab() {
                       {p.profile && p.profile !== "PARTICIPANT" && <Badge>{PROFILE_LABEL[p.profile] ?? p.profile}</Badge>}
                       {p.petitions && <Badge variant="secondary">{PETITION_STATUS_LABEL[p.petitions.status] ?? p.petitions.status}</Badge>}
                       {p.lastTrainingDate ? null : <Badge variant="outline">Sem treinamento</Badge>}
+                      {requests[p.id] && <Badge className="bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-100">Quer trocar de grupo</Badge>}
                     </div>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-[#666666]">
                       <span className="inline-flex items-center gap-1">
@@ -486,8 +512,12 @@ export function PeopleTab() {
         <PersonDialog
           person={selected}
           groupOptions={groupOptions}
+          changeRequest={requests[selected.id] ?? null}
           onClose={() => setSelectedId(null)}
-          onChanged={fetchData}
+          onChanged={() => {
+            fetchData()
+            loadRequests()
+          }}
         />
       )}
     </div>

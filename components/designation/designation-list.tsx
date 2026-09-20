@@ -11,6 +11,7 @@ import { ParticipantCard } from "@/components/designation/participant-card"
 import { ParticipantCardLarge } from "@/components/designation/participant-card-large"
 import { DesignationCountdown } from "@/components/designation/designation-countdown"
 import type { IParticipants, IDesignation } from "@/types/designation"
+import type { ChangeRequestSummary } from "@/lib/group-change"
 import Link from "next/link"
 import { useGroupStore } from "@/lib/stores/use-group-store"
 import {
@@ -31,6 +32,22 @@ export function DesignationList({ designationId }: { designationId?: string } = 
   const [searchTerm, setSearchTerm] = useState("")
   const [presenceFilter, setPresenceFilter] = useState<"todos" | "presente" | "ausente">("todos")
   const { selectedGroupId } = useGroupStore()
+  // pedidos de troca de grupo em aberto dos voluntários deste grupo, por id do voluntário
+  const [changeRequests, setChangeRequests] = useState<Record<string, ChangeRequestSummary>>({})
+
+  const loadChangeRequests = useCallback(async () => {
+    const groupId = selectedGroupId || getUserFromToken()?.groupId
+    if (!groupId || groupId === "todos") return
+    try {
+      const rows = await apiClient.get<(ChangeRequestSummary & { participantId: string })[]>(`/group-change-requests?groupId=${groupId}`, {
+        endpoint: "new",
+      })
+      setChangeRequests(Object.fromEntries(rows.map((r) => [r.participantId, r])))
+    } catch {
+      // não impede o uso da tela (ex.: pedidos ainda não habilitados neste ambiente)
+      setChangeRequests({})
+    }
+  }, [selectedGroupId])
 
   // Get user token and extract groupId
   const fetchData = useCallback(async () => {
@@ -62,13 +79,14 @@ export function DesignationList({ designationId }: { designationId?: string } = 
       // Fetch participants
       const participantsData = await apiClient.get<IParticipants[]>(`/participants?groupId=${groupId}`)
       setParticipants(participantsData)
+      loadChangeRequests()
     } catch (error) {
       toast.error("Erro ao carregar designações. Tente novamente.")
       console.error("Error fetching data:", error)
     } finally {
       setLoading(false)
     }
-  }, [selectedGroupId]) // Adicione selectedGroupId como dependência
+  }, [selectedGroupId, loadChangeRequests]) // Adicione selectedGroupId como dependência
 
   useEffect(() => {
     fetchData()
@@ -317,6 +335,8 @@ export function DesignationList({ designationId }: { designationId?: string } = 
                     participant={participant}
                     designationId={designationId || designationDetails?.designation?.id}
                     onStatusChange={handleParticipantStatusChange}
+                    changeRequest={changeRequests[participant.id] ?? null}
+                    onChangeRequestChanged={loadChangeRequests}
                   />
                 ) : (
                   <ParticipantCardLarge
@@ -324,6 +344,8 @@ export function DesignationList({ designationId }: { designationId?: string } = 
                     participant={participant}
                     designationId={designationId || designationDetails?.designation?.id}
                     onStatusChange={handleParticipantStatusChange}
+                    changeRequest={changeRequests[participant.id] ?? null}
+                    onChangeRequestChanged={loadChangeRequests}
                   />
                 ),
               )}
