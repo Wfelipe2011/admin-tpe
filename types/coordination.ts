@@ -52,7 +52,12 @@ export interface CoordinationOverview {
     groupsWithVacancies: number
     oldestWaitingSince: string | null
   }
-  incidents: { total: number; last30Days: number }
+  incidents: {
+    total: number
+    last30Days: number
+    // média de faltas por dia trabalhado, separada por tipo de grupo
+    averages: { MAIN: { avg: number | null; groups: number } | null; ADDITIONAL: { avg: number | null; groups: number } | null }
+  }
   alerts: OverviewAlert[]
 }
 

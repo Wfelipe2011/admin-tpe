@@ -42,16 +42,31 @@ interface HealthGroup {
   name: string
   incidents: number
   designations: number
+  type: "MAIN" | "ADDITIONAL" | "SPECIAL"
   avgPerDesignation: number | null
   vsOverall: "above" | "below" | "equal" | null
   deltaPct: number | null
+  // comparação com a média do PRÓPRIO tipo de grupo (Centro x Adicional têm "normais" diferentes)
+  typeAvgPerDesignation: number | null
+  vsType: "above" | "below" | "equal" | null
+  deltaPctType: number | null
+}
+
+interface TypeBenchmark {
+  avg: number | null
+  groups: number
 }
 
 interface IncidentsHealth {
   overallAvgPerDesignation: number
   groupsConsidered: number
+  // médias por tipo; o capitão só recebe a do tipo do grupo dele (o resto vem null)
+  overallByType: Record<"MAIN" | "ADDITIONAL" | "SPECIAL", TypeBenchmark | null>
   groups: HealthGroup[]
 }
+
+const TYPE_LABEL: Record<string, string> = { MAIN: "Centro", ADDITIONAL: "Adicional", SPECIAL: "Especial" }
+const TYPE_LABEL_PLURAL: Record<string, string> = { MAIN: "Centro", ADDITIONAL: "Adicionais", SPECIAL: "Especiais" }
 
 const nf1 = (n: number) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 
@@ -343,7 +358,7 @@ export function IncidentsPanel() {
             <BenchmarkCard health={health} />
           ) : (
             health.groups[0] && (
-              <CaptainVsAvgCard g={health.groups[0]} overall={health.overallAvgPerDesignation} />
+              <CaptainVsAvgCard g={health.groups[0]} />
             )
           ))}
       </div>
@@ -352,7 +367,7 @@ export function IncidentsPanel() {
       {tab === "resumo" && health && !canSeeAllGroups && health.groups.length > 1 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {health.groups.slice(1).map((g) => (
-            <CaptainVsAvgCard key={g.groupId} g={g} overall={health.overallAvgPerDesignation} />
+            <CaptainVsAvgCard key={g.groupId} g={g} />
           ))}
         </div>
       )}
@@ -504,11 +519,12 @@ function vsBadge(vsOverall: string | null, deltaPct: number | null) {
   )
 }
 
-/** Card compacto (mesma altura do contador) — saúde do grupo do capitão vs. a média geral. */
-function CaptainVsAvgCard({ g, overall }: { g: HealthGroup; overall: number }) {
+/** Card compacto (mesma altura do contador) — saúde do grupo do capitão vs. a média do tipo do grupo dele (Centro ou Adicionais). */
+function CaptainVsAvgCard({ g }: { g: HealthGroup }) {
   const avg = g.avgPerDesignation
-  const above = g.vsOverall === "above"
-  const equalOrNull = g.vsOverall === "equal" || g.deltaPct == null || avg == null
+  const typeAvg = g.typeAvgPerDesignation
+  const above = g.vsType === "above"
+  const equalOrNull = g.vsType === "equal" || g.deltaPctType == null || avg == null
   const accent = equalOrNull ? "border-gray-200" : above ? "border-[#FCA5A5]" : "border-[#6EE7B7]"
   const iconBg = equalOrNull ? "bg-gray-100" : above ? "bg-[#FEF2F2]" : "bg-[#ECFDF5]"
   const iconColor = equalOrNull ? "text-[#666666]" : above ? "text-[#B91C1C]" : "text-[#047857]"
@@ -526,15 +542,15 @@ function CaptainVsAvgCard({ g, overall }: { g: HealthGroup; overall: number }) {
       </div>
       <div>
         <p className={`text-3xl font-bold ${equalOrNull ? "text-[#333333]" : above ? "text-[#B91C1C]" : "text-[#047857]"}`}>
-          {equalOrNull ? "Na média" : `${Math.abs(g.deltaPct as number).toFixed(0)}% ${above ? "acima" : "abaixo"}`}
+          {equalOrNull ? "Na média" : `${Math.abs(g.deltaPctType as number).toFixed(0)}% ${above ? "acima" : "abaixo"}`}
         </p>
         <p className="text-sm text-[#666666]">
           {avg == null ? (
             "Sem dias trabalhados registrados"
           ) : (
             <>
-              da média — seu grupo faz <strong>{nf1(avg)}</strong> faltas/dia trabalhado, o normal é{" "}
-              <strong>{nf1(overall)}</strong>
+              da média dos grupos {g.type === "ADDITIONAL" ? "Adicionais" : g.type === "MAIN" ? "do Centro" : "Especiais"} — seu grupo faz{" "}
+              <strong>{nf1(avg)}</strong> faltas/dia trabalhado, o normal é <strong>{typeAvg == null ? "—" : nf1(typeAvg)}</strong>
             </>
           )}
         </p>
@@ -543,19 +559,28 @@ function CaptainVsAvgCard({ g, overall }: { g: HealthGroup; overall: number }) {
   )
 }
 
-/** Card compacto de benchmark geral para o coordenador (detalhe por grupo na aba Grupos). */
+/** Card compacto de benchmark para o coordenador: duas médias, Centro e Adicionais (detalhe por grupo na aba Grupos). */
 function BenchmarkCard({ health }: { health: IncidentsHealth }) {
+  const types = (["MAIN", "ADDITIONAL"] as const).map((t) => ({ t, b: health.overallByType?.[t] ?? null }))
   return (
     <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5 flex items-center gap-4">
       <div className="p-3 rounded-lg bg-[#374192]/10">
         <TrendingUp className="h-6 w-6 text-[#374192]" />
       </div>
-      <div>
-        <p className="text-3xl font-bold text-[#333333]">{nf1(health.overallAvgPerDesignation)}</p>
-        <p className="text-sm text-[#666666]">
-          Média geral: faltas por dia trabalhado ({health.groupsConsidered}{" "}
-          {health.groupsConsidered === 1 ? "grupo" : "grupos"}) · comparação por grupo na aba{" "}
-          <strong>Grupos</strong>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-end gap-x-6 gap-y-1">
+          {types.map(({ t, b }) => (
+            <div key={t}>
+              <p className="text-3xl font-bold text-[#333333] leading-none">{b?.avg == null ? "—" : nf1(b.avg)}</p>
+              <p className="text-xs text-[#666666] mt-1">
+                {TYPE_LABEL_PLURAL[t]}
+                {b && b.groups > 0 ? ` (${b.groups} ${b.groups === 1 ? "grupo" : "grupos"})` : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="text-sm text-[#666666] mt-2">
+          Média de faltas por dia trabalhado, separada por tipo de grupo · comparação por grupo na aba <strong>Grupos</strong>
         </p>
       </div>
     </div>
@@ -612,10 +637,19 @@ function GruposTab({ health }: { health: IncidentsHealth | null }) {
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 text-sm text-[#666666]">
-        <strong className="text-[#333333]">Média geral (o "normal"):</strong>{" "}
-        <strong className="text-[#374192]">{nf1(health.overallAvgPerDesignation)}</strong> faltas por dia trabalhado
-        {" "}— média das médias de {health.groupsConsidered}{" "}
-        {health.groupsConsidered === 1 ? "grupo" : "grupos"} com dias trabalhados registrados.
+        <strong className="text-[#333333]">O "normal" é diferente para cada tipo de grupo</strong> (faltas por dia trabalhado):{" "}
+        {(["MAIN", "ADDITIONAL"] as const).map((t, i) => {
+          const b = health.overallByType?.[t]
+          if (!b) return null
+          return (
+            <span key={t}>
+              {i > 0 ? " · " : ""}
+              {TYPE_LABEL_PLURAL[t]}: <strong className="text-[#374192]">{b.avg == null ? "—" : nf1(b.avg)}</strong>
+              {b.groups > 0 ? ` (média das médias de ${b.groups} ${b.groups === 1 ? "grupo" : "grupos"})` : " (sem dias trabalhados)"}
+            </span>
+          )
+        })}
+        . Cada grupo é comparado com a média do próprio tipo.
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -673,7 +707,7 @@ function GruposTab({ health }: { health: IncidentsHealth | null }) {
                   <th className="px-3 py-2 text-right font-semibold">Faltas</th>
                   <th className="px-3 py-2 text-right font-semibold">Dias trab.</th>
                   <th className="px-3 py-2 text-right font-semibold">Média</th>
-                  <th className="px-3 py-2 text-right font-semibold">vs. normal</th>
+                  <th className="px-3 py-2 text-right font-semibold">vs. normal do tipo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -685,13 +719,14 @@ function GruposTab({ health }: { health: IncidentsHealth | null }) {
                         style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
                       />
                       {g.name}
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-[#666666]">{TYPE_LABEL[g.type] ?? g.type}</span>
                     </td>
                     <td className="px-3 py-2 text-right font-semibold text-[#333333]">{g.incidents}</td>
                     <td className="px-3 py-2 text-right text-[#666666]">{g.designations}</td>
                     <td className="px-3 py-2 text-right font-semibold text-[#333333]">
                       {g.avgPerDesignation == null ? "—" : nf1(g.avgPerDesignation)}
                     </td>
-                    <td className="px-3 py-2 text-right">{vsBadge(g.vsOverall, g.deltaPct)}</td>
+                    <td className="px-3 py-2 text-right">{vsBadge(g.vsType, g.deltaPctType)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -701,7 +736,11 @@ function GruposTab({ health }: { health: IncidentsHealth | null }) {
                   <td className="px-3 py-2 text-right font-bold text-[#374192]">{total}</td>
                   <td className="px-3 py-2" />
                   <td className="px-3 py-2 text-right font-bold text-[#374192]">
-                    {nf1(health.overallAvgPerDesignation)}
+                    {(["MAIN", "ADDITIONAL"] as const)
+                      .map((t) => health.overallByType?.[t])
+                      .map((b, i) => (b ? `${i === 0 ? "Centro" : "Adic."} ${b.avg == null ? "—" : nf1(b.avg)}` : null))
+                      .filter(Boolean)
+                      .join(" · ")}
                   </td>
                   <td className="px-3 py-2" />
                 </tr>

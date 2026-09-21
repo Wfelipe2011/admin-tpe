@@ -300,6 +300,15 @@ export function OverviewTab() {
             <p className="text-2xl font-bold text-[#333333] leading-none">{incidents.total}</p>
             <p className="text-xs text-[#666666] mt-1">no total</p>
           </div>
+          {(["MAIN", "ADDITIONAL"] as const).map((t) => {
+            const b = incidents.averages?.[t]
+            return (
+              <div key={t}>
+                <p className="text-2xl font-bold text-[#374192] leading-none">{b?.avg == null ? "—" : b.avg.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</p>
+                <p className="text-xs text-[#666666] mt-1">média {t === "MAIN" ? "do Centro" : "dos Adicionais"} (faltas/dia trabalhado)</p>
+              </div>
+            )
+          })}
           <Link
             href="/dashboard/lista-atencao"
             className="inline-flex items-center gap-1 text-xs font-semibold text-[#374192] hover:underline sm:ml-auto"
