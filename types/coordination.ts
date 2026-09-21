@@ -110,3 +110,47 @@ export interface AuditResponse {
   pageSize: number
   items: AuditItem[]
 }
+
+export interface WorkedGroup {
+  groupId: string
+  name: string
+  type: "MAIN" | "ADDITIONAL" | "SPECIAL"
+  firstAt: string
+  lastAt: string
+  /** dias (designações) em que a pessoa esteve envolvida nesse grupo */
+  designations: number
+  faltas: number
+}
+
+export interface PersonHistory {
+  participant: { id: string; name: string }
+  periodMonths: number
+  currentGroups: { groupId: string; name: string; type: string; role: string }[]
+  groupsWorked: WorkedGroup[]
+  distinctGroups: number
+  estimatedDepartures: number
+  faltas: { total: number; daysWorked: number; perDay: number | null; baselinePerDay: number }
+  events: { id: string; at: string; action: string; actorName: string | null; metadata: Record<string, any> | null }[]
+  eventsSince: string | null
+}
+
+export interface TurnoverItem {
+  participantId: string
+  name: string
+  currentGroups: string[]
+  groupsWorked: WorkedGroup[]
+  distinctGroups: number
+  estimatedDepartures: number
+  registeredMoves: number
+  faltas: number
+  daysWorked: number
+  faltasPerDay: number | null
+  attention: boolean
+}
+
+export interface TurnoverResponse {
+  periodMonths: number
+  baselinePerDay: number
+  attentionFactor: number
+  items: TurnoverItem[]
+}

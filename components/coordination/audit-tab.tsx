@@ -5,47 +5,11 @@ import { AlertTriangle, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import type { AuditItem, AuditResponse } from "@/types/coordination"
-import { CHANGE_REASON_LABEL, slotsLabel } from "@/lib/group-change"
-import { AUDIT_ACTION_LABEL, MENU_LABEL, PROFILE_LABEL, GROUP_ROLE_LABEL, formatDateOnly, inputClass } from "@/components/coordination/labels"
+import type { AuditResponse } from "@/types/coordination"
+import { AUDIT_ACTION_LABEL, inputClass } from "@/components/coordination/labels"
+import { describeAudit } from "@/components/coordination/audit-describe"
 
 const PAGE_SIZE = 30
-
-/** Texto curto do que mudou, a partir do metadata de cada tipo de ação. */
-function describe(item: AuditItem): string {
-  const m = item.metadata ?? {}
-  switch (item.action) {
-    case "PROFILE_CHANGE":
-      return `${PROFILE_LABEL[m.from] ?? m.from ?? "—"} → ${PROFILE_LABEL[m.to] ?? m.to ?? "—"}`
-    case "GROUP_JOIN":
-    case "GROUP_LEAVE":
-      return m.groupName ?? ""
-    case "GROUP_ROLE_CHANGE":
-      return `${m.groupName ?? ""}: ${GROUP_ROLE_LABEL[m.from] ?? m.from} → ${GROUP_ROLE_LABEL[m.to] ?? m.to}`
-    case "TRAINING_CHANGE":
-      return `${formatDateOnly(m.from)} → ${formatDateOnly(m.to)}`
-    case "GROUP_TRANSFER":
-      return `${m.fromGroupName ?? "?"} → ${m.toGroupName ?? "?"}`
-    case "GROUP_CHANGE_REQUESTED":
-      return `quer ir: ${slotsLabel(m.slots ?? [])} · ${CHANGE_REASON_LABEL[m.reason] ?? m.reason ?? ""}${m.note ? ` · ${m.note}` : ""}`
-    case "GROUP_CHANGE_CANCELLED":
-      return ""
-    case "GROUP_CHANGE_RESOLVED": {
-      const how: Record<string, string> = { MOVED: "trocou de grupo", ADDED: "entrou no dia e horário que queria", LEFT: "saiu de todos os grupos" }
-      return `${how[m.resolution] ?? m.resolution ?? ""}${m.groupName ? ` (${m.groupName})` : ""}`
-    }
-    case "SETTING_CHANGE":
-      return m.label ?? m.key ?? ""
-    case "PERMISSIONS_CHANGE": {
-      const profiles: Record<string, string> = { ADMIN_ANALYST: "Analista", CAPTAIN: "Capitão", ASSISTANT_CAPTAIN: "Assistente de capitão" }
-      return Object.entries((m.changes ?? {}) as Record<string, { added: string[]; removed: string[] }>)
-        .map(([p, c]) => `${profiles[p] ?? p}: ${[...c.added.map((x) => `+${MENU_LABEL[x] ?? x}`), ...c.removed.map((x) => `−${MENU_LABEL[x] ?? x}`)].join(", ")}`)
-        .join(" · ")
-    }
-    default:
-      return ""
-  }
-}
 
 export function AuditTab() {
   const [q, setQ] = useState("")
@@ -168,7 +132,7 @@ export function AuditTab() {
                       <Badge variant="secondary">{AUDIT_ACTION_LABEL[item.action] ?? item.action}</Badge>
                     </td>
                     <td className="px-4 py-2.5 font-medium text-[#333333]">{item.entityName ?? "—"}</td>
-                    <td className="px-4 py-2.5 text-[#666666]">{describe(item)}</td>
+                    <td className="px-4 py-2.5 text-[#666666]">{describeAudit(item)}</td>
                   </tr>
                 ))}
                 {data && data.items.length === 0 && (

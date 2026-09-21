@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import type { PeopleResponse, Person } from "@/types/coordination"
 import type { ChangeRequestSummary } from "@/lib/group-change"
 import { ChangeRequestControl } from "@/components/group-change/change-request-control"
+import { PersonHistoryDialog } from "@/components/coordination/person-history-dialog"
 import {
   ASSIGNABLE_PROFILES,
   GROUP_ROLE_LABEL,
@@ -63,6 +64,7 @@ function PersonDialog({
   const [newGroupId, setNewGroupId] = useState("")
   const [removing, setRemoving] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
 
   // a lista recarrega depois de cada ação: mantém os campos alinhados com o que foi salvo
   useEffect(() => {
@@ -291,6 +293,14 @@ function PersonDialog({
             <p className="text-[11px] text-[#666666]">As regras de composição continuam valendo (máximo de 2 grupos, nunca 2 do Centro, limite de vagas do grupo).</p>
           </section>
 
+          {/* Histórico: por onde passou, faltas e ações registradas */}
+          <section className="flex items-center justify-between rounded-lg border border-gray-100 p-3 text-sm">
+            <span className="text-[#666666]">Por onde passou, faltas e o que foi feito no cadastro.</span>
+            <Button size="sm" variant="outline" onClick={() => setHistoryOpen(true)}>
+              Ver histórico
+            </Button>
+          </section>
+
           {/* Pedido de troca de grupo: a pessoa continua nos grupos atuais; registra o dia/horário que quer e o motivo */}
           {person.groups.length > 0 && (
             <section className="space-y-2">
@@ -311,6 +321,7 @@ function PersonDialog({
           )}
         </div>
       </DialogContent>
+      {historyOpen && <PersonHistoryDialog participantId={person.id} name={person.name} onClose={() => setHistoryOpen(false)} />}
     </Dialog>
   )
 }

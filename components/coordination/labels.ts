@@ -43,6 +43,20 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   GROUP_CHANGE_REQUESTED: "Pediu troca de grupo",
   GROUP_CHANGE_CANCELLED: "Cancelou pedido de troca",
   GROUP_CHANGE_RESOLVED: "Pedido de troca encerrado",
+  PETITION_WAITING_INFO: "Petição: aguardando informação",
+  PETITION_EXCLUDE: "Petição excluída",
+  PETITION_ACTIVATE: "Petição ativada",
+  PETITION_UPLOAD: "Petição enviada",
+  PETITION_UPDATE: "Petição editada",
+  PETITION_DELETE: "Petição apagada",
+  PARTICIPANT_CREATE: "Cadastrou voluntário",
+  PARTICIPANT_UPDATE: "Editou o cadastro",
+  GROUP_CREATE: "Criou grupo",
+  GROUP_UPDATE: "Editou grupo",
+  GROUP_DELETE: "Apagou grupo",
+  POINT_CREATE: "Criou ponto",
+  POINT_UPDATE: "Editou ponto",
+  DESIGNATION_DELETE: "Apagou designação",
 }
 
 export const inputClass =
@@ -77,3 +91,44 @@ export const MENU_PROFILE_COLUMNS: { profile: "ADMIN_ANALYST" | "CAPTAIN" | "ASS
 ]
 
 export const MENU_LABEL: Record<string, string> = Object.fromEntries(MENU_ROWS.map((r) => [r.path, r.label]))
+
+/** "nov. 25" */
+export function formatMonthYear(iso: string): string {
+  return new Date(iso).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }).replace(" de ", " ")
+}
+
+/** Nome dos campos como o sistema envia (histórico de "editou ...") -> português. */
+export const FIELD_LABEL: Record<string, string> = {
+  name: "nome",
+  phone: "telefone",
+  email: "e-mail",
+  sex: "sexo",
+  address: "endereço",
+  city: "cidade",
+  state: "estado",
+  zipCode: "CEP",
+  cpf: "CPF",
+  birthDate: "nascimento",
+  baptismDate: "batismo",
+  civilStatus: "estado civil",
+  hasMinorChild: "filho menor",
+  spouseParticipant: "cônjuge",
+  attributions: "atribuições",
+  languages: "idiomas",
+  availability: "disponibilidade",
+  congregationId: "congregação",
+  lastTrainingDate: "treinamento",
+  profilePhoto: "foto",
+  petitionId: "petição",
+  configMax: "máximo",
+  configMin: "mínimo",
+  configWeekday: "dia da semana",
+  configStartHour: "início",
+  configEndHour: "fim",
+  type: "tipo",
+  status: "situação",
+  coordinatorId: "coordenador",
+  additionalInfo: "informações",
+  whatsappId: "WhatsApp do grupo",
+  locationPhoto: "foto do local",
+}
