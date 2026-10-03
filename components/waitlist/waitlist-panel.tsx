@@ -16,6 +16,9 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowLeftRight,
+  GripVertical,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import {
@@ -68,6 +71,7 @@ interface WaitlistGroup {
   currentMembers: number
   vacancies: number
   needsHelp: boolean
+  manualOrder?: boolean
   candidates: WaitlistCandidate[]
 }
 
@@ -232,6 +236,38 @@ export function WaitlistPanel() {
   const mainGroups = useMemo(() => sortByNeed((data?.groups ?? []).filter((g) => g.type === "MAIN")), [data])
   const additionalGroups = useMemo(() => sortByNeed((data?.groups ?? []).filter((g) => g.type !== "MAIN")), [data])
 
+  // Reordenar a fila de um grupo (arrastar ou setas). Só com a lista completa na tela: com filtro de
+  // nome/sexo/congregação/treinamento a coluna mostra só parte das pessoas e a ordem ficaria errada.
+  const canReorder = nameFilter === "" && sex === "" && congregationId === "" && !hasTraining
+  const [dragging, setDragging] = useState<{ groupId: string; participantId: string } | null>(null)
+  const [dropOver, setDropOver] = useState<string | null>(null)
+
+  const moveCandidate = async (g: WaitlistGroup, from: number, to: number) => {
+    if (!data || from === to || to < 0 || to >= g.candidates.length) return
+    const previous = data
+    const list = [...g.candidates]
+    const [moved] = list.splice(from, 1)
+    list.splice(to, 0, moved)
+    // atualiza já na tela; se o servidor recusar, volta como estava
+    setData({ ...data, groups: data.groups.map((x) => (x.groupId === g.groupId ? { ...x, manualOrder: true, candidates: list } : x)) })
+    try {
+      await apiClient.put(`/waitlist/order/${g.groupId}`, { participantIds: list.map((c) => c.participantId) }, { endpoint: "new" })
+    } catch (e: any) {
+      setData(previous)
+      toast.error(e?.response?.data?.message || "Não foi possível salvar a nova ordem")
+    }
+  }
+
+  const resetOrder = async (g: WaitlistGroup) => {
+    try {
+      await apiClient.put(`/waitlist/order/${g.groupId}`, { participantIds: [] }, { endpoint: "new" })
+      toast.success("Fila voltou à ordem por data")
+      fetchData()
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Não foi possível restaurar a ordem")
+    }
+  }
+
   const confirmAdd = async () => {
     if (!addTarget) return
     setAddingId(addTarget.candidate.participantId)
@@ -305,6 +341,11 @@ export function WaitlistPanel() {
           </div>
           <p className="text-xs text-[#666666] mt-0.5">
             {WEEKDAY_PT[g.weekday]} · {g.configStartHour}–{g.configEndHour}
+            {g.manualOrder && (
+              <button type="button" onClick={() => resetOrder(g)} className="ml-2 text-[#374192] underline" title="Voltar para a ordem por data de espera">
+                fila manual · restaurar
+              </button>
+            )}
           </p>
           <div className="mt-2">
             <div className="flex items-center justify-between text-[11px] text-[#666666] mb-1">
@@ -330,12 +371,65 @@ export function WaitlistPanel() {
           {g.candidates.length === 0 ? (
             <p className="text-xs text-[#666666] text-center py-6">Ninguém disponível</p>
           ) : (
-            g.candidates.map((c) => (
+            g.candidates.map((c, idx) => (
               <div
                 key={c.participantId}
-                className="border border-gray-100 rounded-xl p-2.5 hover:border-[#929BD2] hover:shadow-sm transition-all"
+                draggable={canReorder}
+                onDragStart={() => setDragging({ groupId: g.groupId, participantId: c.participantId })}
+                onDragEnd={() => {
+                  setDragging(null)
+                  setDropOver(null)
+                }}
+                onDragOver={(e) => {
+                  if (dragging && dragging.groupId === g.groupId) {
+                    e.preventDefault()
+                    setDropOver(c.participantId)
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  if (dragging && dragging.groupId === g.groupId) {
+                    const from = g.candidates.findIndex((x) => x.participantId === dragging.participantId)
+                    void moveCandidate(g, from, idx)
+                  }
+                  setDragging(null)
+                  setDropOver(null)
+                }}
+                className={`border rounded-xl p-2.5 hover:border-[#929BD2] hover:shadow-sm transition-all ${
+                  dropOver === c.participantId && dragging?.participantId !== c.participantId
+                    ? "border-[#374192] bg-[#374192]/5"
+                    : "border-gray-100"
+                } ${dragging?.participantId === c.participantId ? "opacity-50" : ""}`}
               >
                 <div className="flex items-center gap-2.5">
+                  {canReorder && (
+                    <div className="flex items-center -ml-1 flex-shrink-0">
+                      <GripVertical className="h-4 w-4 text-gray-300 cursor-grab" aria-hidden />
+                      <div className="flex flex-col">
+                        <button
+                          type="button"
+                          title="Subir na fila"
+                          aria-label={`Subir ${c.name} na fila`}
+                          disabled={idx === 0}
+                          onClick={() => moveCandidate(g, idx, idx - 1)}
+                          className="text-[#929BD2] hover:text-[#374192] disabled:opacity-25 disabled:hover:text-[#929BD2]"
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          title="Descer na fila"
+                          aria-label={`Descer ${c.name} na fila`}
+                          disabled={idx === g.candidates.length - 1}
+                          onClick={() => moveCandidate(g, idx, idx + 1)}
+                          className="text-[#929BD2] hover:text-[#374192] disabled:opacity-25 disabled:hover:text-[#929BD2]"
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <span className="text-[11px] font-semibold text-[#929BD2] w-4 text-center flex-shrink-0">{idx + 1}</span>
                   <div
                     className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0 ${
                       c.sex === "MALE" ? "bg-[#3B82F6]" : "bg-[#EC4899]"
@@ -572,6 +666,10 @@ export function WaitlistPanel() {
           Limpar filtros
         </Button>
       </div>
+
+      {!canReorder && (
+        <p className="text-xs text-[#666666] -mt-2">Para mudar a posição das pessoas na fila, limpe os filtros de nome, sexo, congregação e treinamento.</p>
+      )}
 
       {/* Kanban — dois painéis (Centro / Adicionais), cada um com quem precisa mais de gente na frente */}
       {loading && !data ? (
