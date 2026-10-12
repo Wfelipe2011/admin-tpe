@@ -168,7 +168,7 @@ export function WaitlistPanel() {
   // modelo da mensagem definido pelo coordenador; se falhar, fica o padrão
   useEffect(() => {
     apiClient
-      .get<{ message: string }>("/settings/waitlist-whatsapp", { endpoint: "new" })
+      .get<{ message: string }>("/settings/waitlist-whatsapp")
       .then((res) => res?.message && setWaTemplate(res.message))
       .catch(() => {})
   }, [])
@@ -184,7 +184,7 @@ export function WaitlistPanel() {
     if (!congOpen) return
     const t = setTimeout(() => {
       apiClient
-        .get<Congregation[]>(`/congregations?name=${encodeURIComponent(congInput)}`, { endpoint: "new" })
+        .get<Congregation[]>(`/congregations?name=${encodeURIComponent(congInput)}`)
         .then((res) => setCongOptions(Array.isArray(res) ? res.slice(0, 30) : []))
         .catch(() => setCongOptions([]))
     }, 300)
@@ -205,7 +205,7 @@ export function WaitlistPanel() {
     setLoading(true)
     setError(null)
     apiClient
-      .get<WaitlistResponse>(`/waitlist?${query().toString()}`, { endpoint: "new" })
+      .get<WaitlistResponse>(`/waitlist?${query().toString()}`)
       .then((res) => setData(res))
       .catch((e) => setError(e?.response?.data?.message || "Erro ao carregar a lista de espera"))
       .finally(() => setLoading(false))
@@ -251,7 +251,7 @@ export function WaitlistPanel() {
     // atualiza já na tela; se o servidor recusar, volta como estava
     setData({ ...data, groups: data.groups.map((x) => (x.groupId === g.groupId ? { ...x, manualOrder: true, candidates: list } : x)) })
     try {
-      await apiClient.put(`/waitlist/order/${g.groupId}`, { participantIds: list.map((c) => c.participantId) }, { endpoint: "new" })
+      await apiClient.put(`/waitlist/order/${g.groupId}`, { participantIds: list.map((c) => c.participantId) })
     } catch (e: any) {
       setData(previous)
       toast.error(e?.response?.data?.message || "Não foi possível salvar a nova ordem")
@@ -260,7 +260,7 @@ export function WaitlistPanel() {
 
   const resetOrder = async (g: WaitlistGroup) => {
     try {
-      await apiClient.put(`/waitlist/order/${g.groupId}`, { participantIds: [] }, { endpoint: "new" })
+      await apiClient.put(`/waitlist/order/${g.groupId}`, { participantIds: [] })
       toast.success("Fila voltou à ordem por data")
       fetchData()
     } catch (e: any) {
@@ -275,7 +275,6 @@ export function WaitlistPanel() {
       await apiClient.patch(
         `/groups/${addTarget.group.groupId}/participants/${addTarget.candidate.participantId}`,
         {},
-        { endpoint: "new" },
       )
       toast.success(`${addTarget.candidate.name} adicionado(a) ao grupo ${addTarget.group.name}`)
       setAddTarget(null)
@@ -300,7 +299,6 @@ export function WaitlistPanel() {
       await apiClient.post(
         `/groups/${swapTarget.group.groupId}/participants/${swapTarget.candidate.participantId}/transfer`,
         { fromGroupId: leaveGroupId },
-        { endpoint: "new" },
       )
       toast.success(`${swapTarget.candidate.name} trocado(a) para o grupo ${swapTarget.group.name}`)
       setSwapTarget(null)
@@ -872,7 +870,7 @@ function FichaModal({
   const save = async () => {
     setSaving(true)
     try {
-      await apiClient.put(`/participants/${candidate.participantId}`, { availability }, { endpoint: "new" })
+      await apiClient.put(`/participants/${candidate.participantId}`, { availability })
       toast.success("Disponibilidade atualizada")
       onSaved()
       onClose()

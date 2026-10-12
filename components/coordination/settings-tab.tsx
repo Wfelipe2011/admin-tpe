@@ -45,7 +45,7 @@ function AnnouncementCard() {
 
   useEffect(() => {
     apiClient
-      .get<Announcement>("/settings/announcement", { endpoint: "new" })
+      .get<Announcement>("/settings/announcement")
       .then((res) => {
         setSaved(res)
         setEnabled(res.enabled)
@@ -59,7 +59,7 @@ function AnnouncementCard() {
   const save = async () => {
     setSaving(true)
     try {
-      const res = await apiClient.put<Announcement>("/coordination/settings/announcement", { enabled, message: message.trim() }, { endpoint: "new" })
+      const res = await apiClient.put<Announcement>("/coordination/settings/announcement", { enabled, message: message.trim() })
       setSaved(res)
       toast.success(enabled ? "Aviso salvo e ativo" : "Aviso salvo (desativado)")
     } catch (e: any) {
@@ -108,7 +108,7 @@ function WhatsappCard() {
 
   useEffect(() => {
     apiClient
-      .get<WhatsappTemplate>("/settings/waitlist-whatsapp", { endpoint: "new" })
+      .get<WhatsappTemplate>("/settings/waitlist-whatsapp")
       .then((res) => {
         setSaved(res)
         setMessage(res.message)
@@ -125,7 +125,7 @@ function WhatsappCard() {
   const save = async () => {
     setSaving(true)
     try {
-      apply(await apiClient.put<WhatsappTemplate>("/coordination/settings/waitlist-whatsapp", { message: message.trim() }, { endpoint: "new" }), "Mensagem salva")
+      apply(await apiClient.put<WhatsappTemplate>("/coordination/settings/waitlist-whatsapp", { message: message.trim() }), "Mensagem salva")
     } catch (e: any) {
       toast.error(asText(e?.response?.data?.message ?? "Não foi possível salvar a mensagem"))
     } finally {
@@ -136,7 +136,7 @@ function WhatsappCard() {
   const reset = async () => {
     setSaving(true)
     try {
-      apply(await apiClient.delete<WhatsappTemplate>("/coordination/settings/waitlist-whatsapp", { endpoint: "new" }), "Voltou ao modelo padrão")
+      apply(await apiClient.delete<WhatsappTemplate>("/coordination/settings/waitlist-whatsapp"), "Voltou ao modelo padrão")
     } catch (e: any) {
       toast.error(asText(e?.response?.data?.message ?? "Não foi possível restaurar"))
     } finally {

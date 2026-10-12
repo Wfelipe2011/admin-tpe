@@ -24,9 +24,7 @@ export default function DesignationListPage() {
     const loadingToast = toast.loading('Carregando designações...')
     try {
       setLoading(true)
-      const data = await apiClient.get<WeekDesignation[]>(`/designations/${designationId}/participants`, {
-        endpoint: "legacy",
-      })
+      const data = await apiClient.get<WeekDesignation[]>(`/designations/${designationId}/participants`, { })
       toast.dismiss(loadingToast)
 
       setDesignations(data || [])

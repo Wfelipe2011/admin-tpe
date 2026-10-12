@@ -39,9 +39,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
     const groupId = selectedGroupId || getUserFromToken()?.groupId
     if (!groupId || groupId === "todos") return
     try {
-      const rows = await apiClient.get<(ChangeRequestSummary & { participantId: string })[]>(`/group-change-requests?groupId=${groupId}`, {
-        endpoint: "new",
-      })
+      const rows = await apiClient.get<(ChangeRequestSummary & { participantId: string })[]>(`/group-change-requests?groupId=${groupId}`, { })
       setChangeRequests(Object.fromEntries(rows.map((r) => [r.participantId, r])))
     } catch {
       // não impede o uso da tela (ex.: pedidos ainda não habilitados neste ambiente)
@@ -73,7 +71,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
       }
 
       // Fetch designation details
-      const designationData = await apiClient.get<IDesignation>(`/groups/${groupId}/designations/week-details`)
+      const designationData = await apiClient.get<IDesignation>(`/groups/${groupId}/designations/week-details`, { })
       setDesignationDetails(designationData)
 
       // Fetch participants

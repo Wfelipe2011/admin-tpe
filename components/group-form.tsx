@@ -113,7 +113,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
     const fetchCoordinators = async () => {
       setIsLoading(true)
       try {
-        const data = await apiClient.get<Coordinator[]>("participants?profile=COORDINATOR", { endpoint: "new" })
+        const data = await apiClient.get<Coordinator[]>("participants?profile=COORDINATOR")
         setCoordinators(data)
       } catch (error) {
         console.error("Erro ao buscar coordenadores:", error)
@@ -136,7 +136,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
       const fetchGroupData = async () => {
         setIsLoading(true)
         try {
-          const data = await apiClient.get(`groups/${groupId}`, { endpoint: "new" })
+          const data = await apiClient.get(`groups/${groupId}`)
 
           // Format the data for the form
           form.reset({
@@ -185,14 +185,14 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
 
       if (isEditing && groupId) {
         // Update existing group
-        await apiClient.put(`groups/${groupId}`, formData, { endpoint: "new" })
+        await apiClient.put(`groups/${groupId}`, formData)
         toast({
           title: "Sucesso",
           description: "Grupo atualizado com sucesso",
         })
       } else {
         // Create new group
-        await apiClient.post("groups", formData, { endpoint: "new" })
+        await apiClient.post("groups", formData)
         toast({
           title: "Sucesso",
           description: "Grupo criado com sucesso",

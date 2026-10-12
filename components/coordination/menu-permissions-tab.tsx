@@ -29,7 +29,7 @@ export function MenuPermissionsTab() {
 
   useEffect(() => {
     apiClient
-      .get<MenuPermissionsResponse>("/settings/menu-permissions", { endpoint: "new" })
+      .get<MenuPermissionsResponse>("/settings/menu-permissions")
       .then((res) => {
         setSaved(res)
         setDraft(res.permissions)
@@ -122,7 +122,7 @@ export function MenuPermissionsTab() {
           disabled={!dirty || saving}
           onClick={() =>
             run(
-              () => apiClient.put<MenuPermissionsResponse>("/coordination/settings/menu-permissions", { permissions: draft }, { endpoint: "new" }),
+              () => apiClient.put<MenuPermissionsResponse>("/coordination/settings/menu-permissions", { permissions: draft }),
               "Menu salvo",
               "Não foi possível salvar o menu",
             )
@@ -136,7 +136,7 @@ export function MenuPermissionsTab() {
           disabled={saving || (saved.isDefault && !dirty)}
           onClick={() =>
             run(
-              () => apiClient.delete<MenuPermissionsResponse>("/coordination/settings/menu-permissions", { endpoint: "new" }),
+              () => apiClient.delete<MenuPermissionsResponse>("/coordination/settings/menu-permissions"),
               "Voltou ao padrão",
               "Não foi possível restaurar o padrão",
             )

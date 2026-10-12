@@ -145,7 +145,7 @@ function PersonDialog({
                         disabled={busy}
                         onClick={() =>
                           run(
-                            () => apiClient.patch(`/coordination/people/${person.id}/profile`, { profile }, { endpoint: "new" }),
+                            () => apiClient.patch(`/coordination/people/${person.id}/profile`, { profile }),
                             "Perfil alterado",
                             "Não foi possível alterar o perfil",
                           )
@@ -176,7 +176,7 @@ function PersonDialog({
                 disabled={busy || !training || training === (person.lastTrainingDate ?? "").slice(0, 10)}
                 onClick={() =>
                   run(
-                    () => apiClient.patch(`/coordination/people/${person.id}/training`, { lastTrainingDate: training }, { endpoint: "new" }),
+                    () => apiClient.patch(`/coordination/people/${person.id}/training`, { lastTrainingDate: training }),
                     "Treinamento salvo",
                     "Não foi possível salvar o treinamento",
                   )
@@ -191,7 +191,7 @@ function PersonDialog({
                   disabled={busy}
                   onClick={() =>
                     run(
-                      () => apiClient.patch(`/coordination/people/${person.id}/training`, { lastTrainingDate: null }, { endpoint: "new" }),
+                      () => apiClient.patch(`/coordination/people/${person.id}/training`, { lastTrainingDate: null }),
                       "Treinamento removido",
                       "Não foi possível remover o treinamento",
                     )
@@ -220,7 +220,7 @@ function PersonDialog({
                       disabled={busy}
                       onChange={(e) =>
                         run(
-                          () => apiClient.put(`/groups/${g.groupId}/participants/${person.id}`, { profile: e.target.value }, { endpoint: "new" }),
+                          () => apiClient.put(`/groups/${g.groupId}/participants/${person.id}`, { profile: e.target.value }),
                           "Cargo no grupo alterado",
                           "Não foi possível alterar o cargo",
                         )
@@ -246,7 +246,7 @@ function PersonDialog({
                         disabled={busy}
                         onClick={() =>
                           run(
-                            () => apiClient.delete(`/groups/${g.groupId}/participants/${person.id}`, { endpoint: "new" }),
+                            () => apiClient.delete(`/groups/${g.groupId}/participants/${person.id}`),
                             "Removido do grupo",
                             "Não foi possível remover do grupo",
                           ).then(() => setRemoving(null))
@@ -281,7 +281,7 @@ function PersonDialog({
                 disabled={!newGroupId || busy}
                 onClick={() =>
                   run(
-                    () => apiClient.patch(`/groups/${newGroupId}/participants/${person.id}`, {}, { endpoint: "new" }),
+                    () => apiClient.patch(`/groups/${newGroupId}/participants/${person.id}`, {}),
                     "Adicionado ao grupo",
                     "Não foi possível adicionar ao grupo",
                   ).then(() => setNewGroupId(""))
@@ -353,7 +353,7 @@ export function PeopleTab() {
 
   useEffect(() => {
     apiClient
-      .get<GroupOption[]>("/groups", { endpoint: "new" })
+      .get<GroupOption[]>("/groups")
       .then((res) => setGroupOptions(Array.isArray(res) ? res : []))
       .catch(() => setGroupOptions([]))
   }, [])
@@ -367,7 +367,7 @@ export function PeopleTab() {
     setLoading(true)
     setError(null)
     apiClient
-      .get<PeopleResponse>(`/coordination/people?${p.toString()}`, { endpoint: "new" })
+      .get<PeopleResponse>(`/coordination/people?${p.toString()}`)
       .then(setData)
       .catch((e) => setError(asText(errorMessage(e, "Não foi possível carregar as pessoas"))))
       .finally(() => setLoading(false))
@@ -379,7 +379,7 @@ export function PeopleTab() {
 
   const loadRequests = useCallback(() => {
     apiClient
-      .get<(ChangeRequestSummary & { participantId: string })[]>("/group-change-requests", { endpoint: "new" })
+      .get<(ChangeRequestSummary & { participantId: string })[]>("/group-change-requests")
       .then((rows) => setRequests(Object.fromEntries(rows.map((r) => [r.participantId, r]))))
       .catch(() => setRequests({}))
   }, [])

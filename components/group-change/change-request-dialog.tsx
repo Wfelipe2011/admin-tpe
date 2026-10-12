@@ -83,7 +83,6 @@ export function ChangeRequestDialog({
       await apiClient.post(
         "/group-change-requests",
         { participantId, desiredSlots: slots, reason, note: note.trim() || undefined },
-        { endpoint: "new" },
       )
       toast.success("Pedido de troca registrado")
       reset()

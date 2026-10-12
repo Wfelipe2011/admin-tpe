@@ -120,7 +120,7 @@ export function PetitionList() {
         url += `?${params.toString()}`
       }
 
-      const data = await apiClient.get<IPetitions[]>(url, { endpoint: "new" }).catch((error) => {
+      const data = await apiClient.get<IPetitions[]>(url).catch((error) => {
         if (error.response.status === 404) {
           return null
         } else {

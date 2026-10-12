@@ -1,85 +1,48 @@
 "use server"
 
-import axios from "axios"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import { legacyApiBaseUrl } from "@/lib/api-config"
-
-interface LoginCredentials {
-  phone: string
-  password: string
-}
+import { serverApiClient } from "@/lib/api-client.server"
+import axios from "axios"
 
 interface LoginResponse {
   token: string
-  user?: {
-    id: string
-    name: string
-    [key: string]: any
-  }
+  user?: { id: string; name: string; [key: string]: unknown }
   error?: string
 }
 
 export async function loginAction(formData: FormData): Promise<LoginResponse> {
   const phone = formData.get("phone") as string
   const password = formData.get("password") as string
-
   if (!phone || !password) {
-    return {
-      token: "",
-      error: "Telefone e senha são obrigatórios",
-    }
+    return { token: "", error: "Telefone e senha são obrigatórios" }
   }
 
   try {
-    const response = await axios.post(
-      `${legacyApiBaseUrl}/auth/login`,
-      { phone, password },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    )
-
-    const data = response.data
-
-    // Set the auth token in a cookie
-    cookies().set({
+    const { data } = await serverApiClient.post<LoginResponse>("/auth/login", { phone, password })
+    const cookieStore = await cookies()
+    cookieStore.set({
       name: "auth_token",
       value: data.token,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 1, // 1 day
+      maxAge: 60 * 60 * 24,
       sameSite: "lax",
     })
-
-    return {
-      token: data.token,
-      user: data.user,
-    }
+    return { token: data.token, user: data.user }
   } catch (error) {
-    console.error("Login error:", error)
-
-    // Handle Axios errors
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        return {
-          token: "",
-          error: error.response.data?.message || "Falha na autenticação",
-        }
-      }
-    }
-
     return {
       token: "",
-      error: "Erro ao processar a solicitação",
+      error: axios.isAxiosError(error)
+        ? error.response?.data?.message || "Falha na autenticação"
+        : "Erro ao processar a solicitação",
     }
   }
 }
 
 export async function logoutAction() {
-  cookies().delete("auth_token")
+  const cookieStore = await cookies()
+  cookieStore.delete("auth_token")
   redirect("/login")
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "react-hot-toast"
+import { AppVersion } from "@/components/app-version"
 
 // Load Inter font with all subsets
 const inter = Inter({
@@ -76,8 +77,9 @@ export default function RootLayout({
           />
         ) : null}
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} pb-[calc(2rem+env(safe-area-inset-bottom))]`}>
         {children}
+        <AppVersion />
         <Toaster
           position="top-right"
           toastOptions={{

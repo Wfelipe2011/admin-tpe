@@ -23,7 +23,7 @@ export function GroupParticipants({ groupId }: GroupParticipantsProps) {
 
   const fetchGroupParticipants = async () => {
     try {
-      const data = await apiClient.get(`/groups/${groupId}/participants`, { endpoint: "new" })
+      const data = await apiClient.get(`/groups/${groupId}/participants`)
       setGroup(data)
       setIsLoading(false)
     } catch (error) {

@@ -19,7 +19,7 @@ export function loadMenuPermissions(force = false): Promise<void> {
   if (inFlight && !force) return inFlight
 
   inFlight = apiClient
-    .get<MenuPermissionsResponse>("/settings/menu-permissions", { endpoint: "new" })
+    .get<MenuPermissionsResponse>("/settings/menu-permissions")
     .then((res) => {
       setCustomMenuPermissions(res.isDefault ? null : res.permissions)
       loaded = true

@@ -41,7 +41,7 @@ export function AuditTab() {
     setLoading(true)
     setError(null)
     apiClient
-      .get<AuditResponse>(`/coordination/audit?${p.toString()}`, { endpoint: "new" })
+      .get<AuditResponse>(`/coordination/audit?${p.toString()}`)
       .then(setData)
       .catch((e) => setError(e?.response?.data?.message || "Não foi possível carregar o histórico"))
       .finally(() => setLoading(false))

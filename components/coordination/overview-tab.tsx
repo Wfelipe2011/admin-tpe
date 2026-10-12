@@ -158,7 +158,7 @@ export function OverviewTab() {
     setLoading(true)
     setError(null)
     apiClient
-      .get<CoordinationOverview>("/coordination/overview", { endpoint: "new" })
+      .get<CoordinationOverview>("/coordination/overview")
       .then((res) => setData(res))
       .catch((e) => setError(e?.response?.data?.message || "Não foi possível carregar a visão geral"))
       .finally(() => setLoading(false))

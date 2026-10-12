@@ -22,7 +22,7 @@ export function AnnouncementBanner() {
 
   useEffect(() => {
     apiClient
-      .get<Announcement>("/settings/announcement", { endpoint: "new" })
+      .get<Announcement>("/settings/announcement")
       .then((res) => {
         setAnnouncement(res)
         try {

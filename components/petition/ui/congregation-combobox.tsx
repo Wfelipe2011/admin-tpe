@@ -54,7 +54,7 @@ export function CongregationCombobox({
     const fetchCongregations = async () => {
       try {
         setIsLoading(true)
-        const data = await apiClient.get<Congregation[]>("/congregations", { endpoint: "new" })
+        const data = await apiClient.get<Congregation[]>("/congregations")
         setCongregations(data)
         setFilteredCongregations(data)
 

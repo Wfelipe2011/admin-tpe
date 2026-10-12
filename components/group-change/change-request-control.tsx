@@ -32,7 +32,7 @@ export function ChangeRequestControl({
     if (!request) return
     setBusy(true)
     try {
-      await apiClient.delete(`/group-change-requests/${request.id}`, { endpoint: "new" })
+      await apiClient.delete(`/group-change-requests/${request.id}`)
       toast.success("Pedido de troca cancelado")
       setConfirmCancel(false)
       onChanged()

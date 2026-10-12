@@ -51,7 +51,7 @@ export default function DashboardPage() {
         // Build URL with query parameter if a specific group is selected
         const url = selectedGroupId === "todos" ? "/dashboard" : `/dashboard?groupId=${selectedGroupId}`
 
-        const data = await apiClient.get<IDashboard>(url, { endpoint: "new" })
+        const data = await apiClient.get<IDashboard>(url)
         setDashboardData(data)
         setError(null)
       } catch (err) {

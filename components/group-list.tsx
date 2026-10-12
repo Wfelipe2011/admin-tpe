@@ -19,7 +19,7 @@ export function GroupList() {
 
   const fetchGroups = async () => {
     try {
-      const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
+      const data = await apiClient.get<IGroups[]>("/groups")
       setGroups(data)
       setIsLoading(false)
     } catch (error) {

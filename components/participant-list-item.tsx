@@ -38,7 +38,7 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
   const handleRemoveParticipant = async () => {
     try {
       setIsLoading(true)
-      await apiClient.delete(`/groups/${groupId}/participants/${participant.id}`, { endpoint: "new" })
+      await apiClient.delete(`/groups/${groupId}/participants/${participant.id}`)
 
       toast({
         title: "Sucesso",
@@ -60,7 +60,7 @@ export function ParticipantListItem({ participant, groupId, groupType, onUpdate 
   const handleChangeProfile = async (profile: string) => {
     try {
       setIsLoading(true)
-      await apiClient.put(`/groups/${groupId}/participants/${participant.id}`, { profile }, { endpoint: "new" })
+      await apiClient.put(`/groups/${groupId}/participants/${participant.id}`, { profile })
 
       toast({
         title: "Sucesso",

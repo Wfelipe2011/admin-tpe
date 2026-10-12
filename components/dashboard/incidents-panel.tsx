@@ -137,7 +137,7 @@ export function IncidentsPanel() {
   useEffect(() => {
     if (!canSeeAllGroups) return
     apiClient
-      .get<{ id: string; name: string }[]>("/groups", { endpoint: "new" })
+      .get<{ id: string; name: string }[]>("/groups")
       .then((data) => setGroups(Array.isArray(data) ? data.map((g) => ({ id: g.id, name: g.name })) : []))
       .catch(() => setGroups([]))
   }, [canSeeAllGroups])
@@ -157,7 +157,7 @@ export function IncidentsPanel() {
     setLoading(true)
     setError(null)
     apiClient
-      .get<IncidentsSummary>(`/incidents/summary?${baseQuery().toString()}`, { endpoint: "new" })
+      .get<IncidentsSummary>(`/incidents/summary?${baseQuery().toString()}`)
       .then((data) => setSummary(data))
       .catch((e) => setError(e?.response?.data?.message || "Erro ao carregar o resumo"))
       .finally(() => setLoading(false))
@@ -170,7 +170,7 @@ export function IncidentsPanel() {
     if (dateFrom) p.set("dateFrom", fmtDate(dateFrom))
     if (dateTo) p.set("dateTo", fmtDate(dateTo))
     apiClient
-      .get<IncidentsHealth>(`/incidents/health?${p.toString()}`, { endpoint: "new" })
+      .get<IncidentsHealth>(`/incidents/health?${p.toString()}`)
       .then((data) => setHealth(data))
       .catch(() => setHealth(null))
   }, [groupParam, dateFrom, dateTo])
@@ -182,7 +182,7 @@ export function IncidentsPanel() {
     p.set("page", String(page))
     p.set("pageSize", String(PAGE_SIZE))
     apiClient
-      .get<IncidentsList>(`/incidents?${p.toString()}`, { endpoint: "new" })
+      .get<IncidentsList>(`/incidents?${p.toString()}`)
       .then((data) => setList(data))
       .catch(() => setList(null))
   }, [baseQuery, page, selected])

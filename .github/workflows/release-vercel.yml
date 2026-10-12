@@ -1,0 +1,95 @@
+name: Versão semântica e deploy Vercel
+
+on:
+  push:
+    branches: [hmg, master]
+  workflow_dispatch:
+
+# Um release por vez, inclusive entre branches: protege a numeração das tags.
+concurrency:
+  group: release-vercel
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.ref_name == 'hmg' || github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'master' && 'production' || 'hmg' }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '9.15.9'
+
+      - name: Validar configuração
+        run: |
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret $name não configurado"
+              exit 1
+            fi
+          done
+
+      - name: Instalar dependências e CLI
+        run: |
+          pnpm install --frozen-lockfile
+          npm install --global vercel@63.1.2
+
+      - name: Verificar regras de versionamento
+        run: pnpm version:check
+
+      - name: Atualizar tags e calcular versão
+        id: version
+        run: |
+          git fetch origin --tags
+          node scripts/release-version.mjs
+
+      - name: Carregar ambiente da Vercel
+        run: |
+          if [ "$GITHUB_REF_NAME" = "master" ]; then
+            vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          else
+            vercel pull --yes --environment=preview --git-branch=hmg --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Build da versão gerada
+        run: |
+          if [ "$GITHUB_REF_NAME" = "master" ]; then
+            vercel build --prod --token="$VERCEL_TOKEN"
+          else
+            vercel build --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Publicar o mesmo artefato
+        run: |
+          flags=()
+          if [ "$GITHUB_REF_NAME" = "master" ]; then flags+=(--prod); fi
+          vercel deploy --prebuilt "${flags[@]}" --token="$VERCEL_TOKEN" \
+            --meta githubDeployment=1 --meta "githubCommitRef=$GITHUB_REF_NAME" \
+            --meta "githubCommitSha=$GITHUB_SHA" > deployment-url.txt
+          echo "### v${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          cat deployment-url.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Registrar tag somente após deploy bem-sucedido
+        if: steps.version.outputs.create_tag == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "$RELEASE_TAG" "$GITHUB_SHA" -m "Release $RELEASE_TAG"
+          git push origin "refs/tags/$RELEASE_TAG"

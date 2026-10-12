@@ -25,7 +25,7 @@ export function TurnoverTab() {
     setData(null)
     setError(null)
     apiClient
-      .get<TurnoverResponse>(`/coordination/turnover?months=${months}&minGroups=2`, { endpoint: "new" })
+      .get<TurnoverResponse>(`/coordination/turnover?months=${months}&minGroups=2`)
       .then(setData)
       .catch((e) => setError(e?.response?.data?.message || "Não foi possível carregar a rotatividade"))
   }, [months])

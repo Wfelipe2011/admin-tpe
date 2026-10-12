@@ -25,7 +25,7 @@ export function PersonHistoryDialog({ participantId, name, onClose }: { particip
     setData(null)
     setError(null)
     apiClient
-      .get<PersonHistory>(`/coordination/people/${participantId}/history?months=${months}`, { endpoint: "new" })
+      .get<PersonHistory>(`/coordination/people/${participantId}/history?months=${months}`)
       .then(setData)
       .catch((e) => setError(e?.response?.data?.message || "Não foi possível carregar o histórico"))
   }, [participantId, months])

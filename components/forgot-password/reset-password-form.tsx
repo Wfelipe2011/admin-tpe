@@ -53,7 +53,7 @@ export function ResetPasswordForm({ phone, token, onSuccess, onBack }: ResetPass
         {
           headers: {
             Authorization: `Bearer ${token}`,
-          },
+          }
         },
       )
 

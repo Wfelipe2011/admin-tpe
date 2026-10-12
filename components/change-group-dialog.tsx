@@ -44,7 +44,7 @@ export function ChangeGroupDialog({
 
   const fetchGroups = async () => {
     try {
-      const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
+      const data = await apiClient.get<IGroups[]>("/groups")
       // Filtra grupos do tipo Principal ou Adicional
       const filteredGroups = data.filter((group: IGroups) =>
         group.type === "MAIN" || group.type === "ADDITIONAL"
@@ -63,7 +63,6 @@ export function ChangeGroupDialog({
       await apiClient.post(
         `/groups/${newGroup.id}/participants/${participant.id}/transfer`,
         { fromGroupId: currentGroupId },
-        { endpoint: "new" },
       )
 
       toast({

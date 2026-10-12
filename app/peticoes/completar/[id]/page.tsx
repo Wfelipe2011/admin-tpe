@@ -23,7 +23,7 @@ export default function CompletarPeticaoPage() {
       try {
         setLoading(true)
         const id = params.id as string
-        const data = await apiClient.get<PetitionDetail>(`/petitions/${id}`, { endpoint: "new" })
+        const data = await apiClient.get<PetitionDetail>(`/petitions/${id}`)
         setPetition(data)
       } catch (error) {
         console.error("Error fetching petition:", error)
