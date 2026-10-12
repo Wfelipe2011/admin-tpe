@@ -9,6 +9,7 @@ import { useGroupStore } from "@/lib/stores/use-group-store"
 import type { IDesignationParticipants, Assignment, Incident } from "@/types/designation-participants"
 import type { DesignationInsights, SuggestAssignmentResponse } from "@/types/designation-insights"
 import toast from "react-hot-toast"
+import axios from "axios"
 
 // Hook para debounce de valores
 export function useDebounce<T>(value: T, delay: number): T {
@@ -43,13 +44,29 @@ export function useDesignation() {
   const [showRecreateModal, setShowRecreateModal] = useState(false)
   const [insights, setInsights] = useState<DesignationInsights | null>(null)
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
-  const isUpdatingRef = useRef(false)
+  const requestIdRef = useRef(0)
+  const creationRef = useRef(false)
+  const [creatingDesignation, setCreatingDesignation] = useState(false)
+  const [designationLoadState, setDesignationLoadState] = useState<"idle" | "ready" | "missing" | "error">("idle")
+  const [designationLoadError, setDesignationLoadError] = useState<string | null>(null)
+  const [missingGroupClosed, setMissingGroupClosed] = useState(false)
   const { selectedGroupId } = useGroupStore()
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
 
   // Fetch designation data from API
   const fetchDesignationData = async (isLoading = true) => {
+    const requestId = ++requestIdRef.current
+    setDesignationData(null)
+    setAssignments([])
+    setParticipants([])
+    setFilteredParticipants([])
+    setFilteredAssignments([])
+    setInsights(null)
+    setIsOptional(false)
+    setDesignationLoadState("idle")
+    setDesignationLoadError(null)
+    setMissingGroupClosed(false)
     // Se o grupo selecionado for "todos", não exibe nada
     if (selectedGroupId === "todos") {
       setDesignationData(null)
@@ -61,10 +78,6 @@ export function useDesignation() {
       return
     }
 
-    // Evita múltiplas chamadas simultâneas
-    if (isUpdatingRef.current) return
-
-    isUpdatingRef.current = true
     if (isLoading) setLoading(true)
 
     try {
@@ -73,39 +86,49 @@ export function useDesignation() {
       if (!user) {
         console.error("User not found in token")
         setLoading(false)
-        isUpdatingRef.current = false
         return
       }
 
       // Use o groupId do Zustand store
       const groupId = selectedGroupId || user.groupId
+      if (!groupId) throw new Error("Selecione um grupo para carregar a designação")
 
       const response = await apiClient.get<IDesignationParticipants>(
         `/groups/${groupId}/designations/week?groupId=${groupId}`,
       )
 
-      toast.success("Designação carregada com sucesso!")
+      if (requestId !== requestIdRef.current) return
+      setDesignationLoadState("ready")
       setDesignationData(response)
       setAssignments(response.assignments || [])
       setParticipants(response.participants || [])
       setIsOptional(!response.mandatoryPresence)
       setLastUpdateTime(new Date())
     } catch (error) {
+      if (requestId !== requestIdRef.current) return
+      if (axios.isAxiosError(error) && error.response?.status === 404 && error.response.data?.code === "DESIGNATION_NOT_FOUND") {
+        setDesignationLoadState("missing")
+        setMissingGroupClosed(error.response.data.groupStatus !== "OPEN")
+        return
+      }
       console.error("Error fetching designation data:", error)
-      toast.error("Erro ao carregar designação. Tente novamente.")
+      setDesignationLoadState("error")
+      setDesignationLoadError("Não foi possível carregar a designação. Tente novamente.")
     } finally {
-      setLoading(false)
-      isUpdatingRef.current = false
+      if (requestId === requestIdRef.current) setLoading(false)
     }
   }
 
   // Hints de histórico (dupla/ponto) — não-bloqueante, só informativo.
   // Refaz sempre que a composição dos pontos muda (manual ou automático).
   const fetchInsights = async (designationId: string) => {
+    const requestId = requestIdRef.current
     try {
-      const response = await apiClient.get<DesignationInsights>(`/designations/${designationId}/insights`, { endpoint: "new" })
+      const response = await apiClient.get<DesignationInsights>(`/designations/${designationId}/insights`)
+      if (requestId !== requestIdRef.current) return
       setInsights(response)
     } catch (error) {
+      if (requestId !== requestIdRef.current) return
       console.error("Error fetching designation insights:", error)
       // Não bloqueia a tela por causa disso — só some o hint.
       setInsights(null)
@@ -129,13 +152,16 @@ export function useDesignation() {
   useEffect(() => {
     // Primeira chamada imediata
     fetchDesignationData()
+    setSearchTerm("")
+    return () => { requestIdRef.current++ }
   }, [selectedGroupId]) // Adiciona selectedGroupId como dependência
 
   // Fetch filtered data when search term changes
   useEffect(() => {
     const fetchFilteredData = async () => {
+      const requestId = requestIdRef.current
       // Se o grupo selecionado for "todos", não exibe nada
-      if (selectedGroupId === "todos") {
+      if (selectedGroupId === "todos" || designationLoadState !== "ready") {
         setFilteredParticipants([])
         setFilteredAssignments([])
         return
@@ -176,6 +202,7 @@ export function useDesignation() {
           `/groups/${groupId}/designations/week?groupId=${groupId}&filter=${encodeURIComponent(debouncedSearchTerm)}`,
         )
 
+        if (requestId !== requestIdRef.current) return
         // Update filtered assignments from API response
         if (response.assignmentsFiltered) {
           setFilteredAssignments(response.assignmentsFiltered)
@@ -187,6 +214,7 @@ export function useDesignation() {
         )
         setFilteredParticipants(filtered)
       } catch (error) {
+        if (requestId !== requestIdRef.current) return
         console.error("Error fetching filtered data:", error)
         // Fallback to local filtering on error
         const filtered = participants.filter((participant) =>
@@ -204,7 +232,7 @@ export function useDesignation() {
     }
 
     fetchFilteredData()
-  }, [debouncedSearchTerm, participants, assignments, selectedGroupId]) // Adiciona selectedGroupId como dependência
+  }, [debouncedSearchTerm, participants, assignments, selectedGroupId, designationLoadState])
 
   // Handle scroll for sticky counter
   useEffect(() => {
@@ -239,7 +267,11 @@ export function useDesignation() {
     }
   }
 
-  const legacyRandomAssign = async (groupId: string) =>
+  // Sorteio simples: só é usado quando o auto-assign inteligente falha. Continua
+  // sendo um GET com `?random=true` (escrita dentro de GET, como na legacy), mas
+  // agora o sorteio e a gravação acontecem direto no api-v2. A fila FIFO e
+  // seus produtores/consumidores continuam disponíveis na legacy.
+  const randomAssign = async (groupId: string) =>
     apiClient.get<IDesignationParticipants>(`/groups/${groupId}/designations/week?groupId=${groupId}&random=true`)
 
   const autoAssign = async () => {
@@ -260,6 +292,7 @@ export function useDesignation() {
       // Pool completo (quem já está num ponto + quem ainda está disponível) — o
       // mesmo conjunto que a legacy usaria. O back-end novo decide quem pode ser
       // escalado (ignora capitão/coordenador), o front só repassa o que já tem.
+      if (!groupId) throw new Error("Grupo não encontrado para designação automática")
       const allCandidates = [
         ...participants.map((p) => ({ id: p.id, profile: p.profile, sex: p.sex })),
         ...assignments.flatMap((a) => a.participants.map((p) => ({ id: p.id, profile: p.profile, sex: p.sex }))),
@@ -270,18 +303,12 @@ export function useDesignation() {
         const suggestion = await apiClient.post<SuggestAssignmentResponse>(
           `/designations/${designationData.id}/suggest-assignment`,
           { participants: allCandidates },
-          { endpoint: "new" },
         )
 
-        // Aplica a sugestão ponto a ponto pelo mesmo endpoint que o drag-and-drop já usa.
-        for (const item of suggestion.assignments) {
-          await apiClient.put(`/designations/${designationData.id}/points/${item.pointId}/participants`, {
-            participants: item.participantIds,
-          })
-        }
-
-        response = await apiClient.get<IDesignationParticipants>(
-          `/groups/${groupId}/designations/week?groupId=${groupId}`,
+        // Uma chamada e uma transação, sem um PUT sequencial por ponto.
+        response = await apiClient.put<IDesignationParticipants>(
+          `/designations/${designationData.id}/participants`,
+          { assignments: suggestion.assignments },
         )
 
         if (suggestion.warnings.length > 0) {
@@ -294,8 +321,8 @@ export function useDesignation() {
         }
       } catch (smartError) {
         // Nunca bloqueia: se a sugestão inteligente falhar, cai pro sorteio simples de sempre.
-        console.error("Error on smart auto-assign, falling back to legacy random:", smartError)
-        response = await legacyRandomAssign(groupId)
+        console.error("Error on smart auto-assign, falling back to simple random assign:", smartError)
+        response = await randomAssign(groupId)
         toast.success("Designação automática realizada com sucesso!")
       }
 
@@ -318,9 +345,10 @@ export function useDesignation() {
     const loadingToast = toast.loading("Enviando designação...")
     setLoading(true)
     try {
-      const response = await apiClient.post<IDesignationParticipants>(`/designations/${designationData.id}/send`, {
-        optional: isOptional,
-      })
+      const response = await apiClient.post<IDesignationParticipants>(
+        `/designations/${designationData.id}/send`,
+        { optional: isOptional },
+      )
 
       // Atualiza o estado completo com a resposta da API
       setDesignationData(response)
@@ -343,9 +371,10 @@ export function useDesignation() {
     const loadingToast = toast.loading("Cancelando designação...")
     setLoading(true)
     try {
-      const response = await apiClient.patch<IDesignationParticipants>(`/designations/${designationData.id}/cancel`, {
-        justification: justification.trim(),
-      })
+      const response = await apiClient.patch<IDesignationParticipants>(
+        `/designations/${designationData.id}/cancel`,
+        { justification: justification.trim() },
+      )
 
       // Atualiza o estado completo com a resposta da API
       setDesignationData(response)
@@ -372,7 +401,7 @@ export function useDesignation() {
     setLoading(true)
     try {
       const response = await apiClient.request<IDesignationParticipants>(`/designations/${designationData.id}/reopen`, {
-        method: "PATCH",
+        method: "PATCH"
       })
 
       // Atualiza o estado completo com a resposta da API
@@ -393,9 +422,7 @@ export function useDesignation() {
     try {
       const response = await apiClient.patch<IDesignationParticipants>(
         `/designations/${designationData.id}/points/${pointId}`,
-        {
-          status,
-        },
+        { status },
       )
 
       // Atualiza o estado completo com a resposta da API
@@ -420,9 +447,7 @@ export function useDesignation() {
     try {
       const response = await apiClient.put<IDesignationParticipants>(
         `/designations/${designationData.id}/points/${pointId}/participants`,
-        {
-          participants: participantIds,
-        },
+        { participants: participantIds },
       )
 
       // Atualiza o estado completo com a resposta da API
@@ -514,6 +539,36 @@ export function useDesignation() {
     setShowRecreateModal(true)
   }
 
+  const createDesignation = async () => {
+    if (creationRef.current) return
+    const user = getUserFromToken()
+    const groupId = selectedGroupId || user?.groupId
+    if (!groupId || groupId === "todos" || user?.profile !== "COORDINATOR") return
+    creationRef.current = true
+    setCreatingDesignation(true)
+    const requestId = requestIdRef.current
+    try {
+      // Cria somente o que está ausente. Nunca apaga designações arquivadas.
+      await apiClient.post(`/designations?groupId=${groupId}`, {})
+      if (requestId === requestIdRef.current) {
+        await fetchDesignationData()
+        toast.success("Designação criada com sucesso!")
+      }
+    } catch (error) {
+      if (requestId !== requestIdRef.current) return
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        await fetchDesignationData()
+        toast("A designação já foi criada. Atualizamos a tela.")
+      } else {
+        const message = axios.isAxiosError(error) ? error.response?.data?.message : undefined
+        toast.error(typeof message === "string" ? message : "Não foi possível criar a designação. Tente novamente.")
+      }
+    } finally {
+      creationRef.current = false
+      setCreatingDesignation(false)
+    }
+  }
+
   const recreateDesignation = async () => {
     if (!designationData?.id) {
       toast.error("ID da designação não encontrado.")
@@ -536,10 +591,10 @@ export function useDesignation() {
       const groupId = selectedGroupId || user.groupId
 
       // Step 1: Delete designation (usando new API)
-      await apiClient.delete(`/designations/${designationData.id}`, { endpoint: "new" })
+      await apiClient.delete(`/designations/${designationData.id}`)
 
-      // Step 2: Create new designation (usando legacy API)
-      await apiClient.post(`/designations?groupId=${groupId}`, {}, { endpoint: "legacy" })
+      // Step 2: Create new designation
+      await apiClient.post(`/designations?groupId=${groupId}`, {})
 
       // Step 3: Fetch designation data (buscar designação da semana)
       const response = await apiClient.get<IDesignationParticipants>(
@@ -598,9 +653,10 @@ export function useDesignation() {
 
     const loadingToast = toast.loading("Atualizando status de presença...")
     try {
-      await apiClient.patch(`/designations/${designationData.id}/optional`, {
-        optional,
-      })
+      await apiClient.patch(
+        `/designations/${designationData.id}/optional`,
+        { optional },
+      )
       toast.success(`Presença ${optional ? "opcional" : "obrigatória"} salva!`)
     } catch (error) {
       console.error("Error updating optional status:", error)
@@ -619,6 +675,11 @@ export function useDesignation() {
   })
 
   return {
+    designationLoadState,
+    designationLoadError,
+    missingGroupClosed,
+    creatingDesignation,
+    createDesignation,
     loading,
     searchTerm,
     isOptional,

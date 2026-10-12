@@ -1,0 +1,73 @@
+name: Versão semântica
+
+on:
+  push:
+    branches: [hmg, master]
+  workflow_dispatch:
+
+concurrency:
+  group: release-version
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    if: >-
+      (github.ref_name == 'hmg' || github.ref_name == 'master') &&
+      (github.event_name == 'workflow_dispatch' ||
+      !startsWith(github.event.head_commit.message, 'chore(release): '))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verificar regras de versionamento
+        run: node scripts/check-release-version.mjs
+
+      - name: Atualizar tags e conferir branch
+        id: head
+        run: |
+          git fetch origin "refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME" --tags
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/$GITHUB_REF_NAME")" ]; then
+            echo 'A branch avançou. A execução do push mais recente irá gerar a versão.'
+            echo 'current=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'current=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Calcular versão
+        if: steps.head.outputs.current == 'true'
+        id: version
+        run: node scripts/release-version.mjs
+
+      - name: Registrar versão para o deploy Git da Vercel
+        if: steps.head.outputs.current == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          CREATE_TAG: ${{ steps.version.outputs.create_tag }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lib/build-version.json
+          changed=false
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): $RELEASE_TAG"
+            changed=true
+          fi
+
+          refs=()
+          if [ "$changed" = 'true' ]; then refs+=("HEAD:refs/heads/$GITHUB_REF_NAME"); fi
+          if [ "$CREATE_TAG" = 'true' ]; then
+            git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
+            refs+=("refs/tags/$RELEASE_TAG")
+          fi
+          if [ "${#refs[@]}" -gt 0 ]; then git push --atomic origin "${refs[@]}"; fi
+          echo "### $RELEASE_TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Versão registrada no Git. O deploy continua pela integração Git da Vercel.' >> "$GITHUB_STEP_SUMMARY"

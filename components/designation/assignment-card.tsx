@@ -3,9 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { AlertCircle, Clock, User } from "lucide-react"
+import { useState } from "react"
+import { AlertCircle, AlertTriangle, Clock, User } from "lucide-react"
 import type { Assignment, Incident } from "@/types/designation-participants"
 import type { AssignmentInsights } from "@/types/designation-insights"
+import { isMixedSexPair, LEGACY_GENDER_ERROR_FRAGMENT, pairKey } from "@/lib/mixed-pair"
 import { NewCombobox } from "../ui/new-combobox"
 
 interface AssignmentCardProps {
@@ -35,6 +37,13 @@ export function AssignmentCard({
   insights,
 }: AssignmentCardProps) {
   const remainingSlots = assignment.config.max - assignment.participants.length
+
+  // Dupla mista é permitida: o erro vermelho da legacy vira uma pergunta, sem bloquear nada.
+  const [confirmedPair, setConfirmedPair] = useState<string | null>(null)
+  const errorMessage = assignment.error && !assignment.error.includes(LEGACY_GENDER_ERROR_FRAGMENT) ? assignment.error : ""
+  const mixedPair = isMixedSexPair(assignment.participants)
+  const showMixedPairWarning = mixedPair && confirmedPair !== pairKey(assignment.participants)
+
   const comboboxOptions = availableParticipants
     .filter((p) => !isAbsent(p))
     .map((p) => ({
@@ -45,11 +54,11 @@ export function AssignmentCard({
   return (
     <div className="relative">
       {/* Error message balloon */}
-      {assignment.error && (
+      {errorMessage && (
         <div className="absolute -top-8 sm:-top-12 left-0 right-0 z-10">
           <div className="bg-red-50 text-red-600 p-2 sm:p-3 rounded-lg border border-red-200 shadow-lg text-xs sm:text-sm flex items-start gap-2 mx-auto max-w-[95%] sm:max-w-[90%]">
             <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 flex-shrink-0" />
-            <span>{assignment.error}</span>
+            <span>{errorMessage}</span>
           </div>
           {/* Arrow */}
           <div className="absolute -bottom-1.5 sm:-bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 sm:w-4 sm:h-4 rotate-45 bg-red-50 border-b border-r border-red-200" />
@@ -58,7 +67,8 @@ export function AssignmentCard({
 
       <Card
         className={`
-          ${assignment.error ? "border-red-200 shadow-[0_0_0_1px_rgba(254,202,202,0.5)]" : ""}
+          ${errorMessage ? "border-red-200 shadow-[0_0_0_1px_rgba(254,202,202,0.5)]" : ""}
+          ${showMixedPairWarning ? "border-amber-300" : ""}
           ${!assignment.point.status ? "opacity-70" : ""}
           min-h-[300px] relative
         `}
@@ -168,6 +178,25 @@ export function AssignmentCard({
               </div>
             ))}
           </div>
+
+          {/* Dupla homem + mulher: permitido, só pergunta ao capitão — não bloqueia nada */}
+          {showMixedPairWarning && (
+            <div className="mb-3 rounded-md border border-amber-300 bg-amber-50 p-2 sm:p-2.5 text-xs sm:text-sm text-amber-900">
+              <div className="flex items-start gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 flex-shrink-0 text-amber-600" />
+                <span>
+                  Dupla com homem e mulher. <strong>Tem certeza que vai manter assim?</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmedPair(pairKey(assignment.participants))}
+                className="mt-1.5 ml-5 text-[11px] sm:text-xs font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-950"
+              >
+                Sim, manter assim
+              </button>
+            </div>
+          )}
 
           {/* Hints de histórico — não bloqueia nada, só informa (dupla/ponto repetidos) */}
           {((insights?.pairs?.length ?? 0) > 0 || (insights?.participants?.length ?? 0) > 0) && (

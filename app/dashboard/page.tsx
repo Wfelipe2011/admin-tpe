@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import Link from "next/link"
 import { ProtectedLayout } from "@/app/layout-protected"
+import { AnnouncementBanner } from "@/components/announcement-banner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, CalendarCheck, MapPin, ClipboardList, Eye, EyeOff, BarChart3, ExternalLink } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -50,7 +51,7 @@ export default function DashboardPage() {
         // Build URL with query parameter if a specific group is selected
         const url = selectedGroupId === "todos" ? "/dashboard" : `/dashboard?groupId=${selectedGroupId}`
 
-        const data = await apiClient.get<IDashboard>(url, { endpoint: "new" })
+        const data = await apiClient.get<IDashboard>(url)
         setDashboardData(data)
         setError(null)
       } catch (err) {
@@ -89,14 +90,14 @@ export default function DashboardPage() {
     return Math.round((dashboardData.vacancies / totalCapacity) * 100)
   }
 
-  // Add this function to calculate the percentage of valid trainings
+  // Percentual de voluntários com treinamento registrado (treinamento não tem validade)
   const calculateTrainingsPercentage = () => {
     if (!dashboardData?.trainings) return 0
 
-    const total = dashboardData.trainings.valid + dashboardData.trainings.expired
+    const total = dashboardData.trainings.withTraining + dashboardData.trainings.withoutTraining
     if (total === 0) return 0
 
-    return Math.round((dashboardData.trainings.valid / total) * 100)
+    return Math.round((dashboardData.trainings.withTraining / total) * 100)
   }
 
   const isLoading = isLoadingDashboard
@@ -104,6 +105,7 @@ export default function DashboardPage() {
   return (
     <ProtectedLayout title="Dashboard" breadcrumbs={[{ label: "Dashboard" }]}>
       <div className="space-y-4 sm:space-y-8">
+        <AnnouncementBanner />
         {/* Header Section - Mobile optimized */}
         <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-4 sm:p-8 text-white">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -389,7 +391,7 @@ function ChartCard({ title, percentage }: ChartCardProps) {
     centerSubtext = "Disponíveis"
   } else if (title === "Treinamentos") {
     centerText = `${percentage}%`
-    centerSubtext = "Válidos"
+    centerSubtext = "Com treinamento"
   }
 
   return (

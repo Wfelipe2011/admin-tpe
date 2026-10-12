@@ -1,32 +1,24 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import { getAuthToken } from "@/lib/auth-utils"
-import { legacyApiBaseUrl, newApiBaseUrl } from "@/lib/api-config"
+import { newApiBaseUrl } from "@/lib/api-config"
 
-type ApiEndpoint = "legacy" | "new"
-
+/**
+ * Cliente único: todas as rotas HTTP do app estão no api-v2.
+ *
+ * A legacy mantém seus handlers, crons, consumidores e infraestrutura, mas
+ * não é mais um destino de requisições deste frontend.
+ */
 interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   body?: any
   headers?: Record<string, string>
-  endpoint?: ApiEndpoint
 }
 
 export class ApiClient {
-  private legacyBaseUrl = legacyApiBaseUrl
   private newBaseUrl = newApiBaseUrl
-  private legacyAxios: AxiosInstance
   private newAxios: AxiosInstance
 
   constructor() {
-    this.legacyAxios = axios.create({
-      baseURL: this.legacyBaseUrl,
-      timeout: 30000,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    })
-
     this.newAxios = axios.create({
       baseURL: this.newBaseUrl,
       timeout: 30000,
@@ -40,17 +32,6 @@ export class ApiClient {
   }
 
   private setupInterceptors(): void {
-    this.legacyAxios.interceptors.request.use(
-      (config) => {
-        const token = getAuthToken()
-        if (token && !config.headers.Authorization) {
-          config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-      },
-      (error) => Promise.reject(error),
-    )
-
     this.newAxios.interceptors.request.use(
       (config) => {
         const token = getAuthToken()
@@ -74,17 +55,16 @@ export class ApiClient {
       return Promise.reject(error)
     }
 
-    this.legacyAxios.interceptors.response.use(responseInterceptor, errorInterceptor)
     this.newAxios.interceptors.response.use(responseInterceptor, errorInterceptor)
   }
 
-  private getAxiosInstance(endpoint: ApiEndpoint = "legacy"): AxiosInstance {
-    return endpoint === "legacy" ? this.legacyAxios : this.newAxios
+  private getAxiosInstance(): AxiosInstance {
+    return this.newAxios
   }
 
   async request<T>(url: string, options: RequestOptions = {}): Promise<T> {
-    const { method = "GET", body, headers = {}, endpoint = "legacy" } = options
-    const axiosInstance = this.getAxiosInstance(endpoint)
+    const { method = "GET", body, headers = {} } = options
+    const axiosInstance = this.getAxiosInstance()
     const config: AxiosRequestConfig = { method, url, headers }
     if (body) {
       config.data = body
@@ -119,8 +99,8 @@ export class ApiClient {
   }
 
   async upload<T>(url: string, formData: FormData, options: Omit<RequestOptions, "body"> = {}): Promise<T> {
-    const { method = "POST", endpoint = "new", headers = {} } = options
-    const axiosInstance = this.getAxiosInstance(endpoint)
+    const { method = "POST", headers = {} } = options
+    const axiosInstance = this.getAxiosInstance()
 
     const uploadHeaders = {
       ...headers,
@@ -143,6 +123,6 @@ export const apiClient = new ApiClient()
 
 // Petition specific methods
 export const petitionApi = {
-  exclude: (id: string) => apiClient.patch(`/petitions/exclude/${id}`, {}, { endpoint: "new" }),
-  activate: (id: string) => apiClient.patch(`/petitions/activate/${id}`, {}, { endpoint: "new" }),
+  exclude: (id: string) => apiClient.patch(`/petitions/exclude/${id}`, {}),
+  activate: (id: string) => apiClient.patch(`/petitions/activate/${id}`, {}),
 }

@@ -9,14 +9,20 @@ import { AbsenceModal } from "./absence-modal"
 import { ReasonModal } from "./reason-modal"
 import { apiClient } from "@/lib/api-client"
 import type { IParticipants } from "@/types/designation"
+import type { ChangeRequestSummary } from "@/lib/group-change"
+import { ChangeRequestControl } from "@/components/group-change/change-request-control"
 
 interface ParticipantCardLargeProps {
   participant: IParticipants
   designationId?: string
   onStatusChange: () => void
+  /** pedido de troca de grupo em aberto desta pessoa (se houver) */
+  changeRequest?: ChangeRequestSummary | null
+  /** presente => mostra "Quer trocar de grupo" / o selo do pedido */
+  onChangeRequestChanged?: () => void
 }
 
-export function ParticipantCardLarge({ participant, designationId, onStatusChange }: ParticipantCardLargeProps) {
+export function ParticipantCardLarge({ participant, designationId, onStatusChange, changeRequest, onChangeRequestChanged }: ParticipantCardLargeProps) {
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false)
   const [isReasonModalOpen, setIsReasonModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -113,6 +119,17 @@ export function ParticipantCardLarge({ participant, designationId, onStatusChang
               </Button>
             )}
           </div>
+
+          {onChangeRequestChanged && (
+            <div className="mt-4 pt-3 border-t border-gray-100">
+              <ChangeRequestControl
+                participantId={participant.id}
+                participantName={participant.name}
+                request={changeRequest}
+                onChanged={onChangeRequestChanged}
+              />
+            </div>
+          )}
         </div>
       </Card>
 

@@ -2,13 +2,17 @@
 
 import { ProtectedLayout } from "@/app/layout-protected"
 import { WaitlistPanel } from "@/components/waitlist/waitlist-panel"
+import { AnnouncementBanner } from "@/components/announcement-banner"
 
 export default function ListaEsperaPage() {
     const breadcrumbs = [{ label: "Início", href: "/" }, { label: "Lista de Espera" }]
 
     return (
         <ProtectedLayout title="Lista de Espera" breadcrumbs={breadcrumbs}>
-            <WaitlistPanel />
+            <div className="space-y-4">
+                <AnnouncementBanner />
+                <WaitlistPanel />
+            </div>
         </ProtectedLayout>
     )
 }

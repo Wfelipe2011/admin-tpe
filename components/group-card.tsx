@@ -53,7 +53,7 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true)
     try {
-      await apiClient.delete(`groups/${group.id}`, { endpoint: "new" })
+      await apiClient.delete(`groups/${group.id}`)
       toast({
         title: "Sucesso",
         description: "Grupo excluído com sucesso",
@@ -84,7 +84,7 @@ export function GroupCard({ group, onGroupUpdated }: GroupCardProps) {
 
       setIsLoadingCoordinator(true)
       try {
-        const data = await apiClient.get<IParticipants>(`participants/${group.coordinatorId}`, { endpoint: "new" })
+        const data = await apiClient.get<IParticipants>(`participants/${group.coordinatorId}`)
         setCoordinator(data)
       } catch (error) {
         console.error("Erro ao buscar coordenador:", error)

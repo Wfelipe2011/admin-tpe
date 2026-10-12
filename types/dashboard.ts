@@ -16,8 +16,8 @@ export interface WaitingPerson {
 }
 
 export interface Trainings {
-  valid: number
-  expired: number
+  withTraining: number
+  withoutTraining: number
 }
 
 export interface Incident {

@@ -8,7 +8,7 @@ import { SearchBar } from "@/components/designation/search-bar"
 import { ActionButtons } from "@/components/designation/action-buttons"
 import { AssignmentCard } from "@/components/designation/assignment-card"
 import { Button } from "@/components/ui/button"
-import { Users, UserCheck } from "lucide-react"
+import { Loader2, UserCheck } from "lucide-react"
 import Link from "next/link"
 import { getUserFromToken } from "@/lib/auth-utils"
 import type { ParticipantProfile } from "@/types/auth"
@@ -16,6 +16,12 @@ import type { ParticipantProfile } from "@/types/auth"
 export default function DesignarPage() {
   const {
     loading,
+    designationLoadState,
+    designationLoadError,
+    missingGroupClosed,
+    creatingDesignation,
+    createDesignation,
+    fetchDesignationData,
     searchTerm,
     isOptional,
     copyStatus,
@@ -120,6 +126,39 @@ export default function DesignarPage() {
               </div>
             </div>
           </div>
+        ) : designationLoadState !== "ready" ? (
+          <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8 text-center py-16" role="status" aria-live="polite">
+            <UserCheck className="h-8 w-8 text-[#929BD2] mx-auto mb-4" aria-hidden="true" />
+            <h2 className="text-lg font-semibold text-[#333333]">
+              {designationLoadState === "missing"
+                ? "Este grupo não possui designação atual"
+                : designationLoadState === "error"
+                  ? "Não foi possível carregar a designação"
+                  : "Selecione um grupo"}
+            </h2>
+            <p className="text-sm text-[#666666] mt-2 max-w-lg mx-auto">
+              {designationLoadState === "missing"
+                ? missingGroupClosed
+                  ? "O grupo está fechado. Reabra o grupo antes de criar uma designação."
+                  : userProfile === "COORDINATOR"
+                    ? "Crie uma designação com os pontos configurados para este grupo. O histórico será preservado."
+                    : "Solicite a um coordenador a criação da designação deste grupo."
+                : designationLoadState === "error"
+                  ? designationLoadError
+                  : "Escolha um grupo no menu para consultar ou criar sua designação."}
+            </p>
+            {designationLoadState === "missing" && !missingGroupClosed && userProfile === "COORDINATOR" && (
+              <Button className="mt-6" onClick={createDesignation} disabled={creatingDesignation}>
+                {creatingDesignation && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
+                {creatingDesignation ? "Criando designação..." : "Criar designação"}
+              </Button>
+            )}
+            {designationLoadState === "error" && (
+              <Button className="mt-6" variant="outline" onClick={() => fetchDesignationData()}>
+                Tentar novamente
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8">
             <div className="space-y-8">
@@ -220,8 +259,9 @@ export default function DesignarPage() {
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F8F8F8]">
                     <UserCheck className="h-8 w-8 text-[#929BD2]" aria-hidden="true" />
                   </div>
-                  <p className="mt-4 text-[#333333] font-medium">Nenhum ponto de designação disponível</p>
-                  <p className="text-sm text-[#666666] mt-1">Aguarde a abertura de novas designações</p>
+                  <p className="mt-4 text-[#333333] font-medium">Esta designação não possui pontos</p>
+                  <p className="text-sm text-[#666666] mt-1">Confira os pontos configurados para o grupo antes de recriar a designação.</p>
+                  {userProfile === "COORDINATOR" && <Link href="/pontos" className="inline-block mt-4 text-[#374192] underline">Consultar pontos do grupo</Link>}
                 </div>
               )}
 

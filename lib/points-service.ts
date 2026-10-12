@@ -18,9 +18,7 @@ export class PointsService {
   static async getGroupPoints(groupId: string): Promise<GroupPoint[]> {
     try {
       // Use apiClient with "new" endpoint to connect to the points API
-      const response = await apiClient.get<ApiResponse<GroupPoint[]>>(`/groups/${groupId}/points`, {
-        endpoint: "new"
-      })
+      const response = await apiClient.get<ApiResponse<GroupPoint[]>>(`/groups/${groupId}/points`)
       
       // Check if response has the expected API structure
       if (typeof response === 'object' && response !== null && 'success' in response) {
@@ -59,9 +57,7 @@ export class PointsService {
         status: data.status,
       }
 
-      const response = await apiClient.post<ApiResponse<GroupPoint> | GroupPoint>(`/groups/${data.groupId}/points`, payload, {
-        endpoint: "new"
-      })
+      const response = await apiClient.post<ApiResponse<GroupPoint> | GroupPoint>(`/groups/${data.groupId}/points`, payload)
       
       // Check if response has the expected API structure
       if (typeof response === 'object' && response !== null && 'success' in response) {
@@ -100,9 +96,7 @@ export class PointsService {
         status: data.status,
       }
 
-      const response = await apiClient.put<ApiResponse<GroupPoint> | GroupPoint>(`/points/${pointId}`, payload, {
-        endpoint: "new"
-      })
+      const response = await apiClient.put<ApiResponse<GroupPoint> | GroupPoint>(`/points/${pointId}`, payload)
       
       // Check if response has the expected API structure
       if (typeof response === 'object' && response !== null && 'success' in response) {

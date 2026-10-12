@@ -29,7 +29,6 @@ export default function ParticipantDesignationPage() {
       setLoading(true)
       const data = await apiClient.get<WeekDesignation[]>(
         `/designations/${designationId}/participants/${participantId}`,
-        { endpoint: "legacy" },
       )
 
       setDesignations(data || [])
@@ -63,7 +62,7 @@ export default function ParticipantDesignationPage() {
 
   const handleAbsent = async (reason: string) => {
     try {
-      await apiClient.post(`/designations/${designationId}/participants/${participantId}/incidences`, { reason }, { endpoint: "legacy" })
+      await apiClient.post(`/designations/${designationId}/participants/${participantId}/incidences`, { reason })
       await fetchDesignations()
       return Promise.resolve()
     } catch (error) {
@@ -74,7 +73,7 @@ export default function ParticipantDesignationPage() {
 
   const handleUpdateIncident = async (reason: string, incidentId: string) => {
     try {
-      await apiClient.put(`/designations/${designationId}/participants/${participantId}/incidences/${incidentId}`, { reason }, { endpoint: "legacy" })
+      await apiClient.put(`/designations/${designationId}/participants/${participantId}/incidences/${incidentId}`, { reason })
       await fetchDesignations()
       return Promise.resolve()
     } catch (error) {

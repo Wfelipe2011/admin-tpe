@@ -82,7 +82,7 @@ export function GroupSelector({ className = "", isMobileView = false }: GroupSel
     const fetchGroups = async () => {
       try {
         setIsLoadingGroups(true)
-        const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
+        const data = await apiClient.get<IGroups[]>("/groups")
         const sortedGroups = sortGroupsByDayAndTime(data)
         setGroups(sortedGroups)
         setError(null)

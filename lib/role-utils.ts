@@ -20,6 +20,7 @@ export const routeAccess: Record<string, ParticipantProfile[]> = {
   "/grupos/editar": [ParticipantProfile.COORDINATOR, ParticipantProfile.ADMIN_ANALYST],
   "/pontos": [ParticipantProfile.COORDINATOR],
   "/lista-espera": [ParticipantProfile.COORDINATOR],
+  "/coordenacao": [ParticipantProfile.COORDINATOR],
 }
 
 // Check if a user has access to a specific route
@@ -32,6 +33,13 @@ export function hasRouteAccess(userProfile: ParticipantProfile, path: string): b
   // PARTICIPANT has no access to protected routes
   if (userProfile === ParticipantProfile.PARTICIPANT) {
     return false
+  }
+
+  // Menu configurado pelo coordenador (Coordenação > Menu por perfil): manda nas telas que têm item de menu
+  const custom = customMenu?.[userProfile]
+  if (custom) {
+    const menuPath = menuPathFor(path)
+    if (menuPath) return custom.includes(menuPath)
   }
 
   // For other paths, check the routeAccess map
@@ -50,9 +58,24 @@ export function hasRouteAccess(userProfile: ParticipantProfile, path: string): b
   return false
 }
 
-// Get menu items based on user profile
-export function getAuthorizedMenuItems(userProfile: ParticipantProfile) {
-  const allMenuItems = [
+// Menu por perfil configurado pelo coordenador; null = vale o padrão de defaultMenuItems().
+// Carregado por lib/menu-permissions.ts
+let customMenu: Record<string, string[]> | null = null
+export function setCustomMenuPermissions(permissions: Record<string, string[]> | null) {
+  customMenu = permissions
+}
+
+// item de menu que "cobre" a rota, o mais específico primeiro (/dashboard/lista-atencao antes de /dashboard)
+function menuPathFor(path: string): string | undefined {
+  return defaultMenuItems()
+    .map((item) => item.path)
+    .sort((a, b) => b.length - a.length)
+    .find((p) => path === p || path.startsWith(p + "/"))
+}
+
+// Itens do menu e quem vê cada um por padrão
+function defaultMenuItems() {
+  return [
     {
       name: "Dashboard",
       path: "/dashboard",
@@ -101,7 +124,23 @@ export function getAuthorizedMenuItems(userProfile: ParticipantProfile) {
       icon: "UserCheck",
       allowedProfiles: [ParticipantProfile.COORDINATOR],
     },
+    {
+      name: "Coordenação",
+      path: "/coordenacao",
+      icon: "ShieldCheck",
+      allowedProfiles: [ParticipantProfile.COORDINATOR],
+    },
   ]
+}
+
+// Get menu items based on user profile
+export function getAuthorizedMenuItems(userProfile: ParticipantProfile) {
+  const allMenuItems = defaultMenuItems()
+
+  // o coordenador vê tudo; os demais seguem a matriz configurada (ou o padrão, se nunca foi mexida)
+  if (userProfile === ParticipantProfile.COORDINATOR) return allMenuItems
+  const custom = customMenu?.[userProfile]
+  if (custom) return allMenuItems.filter((item) => custom.includes(item.path))
 
   return allMenuItems.filter((item) => item.allowedProfiles.includes(userProfile))
 }

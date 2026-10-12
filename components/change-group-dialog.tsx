@@ -44,7 +44,7 @@ export function ChangeGroupDialog({
 
   const fetchGroups = async () => {
     try {
-      const data = await apiClient.get<IGroups[]>("/groups", { endpoint: "new" })
+      const data = await apiClient.get<IGroups[]>("/groups")
       // Filtra grupos do tipo Principal ou Adicional
       const filteredGroups = data.filter((group: IGroups) =>
         group.type === "MAIN" || group.type === "ADDITIONAL"
@@ -59,13 +59,11 @@ export function ChangeGroupDialog({
 
   const handleChangeGroup = async (newGroup: IGroups) => {
     try {
-      // Remove do grupo atual
-      await apiClient.delete(`/groups/${currentGroupId}/participants/${participant.id}`, { endpoint: "new" })
-
-      // Adiciona ao novo grupo
-      const result = await apiClient.patch(`/groups/${newGroup.id}/participants/${participant.id}`, null, {
-        endpoint: "new",
-      })
+      // Troca numa operação só (tudo ou nada): se o grupo novo não puder receber, a pessoa continua no atual
+      await apiClient.post(
+        `/groups/${newGroup.id}/participants/${participant.id}/transfer`,
+        { fromGroupId: currentGroupId },
+      )
 
       toast({
         title: "Sucesso",
@@ -78,7 +76,8 @@ export function ChangeGroupDialog({
       toast({
         variant: "destructive",
         title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao trocar de grupo",
+        // mostra o motivo que o servidor deu (grupo lotado, regra do Centro...) em vez do erro genérico
+        description: (error as any)?.response?.data?.message ?? (error instanceof Error ? error.message : "Erro ao trocar de grupo"),
       })
     }
   }

@@ -40,7 +40,7 @@ export function AssignParticipantDialog({
     try {
       const url = searchQuery ? `/participants?name=${encodeURIComponent(searchQuery)}` : "/participants"
 
-      const data = await apiClient.get(url, { endpoint: "new" })
+      const data = await apiClient.get(url)
       setParticipants(data)
       setIsLoading(false)
     } catch (error) {
@@ -52,9 +52,7 @@ export function AssignParticipantDialog({
   const handleAssignParticipant = async (participant: IParticipants) => {
     try {
       // Assign to new group
-      const result = await apiClient.patch(`/groups/${group.id}/participants/${participant.id}`, null, {
-        endpoint: "new",
-      })
+      const result = await apiClient.patch(`/groups/${group.id}/participants/${participant.id}`, null, { })
 
       toast({
         title: "Sucesso",

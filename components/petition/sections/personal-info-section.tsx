@@ -211,9 +211,7 @@ export function PersonalInfoSection({
 
       try {
         setIsValidatingPhone(true)
-        const response = await apiClient.get<IParticipants>(`/participants/phones/${unmaskPhoneNumber(phone)}`, {
-          endpoint: "new",
-        })
+        const response = await apiClient.get<IParticipants>(`/participants/phones/${unmaskPhoneNumber(phone)}`, { })
 
         if (response && response.id) {
           setExistingParticipant(response)

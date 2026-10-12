@@ -1,0 +1,85 @@
+# Versão exibida e deploy Vercel
+
+O rodapé global mostra **somente `vX.Y.Z`** (ou `vX.Y.Z-hmg.N` em homologação).
+O JSON `lib/build-version.json` é gerado pelo Action, commitado e incorporado ao
+build da Vercel, inclusive nas páginas dinâmicas. Não depende de variável em runtime e não expõe
+ambiente, commit, número do workflow ou data no rodapé.
+
+## Regras
+
+- `master`: release estável, por exemplo `v0.1.1`.
+- `hmg`: pré-release SemVer, por exemplo `v0.2.0-hmg.1`.
+- `fix:` / `fix(escopo):`: PATCH.
+- `feat:` / `feat(escopo):`: MINOR.
+- `tipo!:`, `tipo(escopo)!:` ou rodapé `BREAKING CHANGE:`: MAJOR, inclusive em 0.x.
+- `docs:`, `chore:` e commits sem essas convenções não aumentam a versão.
+- Entre releases, o maior incremento encontrado ganha; não há incremento por commit.
+- Squash merges precisam manter o tipo no título/mensagem do commit final.
+- O primeiro release estabelece `0.1.0`, do package.json, sem contar todo o
+  histórico antigo. Primeiro deploy HMG usa `0.1.0-hmg.1`.
+- Tags estáveis acessíveis no histórico são o baseline dos próximos releases.
+  Após promover HMG para master, sincronize master de volta em hmg para que ela
+  conheça a nova versão estável e prepare o próximo ciclo.
+- Docs/chore podem ser publicados com a mesma versão. Não é criada outra tag.
+
+## GitHub Actions
+
+`.github/workflows/release-version.yml` executa em push de `hmg`/`master` ou
+manualmente nessas branches:
+
+1. Checkout completo, validação das regras e atualização de tags.
+2. Verifica se o commit ainda é o HEAD remoto; pula execuções ultrapassadas.
+3. Calcula a versão por Conventional Commits e tags, sem instalar dependências.
+4. Commita somente `lib/build-version.json`, se mudou, com `chore(release): v...`.
+5. Publica o commit e a tag anotada em um push atômico, sem force-push.
+6. A integração Git da Vercel faz o deploy, como antes. O Action não chama a Vercel.
+
+Um único grupo de concorrência evita numeração simultânea pelas duas branches.
+Não cancelar um release em andamento. GitHub pode substituir execuções pendentes
+por pushes mais novos; o cálculo considera todos os commits desde o baseline.
+O commit automático é ignorado pelo workflow para não gerar ciclos. Não usa
+`[skip ci]`, pois isso também poderia impedir o deploy Git da Vercel. O push usa
+o `GITHUB_TOKEN` nativo do Actions, sem secrets adicionais da Vercel.
+
+Tags registram a versão do código, **não comprovam sucesso do deploy**. O Action
+não acompanha o resultado da Vercel. Se o deploy falhar, corrigir/republicar pela
+integração Git. Se o push atômico falhar por branch ter avançado, a execução do
+commit mais recente irá recalcular; se for proteção/permissão, regularizar antes
+de executar novamente. Nenhum histórico é sobrescrito.
+Tags `v*` são reservadas a este workflow; não criar/excluir tags manualmente.
+
+## Deploy original pela integração Git
+
+Não são necessários `VERCEL_TOKEN`, `VERCEL_ORG_ID` ou `VERCEL_PROJECT_ID` no
+Action. Os secrets antigos, se cadastrados, não são usados. O workflow precisa
+somente de permissão `contents: write` do GitHub Actions para atualizar a branch
+e criar tags `v*`; conferir regras de proteção e permissões do repositório.
+
+Na Vercel:
+
+- Manter a integração Git conectada e a configuração de branches/domínios existente.
+- Definir `NEXT_PUBLIC_NEW_API_URL` correto em Production e Preview para `hmg`.
+- Não cadastrar `NEXT_PUBLIC_DEV_TOKEN` em deploys; é exclusivo do desenvolvimento local.
+- Conferir domínios de produção e o domínio/alias de homologação no projeto.
+- O `vercel.json` que desativava deploys de `hmg`/`master` foi removido. Não há
+  bloqueio do deploy Git automático por esta implementação.
+- Um push de código pode gerar um deploy com a versão anterior e, quando houver
+  nova versão, outro deploy do commit gerado pelo Action. O último incorpora a
+  versão correta. Esse comportamento preserva a integração Git sem orquestrar
+  deploys por CLI nem exigir credenciais externas.
+
+O código local não altera configurações remotas. Nenhum deploy/tag/push é feito
+simplesmente por executar o build local.
+
+## Uso local e verificação
+
+```sh
+node scripts/check-release-version.mjs
+# Opcional: regenerar a versão local a partir do histórico da branch atual
+node scripts/release-version.mjs hmg
+```
+
+O gerador escreve `lib/build-version.json`; o Action commita somente esse arquivo.
+No desenvolvimento local, rodar o gerador não faz commit/push. Previews Git de
+outras branches não participam do versionamento automático e usam a versão
+presente no código.

@@ -34,7 +34,7 @@ export default function VisualizarPeticaoPage() {
       try {
         setLoading(true)
         const id = params.id as string
-        const data = await apiClient.get<PetitionResponse>(`/petitions/${id}`, { endpoint: "new" })
+        const data = await apiClient.get<PetitionResponse>(`/petitions/${id}`)
         setPetition(data)
       } catch (error) {
         console.error("Error fetching petition:", error)
@@ -58,7 +58,7 @@ export default function VisualizarPeticaoPage() {
 
     try {
       setIsSaving(true)
-      await apiClient.patch(`/petitions/waiting-information/${petition.id}`, {}, { endpoint: "new" })
+      await apiClient.patch(`/petitions/waiting-information/${petition.id}`, {})
 
       toast({
         title: "Sucesso",

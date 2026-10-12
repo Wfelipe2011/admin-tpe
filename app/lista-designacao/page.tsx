@@ -3,11 +3,13 @@
 import { ProtectedLayout } from "@/app/layout-protected"
 import { DesignationList } from "@/components/designation/designation-list"
 import { ClipboardList } from "lucide-react"
+import { AnnouncementBanner } from "@/components/announcement-banner"
 
 export default function ListaDesignacaoPage() {
   return (
     <ProtectedLayout title="Lista para Designação" breadcrumbs={[{ label: "Lista para Designação" }]}>
       <div className="space-y-8">
+        <AnnouncementBanner />
         {/* Header Section */}
         <div className="bg-gradient-to-r from-[#181C43] to-[#374192] rounded-lg p-8 text-white">
           <div className="flex items-center gap-4">

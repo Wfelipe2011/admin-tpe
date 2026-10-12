@@ -91,7 +91,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
         setIsLoading(true)
 
         // Verificar se a petição tem participantes
-        const petitionData = await apiClient.get(`/petitions/${petitionId}`, { endpoint: "new" })
+        const petitionData = await apiClient.get(`/petitions/${petitionId}`)
 
         if (petitionData && petitionData.participants && petitionData.participants.length > 0) {
           // Se a petição tem participantes, buscar os dados do primeiro participante
@@ -99,7 +99,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
           setParticipantId(participantId)
           setIsEditMode(true)
 
-          const response = await apiClient.get(`/participants/${participantId}`, { endpoint: "new" })
+          const response = await apiClient.get(`/participants/${participantId}`)
 
           if (response) {
             // Definir foto de perfil se disponível
@@ -240,7 +240,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
       formData.append("file", file)
 
       // Fazer upload da foto usando apiClient
-      const data = await apiClient.upload(`/participants/${participantId}/photo`, formData, { endpoint: "new" })
+      const data = await apiClient.upload(`/participants/${participantId}/photo`, formData)
 
       // Atualizar a foto de perfil na UI
       if (data.profilePhoto) {
@@ -313,7 +313,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
       }
 
       // Verificar se a petição tem participantes
-      const petitionData = await apiClient.get(`/petitions/${petitionId}`, { endpoint: "new" })
+      const petitionData = await apiClient.get(`/petitions/${petitionId}`)
 
       if (petitionData && petitionData.participants && petitionData.participants.length > 0) {
         // Se a petição tem participantes, atualizar os dados do primeiro participante
@@ -321,7 +321,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
 
         try {
           // Usar apiClient para atualizar o participante
-          await apiClient.put(`/participants/${participantId}`, apiFormData, { endpoint: "new" })
+          await apiClient.put(`/participants/${participantId}`, apiFormData)
           toast.success("Informações atualizadas com sucesso")
         } catch (error: any) {
           console.error("Error updating participant:", error)
@@ -347,7 +347,7 @@ export function usePetitionForm({ petitionId, petitionData }: UsePetitionFormPro
         // Se não houver participantes, criar um novo participante
         try {
           // Usar apiClient para criar um novo participante
-          await apiClient.post("/participants", apiFormData, { endpoint: "new" })
+          await apiClient.post("/participants", apiFormData)
           toast.success("Novo participante cadastrado com sucesso")
         } catch (error: any) {
           console.error("Error creating participant:", error)
