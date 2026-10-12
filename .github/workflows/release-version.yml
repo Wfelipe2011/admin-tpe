@@ -11,12 +11,13 @@ concurrency:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   version:
     if: >-
       (github.ref_name == 'hmg' || github.ref_name == 'main') &&
-      (github.event_name == 'workflow_dispatch' ||
+      (github.ref_name == 'main' || github.event_name == 'workflow_dispatch' ||
       !startsWith(github.event.head_commit.message, 'chore(release): '))
     runs-on: ubuntu-latest
     steps:
@@ -47,23 +48,81 @@ jobs:
         id: version
         run: node scripts/release-version.mjs
 
-      - name: Registrar versão para o deploy Git da Vercel
+      - name: Preparar alteração da versão
         if: steps.head.outputs.current == 'true'
-        env:
-          RELEASE_TAG: ${{ steps.version.outputs.tag }}
-          CREATE_TAG: ${{ steps.version.outputs.create_tag }}
+        id: prepare
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add lib/build-version.json
-          changed=false
-          if ! git diff --cached --quiet; then
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Abrir PR da versão de produção
+        if: steps.head.outputs.current == 'true' && github.ref_name == 'main' && steps.prepare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          release_branch="release/version-${RELEASE_TAG}-${GITHUB_SHA:0:12}"
+          existing=$(git ls-remote --heads origin "refs/heads/$release_branch")
+          if [ -n "$existing" ]; then
+            git fetch origin "refs/heads/$release_branch:refs/remotes/origin/$release_branch"
+            if [ "$(git rev-parse "origin/$release_branch^")" != "$GITHUB_SHA" ] || \
+              [ "$(git diff --name-only "$GITHUB_SHA" "origin/$release_branch")" != 'lib/build-version.json' ] || \
+              ! git show "origin/$release_branch:lib/build-version.json" | cmp -s - lib/build-version.json; then
+              echo '::error::Branch de versão existente não corresponde a este commit/versão. Não será sobrescrita.'
+              exit 1
+            fi
+          else
             git commit -m "chore(release): $RELEASE_TAG"
-            changed=true
+            git push origin "HEAD:refs/heads/$release_branch"
+          fi
+
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$release_branch" --state all --json state,url --jq '.[0] // empty')
+          if [ -n "$pr" ]; then
+            state=$(echo "$pr" | jq -r .state)
+            if [ "$state" != 'OPEN' ]; then
+              echo '::error::O PR de versão já foi fechado/mergeado. Não será reaberto automaticamente.'
+              exit 1
+            fi
+            url=$(echo "$pr" | jq -r .url)
+          else
+            if ! url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$release_branch" \
+              --title "chore(release): $RELEASE_TAG" \
+              --body "Atualiza somente lib/build-version.json para $RELEASE_TAG. Após o merge, o Action registra a tag. Revisar e fazer merge pelo fluxo normal, sem ignorar as proteções da main."); then
+              echo '::error::Confira Settings > Actions > General > Allow GitHub Actions to create and approve pull requests, permissões e regras do repositório.'
+              exit 1
+            fi
+          fi
+          echo "### PR de versão: $RELEASE_TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Registrar tag da versão já presente na main
+        if: steps.head.outputs.current == 'true' && github.ref_name == 'main' && steps.prepare.outputs.changed == 'false' && steps.version.outputs.create_tag == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git tag -a "$RELEASE_TAG" "$GITHUB_SHA" -m "Release $RELEASE_TAG"
+          git push origin "refs/tags/$RELEASE_TAG"
+          echo "### $RELEASE_TAG registrada após o merge da versão" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Registrar pré-versão na hmg
+        if: steps.head.outputs.current == 'true' && github.ref_name == 'hmg'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          CREATE_TAG: ${{ steps.version.outputs.create_tag }}
+          CHANGED: ${{ steps.prepare.outputs.changed }}
+        run: |
+          if [ "$CHANGED" = 'true' ]; then
+            git commit -m "chore(release): $RELEASE_TAG"
           fi
 
           refs=()
-          if [ "$changed" = 'true' ]; then refs+=("HEAD:refs/heads/$GITHUB_REF_NAME"); fi
+          if [ "$CHANGED" = 'true' ]; then refs+=("HEAD:refs/heads/hmg"); fi
           if [ "$CREATE_TAG" = 'true' ]; then
             git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
             refs+=("refs/tags/$RELEASE_TAG")
