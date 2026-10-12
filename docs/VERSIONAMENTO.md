@@ -1,8 +1,8 @@
 # Versão exibida e deploy Vercel
 
 O rodapé global mostra **somente `vX.Y.Z`** (ou `vX.Y.Z-hmg.N` em homologação).
-O JSON `lib/build-version.json` é gerado antes do build e incorporado ao artefato,
-inclusive nas páginas dinâmicas. Não depende de variável em runtime e não expõe
+O JSON `lib/build-version.json` é gerado pelo Action, commitado e incorporado ao
+build da Vercel, inclusive nas páginas dinâmicas. Não depende de variável em runtime e não expõe
 ambiente, commit, número do workflow ou data no rodapé.
 
 ## Regras
@@ -24,49 +24,49 @@ ambiente, commit, número do workflow ou data no rodapé.
 
 ## GitHub Actions
 
-`.github/workflows/release-vercel.yml` executa em push de `hmg`/`master` ou
+`.github/workflows/release-version.yml` executa em push de `hmg`/`master` ou
 manualmente nessas branches:
 
-1. Checkout completo e atualização de tags.
-2. Instalação com pnpm 9.15.9 e lockfile congelado; validação das regras.
-3. Cálculo da versão por Conventional Commits e tags, sem commit automático.
-4. `vercel pull` do ambiente/branch correto, seguido de `vercel build`.
-5. `vercel deploy --prebuilt` do mesmo artefato, com `--prod` apenas em master.
-6. Tag anotada `v<versão>` no commit publicado, somente após deploy bem-sucedido.
+1. Checkout completo, validação das regras e atualização de tags.
+2. Verifica se o commit ainda é o HEAD remoto; pula execuções ultrapassadas.
+3. Calcula a versão por Conventional Commits e tags, sem instalar dependências.
+4. Commita somente `lib/build-version.json`, se mudou, com `chore(release): v...`.
+5. Publica o commit e a tag anotada em um push atômico, sem force-push.
+6. A integração Git da Vercel faz o deploy, como antes. O Action não chama a Vercel.
 
 Um único grupo de concorrência evita numeração simultânea pelas duas branches.
 Não cancelar um release em andamento. GitHub pode substituir execuções pendentes
 por pushes mais novos; o cálculo considera todos os commits desde o baseline.
-Build/deploy com falha não cria tag. Se o deploy passar mas o push da tag falhar,
-regularize a permissão e execute novamente no mesmo commit antes do próximo release.
+O commit automático é ignorado pelo workflow para não gerar ciclos. Não usa
+`[skip ci]`, pois isso também poderia impedir o deploy Git da Vercel. O push usa
+o `GITHUB_TOKEN` nativo do Actions, sem secrets adicionais da Vercel.
+
+Tags registram a versão do código, **não comprovam sucesso do deploy**. O Action
+não acompanha o resultado da Vercel. Se o deploy falhar, corrigir/republicar pela
+integração Git. Se o push atômico falhar por branch ter avançado, a execução do
+commit mais recente irá recalcular; se for proteção/permissão, regularizar antes
+de executar novamente. Nenhum histórico é sobrescrito.
 Tags `v*` são reservadas a este workflow; não criar/excluir tags manualmente.
 
-## Configuração obrigatória antes de ativar
+## Deploy original pela integração Git
 
-No GitHub do **admin-tpe**, cadastrar os secrets:
-
-- `VERCEL_TOKEN`: token com acesso ao projeto.
-- `VERCEL_ORG_ID`: ID da conta/time.
-- `VERCEL_PROJECT_ID`: ID do projeto existente.
-
-Os dois IDs podem ser obtidos em `.vercel/project.json` após vincular o projeto
-ou no painel da Vercel. Não commitar tokens nem a pasta `.vercel`.
-
-O workflow usa GitHub Environments **production** e **hmg**. Podem ter secrets
-próprios (inclusive IDs de projetos diferentes), revisores e proteção. O token
-do GitHub Actions precisa de `contents: write` e permissão para criar tags `v*`.
+Não são necessários `VERCEL_TOKEN`, `VERCEL_ORG_ID` ou `VERCEL_PROJECT_ID` no
+Action. Os secrets antigos, se cadastrados, não são usados. O workflow precisa
+somente de permissão `contents: write` do GitHub Actions para atualizar a branch
+e criar tags `v*`; conferir regras de proteção e permissões do repositório.
 
 Na Vercel:
 
-- Production Branch deve ser `master` se ambas as branches usam o mesmo projeto.
+- Manter a integração Git conectada e a configuração de branches/domínios existente.
 - Definir `NEXT_PUBLIC_NEW_API_URL` correto em Production e Preview para `hmg`.
 - Não cadastrar `NEXT_PUBLIC_DEV_TOKEN` em deploys; é exclusivo do desenvolvimento local.
 - Conferir domínios de produção e o domínio/alias de homologação no projeto.
-- `vercel.json` desativa o deploy Git automático **somente para hmg e master**,
-  evitando dois deployments e a publicação antes de gerar a versão. Outras
-  branches mantêm previews automáticos, com a versão fallback do JSON no repo.
-- Cadastrar os secrets e conferir esse fluxo **antes** de publicar o vercel.json,
-  para não interromper deployments automáticos sem substituição funcional.
+- O `vercel.json` que desativava deploys de `hmg`/`master` foi removido. Não há
+  bloqueio do deploy Git automático por esta implementação.
+- Um push de código pode gerar um deploy com a versão anterior e, quando houver
+  nova versão, outro deploy do commit gerado pelo Action. O último incorpora a
+  versão correta. Esse comportamento preserva a integração Git sem orquestrar
+  deploys por CLI nem exigir credenciais externas.
 
 O código local não altera configurações remotas. Nenhum deploy/tag/push é feito
 simplesmente por executar o build local.
@@ -79,7 +79,7 @@ node scripts/check-release-version.mjs
 node scripts/release-version.mjs hmg
 ```
 
-O gerador escreve `lib/build-version.json`; o Action não commita esse resultado.
-O arquivo versionado é o fallback local. Para builds da Vercel via CLI, sempre
-executar o gerador antes de `vercel build`; previews Git de outras branches não
-participam do versionamento automático.
+O gerador escreve `lib/build-version.json`; o Action commita somente esse arquivo.
+No desenvolvimento local, rodar o gerador não faz commit/push. Previews Git de
+outras branches não participam do versionamento automático e usam a versão
+presente no código.
