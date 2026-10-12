@@ -34,12 +34,12 @@ export function bumpVersion(version, level) {
 }
 
 export function calculateVersion({ branch, initialVersion, tags, mergedTags, level, previewLevel }) {
-  if (!["master", "hmg"].includes(branch)) throw new Error("Release permitida somente em master ou hmg")
+  if (!["main", "hmg"].includes(branch)) throw new Error("Release permitida somente em main ou hmg")
   if (!stablePattern.test(`v${initialVersion}`)) throw new Error("Versão inicial inválida")
   const stable = mergedTags.filter((tag) => stablePattern.test(tag)).sort(compareVersions).at(-1)
   // Primeiro release estabelece o baseline, sem incrementar por todo o histórico antigo.
   const core = stable ? bumpVersion(stable.slice(1), level) : initialVersion
-  if (branch === "master") return core
+  if (branch === "main") return core
 
   const matching = tags.filter((tag) => previewPattern.test(tag) && tag.startsWith(`v${core}-hmg.`))
   const previous = matching.filter((tag) => mergedTags.includes(tag)).sort((a, b) => Number(a.split(".").at(-1)) - Number(b.split(".").at(-1))).at(-1)
