@@ -18,7 +18,7 @@ check("minor", bumpVersion("0.1.3", 2), "0.2.0")
 check("major mesmo em 0.x", bumpVersion("0.1.3", 3), "1.0.0")
 check("ordenação numérica", compareVersions("v0.10.0", "v0.9.9") > 0, true)
 
-const base = { branch: "master", initialVersion: "0.1.0", tags: [], mergedTags: [], level: 2, previewLevel: 2 }
+const base = { branch: "main", initialVersion: "0.1.0", tags: [], mergedTags: [], level: 2, previewLevel: 2 }
 check("primeira produção estabelece 0.1.0", calculateVersion(base), "0.1.0")
 check("primeira HMG", calculateVersion({ ...base, branch: "hmg" }), "0.1.0-hmg.1")
 const released = { ...base, tags: ["v0.1.0"], mergedTags: ["v0.1.0"] }
@@ -28,8 +28,10 @@ check("docs após produção mantém versão", calculateVersion({ ...released, l
 const preview = { ...released, branch: "hmg", tags: ["v0.1.0", "v0.2.0-hmg.1"], mergedTags: ["v0.1.0", "v0.2.0-hmg.1"] }
 check("nova alteração na HMG incrementa pré-versão", calculateVersion(preview), "0.2.0-hmg.2")
 check("docs na HMG mantém pré-versão", calculateVersion({ ...preview, previewLevel: 0 }), "0.2.0-hmg.1")
-check("promoção HMG para produção remove sufixo", calculateVersion({ ...preview, branch: "master" }), "0.2.0")
+check("promoção HMG para produção remove sufixo", calculateVersion({ ...preview, branch: "main" }), "0.2.0")
 check("tags de outros históricos não entram no baseline", calculateVersion({ ...released, tags: ["v0.1.0", "v9.0.0"] }), "0.2.0")
 assert.throws(() => calculateVersion({ ...base, branch: "feature/test" }))
+checks++
+assert.throws(() => calculateVersion({ ...base, branch: "master" }))
 checks++
 console.log(`\n${checks} verificações passaram, sem modificar arquivos ou publicar releases.`)

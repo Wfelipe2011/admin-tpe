@@ -7,7 +7,7 @@ ambiente, commit, número do workflow ou data no rodapé.
 
 ## Regras
 
-- `master`: release estável, por exemplo `v0.1.1`.
+- `main`: release estável, por exemplo `v0.1.1`.
 - `hmg`: pré-release SemVer, por exemplo `v0.2.0-hmg.1`.
 - `fix:` / `fix(escopo):`: PATCH.
 - `feat:` / `feat(escopo):`: MINOR.
@@ -18,13 +18,13 @@ ambiente, commit, número do workflow ou data no rodapé.
 - O primeiro release estabelece `0.1.0`, do package.json, sem contar todo o
   histórico antigo. Primeiro deploy HMG usa `0.1.0-hmg.1`.
 - Tags estáveis acessíveis no histórico são o baseline dos próximos releases.
-  Após promover HMG para master, sincronize master de volta em hmg para que ela
+  Após promover HMG para main, sincronize main de volta em hmg para que ela
   conheça a nova versão estável e prepare o próximo ciclo.
 - Docs/chore podem ser publicados com a mesma versão. Não é criada outra tag.
 
 ## GitHub Actions
 
-`.github/workflows/release-version.yml` executa em push de `hmg`/`master` ou
+`.github/workflows/release-version.yml` executa em push de `hmg`/`main` ou
 manualmente nessas branches:
 
 1. Checkout completo, validação das regras e atualização de tags.
@@ -61,7 +61,7 @@ Na Vercel:
 - Definir `NEXT_PUBLIC_NEW_API_URL` correto em Production e Preview para `hmg`.
 - Não cadastrar `NEXT_PUBLIC_DEV_TOKEN` em deploys; é exclusivo do desenvolvimento local.
 - Conferir domínios de produção e o domínio/alias de homologação no projeto.
-- O `vercel.json` que desativava deploys de `hmg`/`master` foi removido. Não há
+- O `vercel.json` que desativava deploys Git automáticos foi removido. Não há
   bloqueio do deploy Git automático por esta implementação.
 - Um push de código pode gerar um deploy com a versão anterior e, quando houver
   nova versão, outro deploy do commit gerado pelo Action. O último incorpora a
