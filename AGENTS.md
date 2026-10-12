@@ -8,7 +8,7 @@ Next.js 15 (App Router) + React 19 admin console for TPE Digital. PT-BR UI. Talk
 - `pnpm dev` — dev server with **Turbopack** (`next dev --turbopack`).
 - `pnpm build` / `pnpm start` — production build / serve.
 - `pnpm lint` — `next lint`. There is **no** test framework or `test` script. `pnpm version:check` runs standalone Node assertions for release rules; don't add Vitest/Jest without asking.
-- Version CI: `.github/workflows/release-version.yml` generates SemVer and commits `lib/build-version.json` on `hmg`/`main`. Deploy remains with Vercel's Git integration, without Vercel secrets/CLI in Actions. See `docs/VERSIONAMENTO.md`. Footer imports the JSON; don't read the version from runtime environment variables.
+- Version CI: `.github/workflows/release-version.yml` generates SemVer: direct commit on `hmg`, version-only PR for protected `main`, stable tag after merging the version. Never bypass main protection or force-push version branches. Deploy remains with Vercel's Git integration, without Vercel secrets/CLI in Actions. See `docs/VERSIONAMENTO.md`. Footer imports the JSON; don't read the version from runtime environment variables.
 - No typecheck script. Run `pnpm tsc --noEmit` if you need it manually.
 
 ## Critical gotchas (read before editing)

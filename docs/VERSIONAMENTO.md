@@ -30,14 +30,20 @@ manualmente nessas branches:
 1. Checkout completo, validação das regras e atualização de tags.
 2. Verifica se o commit ainda é o HEAD remoto; pula execuções ultrapassadas.
 3. Calcula a versão por Conventional Commits e tags, sem instalar dependências.
-4. Commita somente `lib/build-version.json`, se mudou, com `chore(release): v...`.
-5. Publica o commit e a tag anotada em um push atômico, sem force-push.
-6. A integração Git da Vercel faz o deploy, como antes. O Action não chama a Vercel.
+4. Em **hmg**, commita somente o JSON e publica pré-versão/tag em push atômico.
+5. Em **main**, cria uma branch `release/version-vX.Y.Z-<sha>` e abre PR contendo
+   somente `lib/build-version.json`. Não faz push direto na main, merge automático,
+   force-push ou bypass das proteções. Uma nova execução do mesmo commit reutiliza
+   branch/PR aberto; não sobrescreve a branch nem reabre PR fechado.
+6. Após revisar e fazer merge do PR de versão, o push em main executa novamente:
+   se o JSON já é a versão calculada, cria a tag estável nesse commit, sem novo PR.
+7. A integração Git da Vercel faz o deploy, como antes. O Action não chama a Vercel.
 
 Um único grupo de concorrência evita numeração simultânea pelas duas branches.
 Não cancelar um release em andamento. GitHub pode substituir execuções pendentes
 por pushes mais novos; o cálculo considera todos os commits desde o baseline.
-O commit automático é ignorado pelo workflow para não gerar ciclos. Não usa
+O commit automático de **hmg** é ignorado para não gerar ciclos; **main** executa
+também no merge da versão para registrar a tag estável. Não usa
 `[skip ci]`, pois isso também poderia impedir o deploy Git da Vercel. O push usa
 o `GITHUB_TOKEN` nativo do Actions, sem secrets adicionais da Vercel.
 
@@ -45,15 +51,24 @@ Tags registram a versão do código, **não comprovam sucesso do deploy**. O Act
 não acompanha o resultado da Vercel. Se o deploy falhar, corrigir/republicar pela
 integração Git. Se o push atômico falhar por branch ter avançado, a execução do
 commit mais recente irá recalcular; se for proteção/permissão, regularizar antes
-de executar novamente. Nenhum histórico é sobrescrito.
+de executar novamente. Nenhum histórico é sobrescrito. Se main avançar enquanto
+um PR de versão está aberto, conferir se ele ainda traz a versão mais recente;
+fechar PRs obsoletos pelo fluxo normal de revisão.
 Tags `v*` são reservadas a este workflow; não criar/excluir tags manualmente.
 
 ## Deploy original pela integração Git
 
 Não são necessários `VERCEL_TOKEN`, `VERCEL_ORG_ID` ou `VERCEL_PROJECT_ID` no
 Action. Os secrets antigos, se cadastrados, não são usados. O workflow precisa
-somente de permissão `contents: write` do GitHub Actions para atualizar a branch
-e criar tags `v*`; conferir regras de proteção e permissões do repositório.
+de permissões `contents: write` e `pull-requests: write` do GitHub Actions para
+atualizar hmg/criar branches e tags e abrir o PR de versão de main.
+
+Em **Settings → Actions → General → Workflow permissions**, habilitar
+**Allow GitHub Actions to create and approve pull requests**. Essa configuração
+é necessária para a API aceitar a criação do PR pelo GITHUB_TOKEN. O workflow
+não aprova nem faz merge de PRs. Essa opção foi habilitada em 12/10/2026 com
+autorização do usuário, mantendo a permissão padrão dos workflows como read. Manter a proteção
+da main exigindo PR e respeitar as regras de revisão/checks.
 
 Na Vercel:
 
