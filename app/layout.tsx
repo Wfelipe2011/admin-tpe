@@ -77,7 +77,7 @@ export default function RootLayout({
           />
         ) : null}
       </head>
-      <body className={`${inter.className} pb-[calc(2rem+env(safe-area-inset-bottom))]`}>
+      <body className={inter.className}>
         {children}
         <AppVersion />
         <Toaster
