@@ -64,6 +64,21 @@ export interface CoordinationOverview {
 export type SystemProfile = "COORDINATOR" | "ASSISTANT_COORDINATOR" | "ADMIN_ANALYST" | "PARTICIPANT" | "CAPTAIN" | "ASSISTANT_CAPTAIN"
 export type GroupRole = "CAPTAIN" | "ASSISTANT_CAPTAIN" | "PARTICIPANT"
 
+/** Instância do WhatsApp consultada direto no Z-API (diagnóstico da coordenação). */
+export interface WhatsappStatus {
+  /** false = o Z-API não respondeu (ou não está configurado neste ambiente). */
+  reachable: boolean
+  connected: boolean
+  smartphoneConnected: boolean | null
+  detail: string | null
+  message: string | null
+}
+
+export type WhatsappQr =
+  | { state: "qrcode"; qrcode: string }
+  | { state: "challenge"; message: string }
+  | { state: "unavailable"; message: string }
+
 export interface PersonGroup {
   groupId: string
   name: string

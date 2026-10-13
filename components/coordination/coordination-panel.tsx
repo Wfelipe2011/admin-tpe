@@ -1,15 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { History, LayoutDashboard, ListChecks, Repeat, Settings2, ShieldCheck, Users } from "lucide-react"
+import { History, LayoutDashboard, ListChecks, MessageCircle, Repeat, Settings2, ShieldCheck, Users } from "lucide-react"
 import { OverviewTab } from "@/components/coordination/overview-tab"
 import { PeopleTab } from "@/components/coordination/people-tab"
 import { AuditTab } from "@/components/coordination/audit-tab"
 import { SettingsTab } from "@/components/coordination/settings-tab"
 import { MenuPermissionsTab } from "@/components/coordination/menu-permissions-tab"
 import { TurnoverTab } from "@/components/coordination/turnover-tab"
+import { WhatsappTab } from "@/components/coordination/whatsapp-tab"
 
-type TabId = "overview" | "people" | "turnover" | "menu" | "settings" | "audit"
+type TabId = "overview" | "people" | "turnover" | "menu" | "settings" | "audit" | "whatsapp"
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Visão geral", icon: <LayoutDashboard className="h-4 w-4" /> },
@@ -18,6 +19,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "menu", label: "Menu por perfil", icon: <ListChecks className="h-4 w-4" /> },
   { id: "settings", label: "Configurações", icon: <Settings2 className="h-4 w-4" /> },
   { id: "audit", label: "Histórico de ações", icon: <History className="h-4 w-4" /> },
+  { id: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" /> },
 ]
 
 export function CoordinationPanel() {
@@ -58,6 +60,7 @@ export function CoordinationPanel() {
       {tab === "menu" && <MenuPermissionsTab />}
       {tab === "settings" && <SettingsTab />}
       {tab === "audit" && <AuditTab />}
+      {tab === "whatsapp" && <WhatsappTab />}
     </div>
   )
 }
