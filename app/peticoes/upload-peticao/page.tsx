@@ -24,6 +24,36 @@ interface UploadResponse {
 
 type UploadStatus = "idle" | "success" | "error"
 
+interface MatchInfo {
+  id: string
+  name: string
+  status: string
+  level: "exact" | "likely" | "similar"
+  participantName: string | null
+  congregation: string | null
+  groups: string[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+interface AnalyzeResponse {
+  action: "new" | "update" | "review" | "duplicate"
+  extractedName: string | null
+  nameReadable: boolean
+  matches: MatchInfo[]
+  duplicateOf?: { id: string; name: string; status: string; protocol: string }
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  ACTIVE: "Ativo",
+  WAITING: "Em espera",
+  WAITING_INFORMATION: "Aguardando informação",
+  CREATED: "Nova",
+  EXCLUDED: "Excluída",
+}
+
+const formatDate = (d?: string) => (d ? new Date(d).toLocaleDateString("pt-BR") : "-")
+
 function UploadPeticaoContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -38,6 +68,10 @@ function UploadPeticaoContent() {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showBypassOption, setShowBypassOption] = useState(false)
+  // Envio de petição nova: antes de gravar, o sistema analisa o PDF e diz se é atualização ou pessoa nova
+  const [analysis, setAnalysis] = useState<AnalyzeResponse | null>(null)
+  const [selectedTarget, setSelectedTarget] = useState<string | null>(null) // id do cadastro, ou "new"
+  const [bypassUsed, setBypassUsed] = useState(false)
 
   const validateFile = (file: File): boolean => {
     // Check if file is a PDF
@@ -63,6 +97,9 @@ function UploadPeticaoContent() {
         setFileName(file.name)
         setUploadStatus("idle")
         setErrorMessage(null)
+        setAnalysis(null)
+        setSelectedTarget(null)
+        setShowBypassOption(false)
       } else {
         // Reset the file input
         if (fileInputRef.current) {
@@ -109,11 +146,14 @@ function UploadPeticaoContent() {
         setFileName(file.name)
         setUploadStatus("idle")
         setErrorMessage(null)
+        setAnalysis(null)
+        setSelectedTarget(null)
+        setShowBypassOption(false)
       }
     }
   }
 
-  const handleUpload = async (bypassValidation = false) => {
+  const getFile = (): File | null => {
     const file = fileInputRef.current?.files?.[0]
     if (!file) {
       toast({
@@ -121,8 +161,32 @@ function UploadPeticaoContent() {
         description: "Nenhum arquivo selecionado",
         variant: "destructive",
       })
-      return
+      return null
     }
+    return file
+  }
+
+  const handleError = (error: any, bypassValidation: boolean) => {
+    setUploadStatus("error")
+
+    // Se falhou na primeira tentativa (sem bypass), mostrar opção de bypass
+    if (!bypassValidation && error.response?.status === 400) {
+      setShowBypassOption(true)
+    }
+
+    const message = error?.response?.data?.message || error.message || "Erro ao fazer upload do arquivo"
+    setErrorMessage(message)
+    toast({
+      title: "Erro",
+      description: message,
+      variant: "destructive",
+    })
+  }
+
+  // Grava o arquivo: atualiza uma petição existente (PUT) ou cria uma nova (POST)
+  const sendFile = async (targetId: string | null, bypassValidation: boolean) => {
+    const file = getFile()
+    if (!file) return
 
     setIsUploading(true)
     setUploadStatus("idle")
@@ -132,59 +196,83 @@ function UploadPeticaoContent() {
       const formData = new FormData()
       formData.append("file", file)
 
-      // Definir URL baseado no modo
-      let url = isUpdateMode
-        ? `/petitions/upload/${petitionId}`
-        : "/petitions/upload"
-
-      // Adicionar parâmetro bypass se necessário
+      let url = targetId ? `/petitions/upload/${targetId}` : "/petitions/upload"
       if (bypassValidation) {
         url += "?bypass=1"
       }
 
-      // Usar o método upload do apiClient
       const data: UploadResponse = await apiClient.upload(url, formData, {
-        method: isUpdateMode ? "PUT" : "POST"})
-
-      setUploadStatus("success")
-      setShowBypassOption(false) // Reset bypass option on success
-      toast({
-        title: "Sucesso",
-        description: isUpdateMode ? "Arquivo atualizado com sucesso" : "Arquivo enviado com sucesso",
+        method: targetId ? "PUT" : "POST",
       })
 
-      // Reset the file input
+      setUploadStatus("success")
+      setShowBypassOption(false)
+      toast({
+        title: "Sucesso",
+        description: targetId ? "Arquivo atualizado com sucesso" : "Arquivo enviado com sucesso",
+      })
+
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
       setFileName(null)
+      setAnalysis(null)
+      setSelectedTarget(null)
 
-      // Navigate baseado no modo
-      if (isUpdateMode) {
-        // Volta para a tela de edição
-        router.push(`/peticoes/completar/${petitionId}`)
+      if (targetId) {
+        // Atualização: volta para a tela de edição daquela petição
+        router.push(`/peticoes/completar/${targetId}`)
       } else {
-        // Navigate to the visualization page
         router.push(`/peticoes/visualizar/${data.id}`)
       }
     } catch (error: any) {
-      setUploadStatus("error")
-
-      // Se falhou na primeira tentativa (sem bypass), mostrar opção de bypass
-      if (!bypassValidation && error.response?.status === 400) {
-        setShowBypassOption(true)
-      }
-
-      const message = error?.response?.data?.message || error.message || "Erro ao fazer upload do arquivo"
-      setErrorMessage(message)
-      toast({
-        title: "Erro",
-        description: message,
-        variant: "destructive",
-      })
+      handleError(error, bypassValidation)
     } finally {
       setIsUploading(false)
     }
+  }
+
+  // Petição nova: analisa antes de gravar (não grava nada) e mostra o que vai acontecer
+  const analyzeFile = async (bypassValidation: boolean) => {
+    const file = getFile()
+    if (!file) return
+
+    setIsUploading(true)
+    setUploadStatus("idle")
+    setErrorMessage(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const url = `/petitions/upload/analyze${bypassValidation ? "?bypass=1" : ""}`
+      const data: AnalyzeResponse = await apiClient.upload(url, formData, {
+        method: "POST",
+      })
+
+      setBypassUsed(bypassValidation)
+      setShowBypassOption(false)
+      setAnalysis(data)
+      if (data.action === "update") setSelectedTarget(data.matches[0].id)
+      else if (data.action === "new") setSelectedTarget("new")
+      else setSelectedTarget(null)
+    } catch (error: any) {
+      handleError(error, bypassValidation)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleUpload = async (bypassValidation = false) => {
+    if (isUpdateMode) {
+      await sendFile(petitionId, bypassValidation)
+    } else {
+      await analyzeFile(bypassValidation)
+    }
+  }
+
+  const handleConfirmAnalysis = async () => {
+    if (!selectedTarget) return
+    await sendFile(selectedTarget === "new" ? null : selectedTarget, bypassUsed)
   }
 
   const handleBypassUpload = () => {
@@ -300,6 +388,139 @@ function UploadPeticaoContent() {
               </div>
             )}
 
+            {analysis && !isUpdateMode && (
+              <div className="mb-4 w-full max-w-xl text-left" data-testid="analysis-panel">
+                {analysis.action === "duplicate" && analysis.duplicateOf && (
+                  <div className="p-4 bg-[#E74C3C]/5 border border-[#E74C3C]/20 rounded-lg">
+                    <p className="font-semibold text-[#333333]">Este PDF já está cadastrado</p>
+                    <p className="text-sm text-[#666666] mt-1">
+                      O arquivo é idêntico ao da petição de <strong>{analysis.duplicateOf.name}</strong> (
+                      {STATUS_LABEL[analysis.duplicateOf.status] ?? analysis.duplicateOf.status}). Nada será enviado.
+                      Se for uma versão atualizada, ela precisa ter conteúdo diferente (por exemplo, nova data de assinatura).
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push(`/peticoes/visualizar/${analysis.duplicateOf!.id}`)}
+                      >
+                        Ver essa petição
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {analysis.action !== "duplicate" && (
+                  <div className="p-4 bg-[#374192]/5 border border-[#374192]/20 rounded-lg">
+                    {!analysis.nameReadable ? (
+                      <p className="text-sm text-[#666666]">
+                        <strong className="text-[#333333]">Não consegui ler o nome no PDF</strong>, então não dá para comparar com os
+                        cadastros. Se você sabe que é de alguém que já existe, cancele e use Editar → Atualizar Arquivo da Petição
+                        nessa pessoa. Se é uma pessoa nova, pode enviar.
+                      </p>
+                    ) : analysis.matches.length === 0 ? (
+                      <p className="text-sm text-[#666666]">
+                        <strong className="text-[#333333]">Pessoa nova:</strong> não encontrei ninguém parecido com{" "}
+                        <strong>{analysis.extractedName}</strong>. Será adicionada uma nova petição.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-sm text-[#666666] mb-3">
+                          {analysis.action === "update" ? (
+                            <>
+                              <strong className="text-[#333333]">Atualização:</strong> o PDF é de <strong>{analysis.extractedName}</strong>, que
+                              já está cadastrado. Confirme para <strong>substituir o arquivo</strong> do cadastro (os dados e o grupo
+                              continuam).
+                            </>
+                          ) : (
+                            <>
+                              <strong className="text-[#333333]">Escolha o que fazer:</strong> o PDF é de{" "}
+                              <strong>{analysis.extractedName}</strong> e encontrei cadastros parecidos.
+                            </>
+                          )}
+                        </p>
+                        <div className="space-y-2">
+                          {analysis.matches.map((m) => (
+                            <label
+                              key={m.id}
+                              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer ${selectedTarget === m.id ? "border-[#374192] bg-white" : "border-gray-200 bg-white/60"
+                                }`}
+                            >
+                              <input
+                                type="radio"
+                                name="target"
+                                className="mt-1"
+                                checked={selectedTarget === m.id}
+                                onChange={() => setSelectedTarget(m.id)}
+                              />
+                              <span className="text-sm">
+                                <span className="font-medium text-[#333333]">Atualizar o cadastro de {m.participantName ?? m.name}</span>
+                                <span className="block text-[#666666]">
+                                  {STATUS_LABEL[m.status] ?? m.status}
+                                  {m.congregation ? ` · ${m.congregation}` : ""}
+                                  {m.groups.length > 0 ? ` · ${m.groups.join(", ")}` : ""}
+                                  {` · petição de ${formatDate(m.createdAt)}`}
+                                </span>
+                                {m.status === "EXCLUDED" && (
+                                  <span className="block text-[#E67E22]">
+                                    Cadastro excluído: o arquivo será trocado, mas ele continua excluído (use &quot;Ativar&quot; na lista para reativar).
+                                  </span>
+                                )}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    <label
+                      className={`mt-2 flex items-start gap-3 p-3 rounded-lg border cursor-pointer ${selectedTarget === "new" ? "border-[#374192] bg-white" : "border-gray-200 bg-white/60"
+                        }`}
+                    >
+                      <input
+                        type="radio"
+                        name="target"
+                        className="mt-1"
+                        checked={selectedTarget === "new"}
+                        onChange={() => setSelectedTarget("new")}
+                      />
+                      <span className="text-sm">
+                        <span className="font-medium text-[#333333]">Não é a mesma pessoa: adicionar como nova petição</span>
+                        <span className="block text-[#666666]">Cria um novo cadastro com este PDF.</span>
+                      </span>
+                    </label>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        onClick={handleConfirmAnalysis}
+                        disabled={isUploading || !selectedTarget}
+                        className="bg-[#374192] hover:bg-[#46607F] text-white"
+                      >
+                        {isUploading
+                          ? "Enviando..."
+                          : selectedTarget === "new"
+                            ? "Adicionar nova petição"
+                            : "Atualizar cadastro"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={isUploading}
+                    onClick={() => {
+                      setAnalysis(null)
+                      setSelectedTarget(null)
+                    }}
+                  >
+                    Voltar
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <Button
                 onClick={handleFileSelect}
@@ -309,14 +530,16 @@ function UploadPeticaoContent() {
               >
                 Selecionar Arquivo
               </Button>
-              {fileName && (
+              {fileName && !analysis && (
                 <>
                   <Button
                     onClick={() => handleUpload()}
                     disabled={isUploading}
                     className="bg-[#374192] hover:bg-[#46607F] text-white"
                   >
-                    {isUploading ? "Enviando..." : isUpdateMode ? "Atualizar Arquivo" : "Enviar"}
+                    {isUploading
+                      ? isUpdateMode ? "Enviando..." : "Analisando..."
+                      : isUpdateMode ? "Atualizar Arquivo" : "Enviar"}
                   </Button>
                   {showBypassOption && (
                     <Button
