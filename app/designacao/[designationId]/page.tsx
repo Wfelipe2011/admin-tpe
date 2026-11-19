@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DesignationItem } from "@/components/public/designation-item"
 import { LinkNotFound } from "@/components/public/link-not-found"
 import { DesignationHeader } from "@/components/public/designation-header"
+import { SupplyBanner } from "@/components/supply-banner"
 import { MobileOnlyWrapper } from "@/components/public/mobile-only-wrapper"
 import { DesignationLoading } from "@/components/public/designation-loading"
 import toast from "react-hot-toast"
@@ -65,6 +66,9 @@ export default function DesignationListPage() {
     <MobileOnlyWrapper>
       <div className="min-h-screen bg-gray-50">
         <DesignationHeader />
+        <div className="px-4 mt-4">
+          <SupplyBanner designationId={designationId} />
+        </div>
 
         {/* Content */}
         <div className="pt-2 pb-8">

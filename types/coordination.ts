@@ -80,8 +80,9 @@ export interface Person {
   profile: SystemProfile | null
   profilePhoto: string | null
   lastTrainingDate: string | null
+  profileUpdatedAt?: string | null
   congregation: { id: number; name: string } | null
-  petitions: { id: string; status: string } | null
+  petitions: { id: string; status: string; createdAt?: string } | null
   groups: PersonGroup[]
 }
 
@@ -129,7 +130,7 @@ export interface PersonHistory {
   groupsWorked: WorkedGroup[]
   distinctGroups: number
   estimatedDepartures: number
-  faltas: { total: number; daysWorked: number; perDay: number | null; baselinePerDay: number }
+  faltas: { total: number; totalRegistered: number; countsInNumbers: boolean; daysWorked: number; perDay: number | null; baselinePerDay: number }
   events: { id: string; at: string; action: string; actorName: string | null; metadata: Record<string, any> | null }[]
   eventsSince: string | null
 }

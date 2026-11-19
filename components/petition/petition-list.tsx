@@ -194,6 +194,12 @@ export function PetitionList() {
     return format(new Date(date), "dd/MM/yyyy", { locale: ptBR })
   }
 
+  // quando o cadastro da pessoa foi atualizado pela última vez (por ela, pelo link da designação, ou pela coordenação)
+  const updatedLabel = (petition: IPetitions) => {
+    const at = petition.participants?.[0]?.profileUpdatedAt
+    return at ? `Cadastro atualizado em ${formatDate(new Date(at))}` : "Cadastro nunca atualizado"
+  }
+
   const formatPhone = (phone: string) => {
     const cleaned = phone.replace(/\D/g, "")
     if (cleaned.length === 11) {
@@ -420,6 +426,7 @@ export function PetitionList() {
                         <Calendar className="h-3 w-3 text-[#666666]" />
                         {formatDate(petition.createdAt)}
                       </div>
+                      <div className="text-xs text-[#666666] mt-1" data-testid="petition-last-update">{updatedLabel(petition)}</div>
                     </div>
                   </div>
 
@@ -552,7 +559,10 @@ export function PetitionList() {
                 <div className={`hidden md:flex md:col-span-1 justify-center items-center gap-1 ${statusColor[petition.status]} font-medium`}>
                   <span className="text-center text-xs">{status[petition.status] || "- - -"}</span>
                 </div>
-                <div className="hidden md:block md:col-span-2 text-center text-[#666666] text-sm">{formatDate(petition.createdAt)}</div>
+                <div className="hidden md:block md:col-span-2 text-center text-[#666666] text-sm">
+                  {formatDate(petition.createdAt)}
+                  <div className="text-xs mt-1" data-testid="petition-last-update">{updatedLabel(petition)}</div>
+                </div>
                 <div className="hidden md:block md:col-span-2 text-center">
                   <div className="flex gap-2 justify-center">
                     {petition.status === "WAITING" ? (

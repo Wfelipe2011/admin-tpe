@@ -91,10 +91,16 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   )
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function Row({ label, value, href }: { label: string; value: React.ReactNode; href?: string }) {
   return (
     <div className="flex items-center justify-between py-1.5 text-sm border-b border-gray-50 last:border-0">
-      <span className="text-[#666666]">{label}</span>
+      {href ? (
+        <Link href={href} className="text-[#374192] hover:underline">
+          {label}
+        </Link>
+      ) : (
+        <span className="text-[#666666]">{label}</span>
+      )}
       <span className="font-semibold text-[#333333]">{value}</span>
     </div>
   )
@@ -273,8 +279,8 @@ export function OverviewTab() {
             <div className="h-full rounded-full bg-[#2ECC71]" style={{ width: `${trainingPct}%` }} />
           </div>
           <Row label="Ativos com treinamento" value={v.training.activeWithTraining} />
-          <Row label="Ativos sem treinamento" value={v.training.activeWithoutTraining} />
-          <Row label="Cadastrados sem treinamento" value={v.training.withoutTraining} />
+          <Row label="Ativos sem treinamento" value={v.training.activeWithoutTraining} href="/coordenacao?tab=people&training=none&petitionStatus=ACTIVE" />
+          <Row label="Cadastrados sem treinamento" value={v.training.withoutTraining} href="/coordenacao?tab=people&training=none" />
         </Section>
 
         {/* Petições e dados */}

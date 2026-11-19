@@ -77,6 +77,11 @@ export function PersonHistoryDialog({ participantId, name, onClose }: { particip
                   <span className="text-sm font-medium text-[#666666]"> / {data.faltas.daysWorked}</span>
                 </p>
                 <p className="text-[11px] text-[#666666] mt-1">faltas / dias</p>
+                {data.faltas.totalRegistered > data.faltas.total && (
+                  <p className="text-[11px] text-[#B45309] mt-1">
+                    {data.faltas.totalRegistered} registradas na ficha; {data.faltas.totalRegistered - data.faltas.total} não contam nos números (sem grupo no momento ou grupo Especial).
+                  </p>
+                )}
               </div>
               <div className={`rounded-lg border p-3 ${above ? "border-[#FCA5A5] bg-[#FEF2F2]" : "border-gray-100"}`}>
                 <p className={`text-2xl font-bold leading-none ${above ? "text-[#B91C1C]" : "text-[#333333]"}`}>{perDay === null ? "—" : nf2(perDay)}</p>

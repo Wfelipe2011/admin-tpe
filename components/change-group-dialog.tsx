@@ -177,7 +177,7 @@ export function ChangeGroupDialog({
                 filteredGroups.map((group) => {
                   const isCurrentGroup = group.id === currentGroupId
                   const isAlreadyInGroup = participant.groups?.some(g => g.id === group.id)
-                  const isFull = group.participants >= group.configMax
+                  const isFull = group.configMax > 0 && group.participants >= group.configMax // 0 = sem limite
 
                   return (
                     <div

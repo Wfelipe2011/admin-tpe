@@ -326,12 +326,16 @@ function PersonDialog({
   )
 }
 
-export function PeopleTab() {
+export function PeopleTab({ initialFilters }: { initialFilters?: { training?: "none" | "has" | ""; petitionStatus?: string } }) {
   const [q, setQ] = useState("")
   const [qDebounced, setQDebounced] = useState("")
   const [profile, setProfile] = useState("")
-  const [petitionStatus, setPetitionStatus] = useState("")
+  const [petitionStatus, setPetitionStatus] = useState(initialFilters?.petitionStatus ?? "")
   const [groupId, setGroupId] = useState("")
+  // treinamento não expira: "sem" = nenhuma data registrada
+  const [training, setTraining] = useState<"" | "none" | "has">(initialFilters?.training ?? "")
+  // data da última atualização do cadastro: nunca atualizou / há mais de 6 meses
+  const [profileUpdate, setProfileUpdate] = useState<"" | "never" | "stale">("")
   const [page, setPage] = useState(1)
   const [data, setData] = useState<PeopleResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -349,7 +353,7 @@ export function PeopleTab() {
 
   useEffect(() => {
     setPage(1)
-  }, [qDebounced, profile, petitionStatus, groupId])
+  }, [qDebounced, profile, petitionStatus, groupId, training, profileUpdate])
 
   useEffect(() => {
     apiClient
@@ -364,6 +368,8 @@ export function PeopleTab() {
     if (profile) p.set("profile", profile)
     if (petitionStatus) p.set("petitionStatus", petitionStatus)
     if (groupId) p.set("groupId", groupId)
+    if (training) p.set("training", training)
+    if (profileUpdate) p.set("profileUpdate", profileUpdate)
     setLoading(true)
     setError(null)
     apiClient
@@ -371,7 +377,7 @@ export function PeopleTab() {
       .then(setData)
       .catch((e) => setError(asText(errorMessage(e, "Não foi possível carregar as pessoas"))))
       .finally(() => setLoading(false))
-  }, [page, qDebounced, profile, petitionStatus, groupId])
+  }, [page, qDebounced, profile, petitionStatus, groupId, training, profileUpdate])
 
   useEffect(() => {
     fetchData()
@@ -400,7 +406,7 @@ export function PeopleTab() {
   }
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1
-  const hasFilters = !!(q || profile || petitionStatus || groupId)
+  const hasFilters = !!(q || profile || petitionStatus || groupId || training || profileUpdate)
 
   return (
     <div className="space-y-4">
@@ -445,6 +451,22 @@ export function PeopleTab() {
             ))}
           </select>
         </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-[#666666]">Treinamento</label>
+          <select value={training} onChange={(e) => setTraining(e.target.value as "" | "none" | "has")} className={`${inputClass} w-[170px]`}>
+            <option value="">Todos</option>
+            <option value="none">Sem treinamento</option>
+            <option value="has">Com treinamento</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-[#666666]">Cadastro atualizado</label>
+          <select value={profileUpdate} onChange={(e) => setProfileUpdate(e.target.value as "" | "never" | "stale")} className={`${inputClass} w-[200px]`}>
+            <option value="">Todos</option>
+            <option value="never">Nunca atualizou</option>
+            <option value="stale">Nunca ou há mais de 6 meses</option>
+          </select>
+        </div>
         <Button
           variant="outline"
           size="sm"
@@ -454,6 +476,8 @@ export function PeopleTab() {
             setProfile("")
             setPetitionStatus("")
             setGroupId("")
+            setTraining("")
+            setProfileUpdate("")
           }}
         >
           Limpar filtros
@@ -483,6 +507,9 @@ export function PeopleTab() {
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-[#666666]">
                       <span className="inline-flex items-center gap-1">
                         <Phone className="h-3 w-3" /> {p.phone}
+                      </span>
+                      <span title="Última atualização do cadastro (pela pessoa ou pela coordenação)">
+                        {p.profileUpdatedAt ? `Cadastro atualizado em ${formatDateOnly(p.profileUpdatedAt)}` : "Cadastro nunca atualizado"}
                       </span>
                       {p.groups.length === 0 ? (
                         <span>sem grupo</span>

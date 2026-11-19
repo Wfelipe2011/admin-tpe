@@ -51,6 +51,7 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   PETITION_DELETE: "Petição apagada",
   PARTICIPANT_CREATE: "Cadastrou voluntário",
   PARTICIPANT_UPDATE: "Editou o cadastro",
+  PARTICIPANT_SELF_UPDATE: "Atualizou os próprios dados (link da designação)",
   GROUP_CREATE: "Criou grupo",
   GROUP_UPDATE: "Editou grupo",
   GROUP_DELETE: "Apagou grupo",

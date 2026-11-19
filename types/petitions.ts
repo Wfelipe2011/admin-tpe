@@ -25,6 +25,7 @@ export interface Participant {
   name: string
   phone: string
   profilePhoto?: string
+  profileUpdatedAt?: string | null
   participantsGroup: ParticipantGroup[]
   congregation?: {
     id: string

@@ -38,9 +38,10 @@ const groupFormSchema = z
       .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
         message: "Formato de hora inválido (HH:MM)",
       }),
+    // 0 = sem limite de voluntários (só grupo Especial, ex.: Zoológico)
     configMax: z
       .number({ required_error: "Máximo de participantes é obrigatório" })
-      .min(1, { message: "Deve ter pelo menos 1 participante" }),
+      .min(0, { message: "Máximo inválido" }),
     configMin: z
       .number({ required_error: "Mínimo de participantes é obrigatório" })
       .min(1, { message: "Deve ter pelo menos 1 participante" }),
@@ -64,11 +65,18 @@ const groupFormSchema = z
   )
   .refine(
     (data) => {
-      return data.configMin <= data.configMax
+      return data.configMax === 0 || data.configMin <= data.configMax
     },
     {
       message: "O mínimo de participantes deve ser menor ou igual ao máximo",
       path: ["configMin"],
+    },
+  )
+  .refine(
+    (data) => data.configMax > 0 || data.type === "SPECIAL",
+    {
+      message: "Só o grupo Especial pode ficar sem limite; informe o máximo de participantes",
+      path: ["configMax"],
     },
   )
 
@@ -143,7 +151,7 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
             name: data.name,
             configStartHour: data.configStartHour?.slice(0, 5) || "08:00",
             configEndHour: data.configEndHour?.slice(0, 5) || "12:00",
-            configMax: data.configMax || 10,
+            configMax: data.configMax ?? 10, // 0 = sem limite (Especial)
             configMin: data.configMin || 5,
             coordinatorId: data.coordinatorId || undefined,
             status: data.status || "OPEN",
@@ -475,12 +483,24 @@ export function GroupForm({ groupId, isEditing = false }: GroupFormProps) {
                         <Input
                           type="number"
                           min={1}
-                          placeholder="Ex: 15"
+                          placeholder={field.value === 0 ? "Sem limite" : "Ex: 15"}
                           className="h-11 border-gray-200 focus:border-[#374192] focus:ring-[#374192]/20 rounded-lg transition-colors"
                           {...field}
+                          value={field.value === 0 ? "" : field.value}
+                          disabled={field.value === 0}
                           onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
                         />
                       </FormControl>
+                      {form.watch("type") === "SPECIAL" && (
+                        <label className="flex items-center gap-2 text-sm text-[#333333] pt-1">
+                          <input
+                            type="checkbox"
+                            checked={field.value === 0}
+                            onChange={(e) => field.onChange(e.target.checked ? 0 : 10)}
+                          />
+                          Sem limite de voluntários (o capitão escolhe quem vai em cada dia)
+                        </label>
+                      )}
                       <FormMessage className="text-[#E74C3C] text-xs" />
                     </FormItem>
                   )}

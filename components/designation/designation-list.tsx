@@ -1,5 +1,6 @@
 "use client"
 
+import { SupplyBanner } from "@/components/supply-banner"
 import { useState, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -173,6 +174,7 @@ export function DesignationList({ designationId }: { designationId?: string } = 
       {/* Main content box */}
       <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8">
         <div className="space-y-8">
+          <SupplyBanner designationId={designationDetails?.designation?.id} />
           {/* Status and Designate button */}
           <div className="flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
             <div className="bg-[#F8F8F8] rounded-lg p-4">

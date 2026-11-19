@@ -1,5 +1,6 @@
 "use client"
 import { ProtectedLayout } from "@/app/layout-protected"
+import { SupplyBanner } from "@/components/supply-banner"
 import { useDesignation } from "@/hooks/use-designation"
 import { CancellationModal } from "@/components/designation/cancellation-modal"
 import { ConfirmationModal } from "@/components/designation/confirmation-modal"
@@ -111,6 +112,8 @@ export default function DesignarPage() {
             </div>
           </div>
         </div>
+
+        <SupplyBanner designationId={designationData?.id} />
 
         {/* Content Section */}
         {loading ? (

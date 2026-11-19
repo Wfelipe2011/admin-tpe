@@ -31,6 +31,11 @@ export function describeAudit(item: Pick<AuditItem, "action" | "metadata">): str
         .map(([p, c]) => `${profiles[p] ?? p}: ${[...c.added.map((x) => `+${MENU_LABEL[x] ?? x}`), ...c.removed.map((x) => `−${MENU_LABEL[x] ?? x}`)].join(", ")}`)
         .join(" · ")
     }
+    case "PARTICIPANT_SELF_UPDATE":
+      // a própria pessoa, pelo link: mostra o que mudou (de → para)
+      return Object.entries((m.changes ?? {}) as Record<string, { from: unknown; to: unknown }>)
+        .map(([k, c]) => (k === "availability" ? "disponibilidade" : `${FIELD_LABEL[k] ?? k}: ${c.from ?? "—"} → ${c.to ?? "—"}`))
+        .join(" · ")
     case "PARTICIPANT_UPDATE":
     case "GROUP_UPDATE":
     case "POINT_UPDATE":

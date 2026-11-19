@@ -9,9 +9,11 @@ import { DesignationItem } from "@/components/public/designation-item"
 import { AlertAbsentParticipant } from "@/components/public/alert-absent-participant"
 import { LinkNotFound } from "@/components/public/link-not-found"
 import { DesignationHeader } from "@/components/public/designation-header"
+import { SupplyBanner } from "@/components/supply-banner"
 import { MobileOnlyWrapper } from "@/components/public/mobile-only-wrapper"
 import { DesignationLoading } from "@/components/public/designation-loading"
 import { IncidentCard } from "@/components/public/incident-card"
+import { MyProfile } from "@/components/public/my-profile"
 
 export default function ParticipantDesignationPage() {
   const params = useParams()
@@ -94,6 +96,9 @@ export default function ParticipantDesignationPage() {
     <MobileOnlyWrapper>
       <div className="min-h-screen bg-gray-50">
         <DesignationHeader />
+        <div className="px-4 mt-4">
+          <SupplyBanner designationId={designationId} />
+        </div>
 
         {/* Content */}
         <div className="px-6 pt-6 pb-8">
@@ -137,6 +142,8 @@ export default function ParticipantDesignationPage() {
               </CardContent>
             </Card>
           )}
+
+          <MyProfile designationId={designationId} participantId={participantId} />
 
           <AlertAbsentParticipant showButton={showAlert} close={() => setShowAlert(false)} submit={handleAbsent} />
         </div>
