@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
-import { AlertCircle, AlertTriangle, Clock, User } from "lucide-react"
+import { AlertCircle, AlertTriangle, ChevronDown, MapPin, User, Users } from "lucide-react"
 import type { Assignment, Incident } from "@/types/designation-participants"
 import type { AssignmentInsights } from "@/types/designation-insights"
 import { isMixedSexPair, LEGACY_GENDER_ERROR_FRAGMENT, pairKey } from "@/lib/mixed-pair"
@@ -26,6 +26,12 @@ function formatHintDate(iso: string): string {
   return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
 }
 
+/** Só o primeiro e o último nome ("Maria da Silva Souza" -> "Maria Souza"). */
+function shortName(name: string): string {
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean)
+  return parts.length <= 1 ? parts.join("") : `${parts[0]} ${parts[parts.length - 1]}`
+}
+
 export function AssignmentCard({
   assignment,
   availableParticipants,
@@ -40,6 +46,9 @@ export function AssignmentCard({
 
   // Dupla mista é permitida: o erro vermelho da legacy vira uma pergunta, sem bloquear nada.
   const [confirmedPair, setConfirmedPair] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const pointTimes = (insights?.participants ?? []).reduce((sum, p) => sum + p.pointCountLast12m, 0)
+  const pairTimes = (insights?.pairs ?? []).reduce((sum, p) => sum + p.countLast12m, 0)
   const errorMessage = assignment.error && !assignment.error.includes(LEGACY_GENDER_ERROR_FRAGMENT) ? assignment.error : ""
   const mixedPair = isMixedSexPair(assignment.participants)
   const showMixedPairWarning = mixedPair && confirmedPair !== pairKey(assignment.participants)
@@ -198,30 +207,58 @@ export function AssignmentCard({
             </div>
           )}
 
-          {/* Hints de histórico — não bloqueia nada, só informa (dupla/ponto repetidos) */}
-          {((insights?.pairs?.length ?? 0) > 0 || (insights?.participants?.length ?? 0) > 0) && (
-            <div className="space-y-1 mb-3 sm:mb-4 border-t pt-2">
-              {insights!.pairs.map((pair) => (
-                <div
-                  key={pair.participantIds.join("-")}
-                  className="flex items-start gap-1.5 text-[11px] sm:text-xs text-muted-foreground"
-                >
-                  <Clock className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  <span>
-                    {pair.names[0]} e {pair.names[1]}: já trabalharam juntos {pair.countLast12m}x no último ano
-                    (última vez {formatHintDate(pair.lastAt)})
+          {/* Hints de histórico — não bloqueia nada, só informa (dupla/ponto repetidos).
+              Resumo por ícones; o detalhe abre ao clicar em "Ver histórico". */}
+          {(pointTimes > 0 || pairTimes > 0) && (
+            <div className="mb-3 sm:mb-4 border-t pt-2">
+              <button
+                type="button"
+                onClick={() => setShowHistory((v) => !v)}
+                aria-expanded={showHistory}
+                className="flex w-full items-center gap-3 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground"
+              >
+                {pointTimes > 0 && (
+                  <span className="flex items-center gap-1" title="Vezes que esses voluntários já trabalharam neste ponto no último ano">
+                    <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                    <span>{pointTimes}x</span>
                   </span>
-                </div>
-              ))}
-              {insights!.participants.map((p) => (
-                <div key={p.id} className="flex items-start gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  <span>
-                    {p.name}: já trabalhou aqui {p.pointCountLast12m}x no último ano (última vez{" "}
-                    {formatHintDate(p.pointLastAt)})
+                )}
+                {pairTimes > 0 && (
+                  <span className="flex items-center gap-1" title="Vezes que já trabalharam juntos no último ano">
+                    <Users className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                    <span>{pairTimes}x</span>
                   </span>
+                )}
+                <span className="ml-auto flex items-center gap-0.5 font-medium">
+                  {showHistory ? "Ocultar" : "Ver histórico"}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showHistory ? "rotate-180" : ""}`} aria-hidden="true" />
+                </span>
+              </button>
+              {showHistory && (
+                <div className="mt-1.5 space-y-1">
+                  {insights!.pairs.map((pair) => (
+                    <div
+                      key={pair.participantIds.join("-")}
+                      className="flex items-start gap-1.5 text-[11px] sm:text-xs text-muted-foreground"
+                    >
+                      <Users className="h-3 w-3 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                      <span>
+                        {shortName(pair.names[0])} e {shortName(pair.names[1])}: já trabalharam juntos {pair.countLast12m}x no último ano
+                        (última vez {formatHintDate(pair.lastAt)})
+                      </span>
+                    </div>
+                  ))}
+                  {insights!.participants.map((p) => (
+                    <div key={p.id} className="flex items-start gap-1.5 text-[11px] sm:text-xs text-muted-foreground">
+                      <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                      <span>
+                        {shortName(p.name)}: já trabalhou aqui {p.pointCountLast12m}x no último ano (última vez{" "}
+                        {formatHintDate(p.pointLastAt)})
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
 
